@@ -265,7 +265,7 @@ export function PlataformaSqlIa() {
                   <Card>
                     <CardHeader>
                       <CardTitle>Ejercicios SQL</CardTitle>
-                      <CardDescription>Selecciona un ejercicio para comenzar a practicar</CardDescription>
+                      <CardDescription>Selecciona un ejercicio para comenzar a practicar 😏</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
@@ -276,16 +276,21 @@ export function PlataformaSqlIa() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: ejercicio.id * 0.1 }}
                           >
-                            <Card>
+                            <Card 
+                              className="cursor-pointer transform transition-all duration-200 hover:scale-[1.02] hover:shadow-lg active:scale-[0.99] hover:border-primary/50"
+                              onClick={() => seleccionarEjercicio(ejercicio)}
+                            >
                               <CardHeader>
                                 <div className="flex justify-between items-start">
                                   <div>
-                                    <CardTitle className="text-lg">{ejercicio.titulo}</CardTitle>
+                                    <CardTitle className="text-lg group-hover:text-primary transition-colors">
+                                      {ejercicio.titulo}
+                                    </CardTitle>
                                     <CardDescription>Dificultad: {ejercicio.dificultad}</CardDescription>
                                   </div>
-                                  <Button onClick={() => seleccionarEjercicio(ejercicio)}>
-                                    Comenzar
-                                  </Button>
+                                  <div className="text-muted-foreground">
+                                    <ArrowRight className="h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />
+                                  </div>
                                 </div>
                               </CardHeader>
                               <CardContent>
