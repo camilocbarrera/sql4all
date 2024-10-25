@@ -64,7 +64,7 @@ export const ejercicios: Ejercicio[] = [
     id: 3,
     titulo: "Joins Avanzados",
     dificultad: "Avanzado",
-    descripcion: "Realiza un JOIN entre las tablas 'usuarios' y 'pedidos' para obtener el total de pedidos por usuario.",
+    descripcion: "Realiza un JOIN entre las tablas 'usuarios' y 'pedidos' para obtener el total de pedidos por usuario. Ordena los resultados por nombre de usuario.",
     detalles: `En este ejercicio avanzado, practicarás cómo unir dos tablas y realizar cálculos agregados. 
     Deberás combinar la información de usuarios con sus pedidos y calcular el total de pedidos para cada usuario.`,
     ejemplo: {
@@ -80,15 +80,31 @@ export const ejercicios: Ejercicio[] = [
       conditions: {
         columns: ['nombre', 'email', 'total_pedidos'],
         customValidation: (result: SQLResult) => {
-          const expectedTotals = new Map([
-            ['Ana García', 2],
-            ['Carlos López', 1],
-            ['María Rodríguez', 1],
-          ]);
+          const expectedResults = [
+            { nombre: 'Ana García', email: 'ana.garcia@email.com', total_pedidos: 2 },
+            { nombre: 'Carlos López', email: 'carlos.lopez@email.com', total_pedidos: 1 },
+            { nombre: 'Carmen Ruiz', email: 'carmen.ruiz@email.com', total_pedidos: 1 },
+            { nombre: 'Diego Herrera', email: 'diego.herrera@email.com', total_pedidos: 1 },
+            { nombre: 'Juan Martínez', email: 'juan.martinez@email.com', total_pedidos: 2 },
+            { nombre: 'Laura Sánchez', email: 'laura.sanchez@email.com', total_pedidos: 1 },
+            { nombre: 'María Rodríguez', email: 'maria.rodriguez@email.com', total_pedidos: 1 },
+            { nombre: 'Miguel Flores', email: 'miguel.flores@email.com', total_pedidos: 2 },
+            { nombre: 'Pedro Ramírez', email: 'pedro.ramirez@email.com', total_pedidos: 1 },
+            { nombre: 'Sofia Torres', email: 'sofia.torres@email.com', total_pedidos: 2 }
+          ];
 
-          return result.rows.every((row) => {
-            const expectedTotal = expectedTotals.get(row.nombre as string);
-            return expectedTotal === Number(row.total_pedidos);
+          // Verificar que el número de filas coincida
+          if (result.rows.length !== expectedResults.length) {
+            return false;
+          }
+
+          // Verificar que cada fila coincida con los resultados esperados
+          return result.rows.every(row => {
+            return expectedResults.some(expected => 
+              expected.nombre === row.nombre &&
+              expected.email === row.email &&
+              Number(row.total_pedidos) === expected.total_pedidos
+            );
           });
         }
       }
