@@ -96,10 +96,7 @@ export function SQLEditor({
       }
     });
 
-    // Agregar comando personalizado para ejecutar consulta
-    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
-      onExecute()
-    })
+    
 
     // Configurar el trigger de autocompletado
     editor.updateOptions({
@@ -118,8 +115,12 @@ export function SQLEditor({
   // Manejar atajos de teclado globales
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ctrl/Cmd + Enter para ejecutar
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      // Solo responder a ctrl+enter, ignorar cmd+enter
+      if (e.key === 'Enter' && e.ctrlKey && !e.metaKey) {
+        if (e.key === 'Enter' && (e.ctrlKey && !e.metaKey)) {
+          e.preventDefault();
+          onExecute();
+        }
         e.preventDefault()
         onExecute()
       }
