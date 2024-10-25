@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/dialog"
 import { ejercicios } from '@/data/ejercicios'
 import { Ejercicio } from '@/types/exercises'
+import { cn } from "@/lib/utils"
 
 // Agregar estas interfaces al inicio del archivo
 interface QueryResult {
@@ -157,8 +158,8 @@ export function PlataformaSqlIa() {
         <title>sql4All - Plataforma de Práctica SQL </title>
       </Head>
       <ErrorBoundary>
-        <div className="min-h-screen bg-background text-foreground">
-          <header className="p-4 flex justify-between items-center border-b border-border">
+        <div className="min-h-screen bg-background text-foreground bg-gradient-to-b from-background to-secondary/20">
+          <header className="p-4 flex justify-between items-center border-b border-border/40 bg-background/95 backdrop-blur-sm sticky top-0 z-50">
             <div className="flex items-center gap-4">
               <button
                 onClick={volverAInicio}
@@ -260,7 +261,7 @@ export function PlataformaSqlIa() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, x: -100 }}
-                  className="max-w-2xl mx-auto mt-20"
+                  className="max-w-2xl mx-auto mt-20 ejercicios-lista" // <- Agregar ejercicios-lista aquí
                 >
                   <Card>
                     <CardHeader>
@@ -277,7 +278,13 @@ export function PlataformaSqlIa() {
                             transition={{ delay: ejercicio.id * 0.1 }}
                           >
                             <Card 
-                              className="cursor-pointer transform transition-all duration-200 hover:scale-[1.02] hover:shadow-lg active:scale-[0.99] hover:border-primary/50"
+                              className={cn(
+                                "ejercicio-card", // Agregar esta clase
+                                "cursor-pointer transform transition-all duration-200 hover:scale-[1.02]",
+                                "border-border/50 hover:border-primary/50",
+                                "bg-card/95 backdrop-blur-sm shadow-md hover:shadow-xl",
+                                "hover:bg-accent/50"
+                              )}
                               onClick={() => seleccionarEjercicio(ejercicio)}
                             >
                               <CardHeader>
@@ -363,7 +370,7 @@ export function PlataformaSqlIa() {
                     className="w-full lg:w-2/3"
                   >
                     <div className="space-y-4">
-                      <Card>
+                      <Card className="bg-card/95 backdrop-blur-sm border-border/50 shadow-lg">
                         <CardHeader>
                           <div className="flex items-center justify-between">
                             <div>
@@ -427,7 +434,7 @@ export function PlataformaSqlIa() {
                             exit={{ opacity: 0, y: -20 }}
                             transition={{ duration: 0.3, ease: "easeOut" }}
                           >
-                            <Card>
+                            <Card className="bg-card/95 backdrop-blur-sm border-border/50 shadow-lg">
                               <CardHeader>
                                 <motion.div
                                   initial={{ opacity: 0 }}

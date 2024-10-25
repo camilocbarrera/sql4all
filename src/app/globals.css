@@ -2,53 +2,69 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
-}
-
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
+    /* Color principal más vibrante para light mode */
+    --background: 220 50% 98%;
+    --foreground: 224 71.4% 4.1%;
+    
+    /* Cards con un sutil tono azulado */
+    --card: 220 25% 99%;
+    --card-foreground: 224 71.4% 4.1%;
+    
+    /* Color primario más distintivo */
+    --primary: 222 85% 45%;
     --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.5rem;
+    
+    /* Secondary más suave para contraste */
+    --secondary: 220 35% 95%;
+    --secondary-foreground: 222 70% 15%;
+    
+    /* Colores mutados más suaves */
+    --muted: 220 25% 94%;
+    --muted-foreground: 220 20% 40%;
+    
+    /* Acentos más pronunciados */
+    --accent: 222 85% 95%;
+    --accent-foreground: 222 85% 35%;
+    
+    /* Bordes más visibles */
+    --border: 220 25% 90%;
+    --input: 220 25% 88%;
+    --ring: 222 85% 45%;
+    
+    --radius: 0.75rem;
   }
+
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    /* Fondo oscuro más azulado y menos negro */
+    --background: 224 40% 10%;
+    --foreground: 220 40% 98%;
+    
+    /* Cards con contraste suave */
+    --card: 224 45% 12%;
+    --card-foreground: 220 40% 98%;
+    
+    /* Primary más brillante en dark mode */
+    --primary: 217.2 91.2% 65%;
+    --primary-foreground: 224 40% 10%;
+    
+    /* Secondary con mejor contraste */
+    --secondary: 224 35% 20%;
+    --secondary-foreground: 220 40% 98%;
+    
+    /* Muted más visible */
+    --muted: 224 35% 25%;
+    --muted-foreground: 220 25% 75%;
+    
+    /* Acentos más vibrantes */
+    --accent: 217.2 91.2% 65%;
+    --accent-foreground: 224 40% 10%;
+    
+    /* Bordes más suaves */
+    --border: 224 35% 20%;
+    --input: 224 35% 22%;
+    --ring: 217.2 91.2% 65%;
   }
 }
 
@@ -56,7 +72,60 @@ body {
   * {
     @apply border-border;
   }
+  
   body {
     @apply bg-background text-foreground;
+    background-image: 
+      radial-gradient(at 100% 0%, 
+        hsl(var(--primary) / 0.15) 0px, 
+        transparent 50%),
+      radial-gradient(at 0% 100%, 
+        hsl(var(--secondary) / 0.15) 0px, 
+        transparent 50%);
   }
+
+  /* Mejoras en la tipografía */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+
+  /* Mejoras en los cards */
+  .card {
+    @apply backdrop-blur-[2px] bg-opacity-95 shadow-lg;
+  }
+}
+
+/* Modificar los selectores para apuntar específicamente a las tarjetas de ejercicios */
+.ejercicios-lista .ejercicio-card {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease-in-out;
+}
+
+.ejercicios-lista .ejercicio-card:hover {
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+/* Estilos para modo oscuro */
+.dark .ejercicios-lista .ejercicio-card {
+  background: linear-gradient(
+    to bottom right,
+    hsl(224 50% 18%),
+    hsl(224 50% 15%)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 
+    0 4px 6px -1px rgb(0 0 0 / 0.3),
+    0 2px 4px -2px rgb(0 0 0 / 0.3);
+}
+
+.dark .ejercicios-lista .ejercicio-card:hover {
+  background: linear-gradient(
+    to bottom right,
+    hsl(224 50% 20%),
+    hsl(224 50% 17%)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 
+    0 8px 12px -1px rgb(0 0 0 / 0.9),
+    0 4px 6px -2px rgb(0 0 0 / 0.9);
 }
