@@ -309,16 +309,16 @@ export function PlataformaSqlIa() {
                 >
                   {/* Panel izquierdo - Descripción del ejercicio */}
                   <motion.section
-                    initial={{ width: "100%" }}
-                    animate={{ width: "33.333%" }}
-                    className="lg:w-1/3"
+                    initial={{ opacity: 0 }}  // Cambiar initial
+                    animate={{ opacity: 1 }}  // Cambiar animate
+                    className="w-full lg:w-1/3"
                   >
-                    <Card>
+                    <Card className="h-full flex flex-col sticky top-4"> {/* Añadir sticky para mejor UX */}
                       <CardHeader>
                         <CardTitle>{ejercicioActual.titulo}</CardTitle>
                         <CardDescription>Dificultad: {ejercicioActual.dificultad}</CardDescription>
                       </CardHeader>
-                      <CardContent className="space-y-4">
+                      <CardContent className="space-y-4 flex-grow">
                         <div>
                           <h3 className="font-semibold mb-2">Descripción:</h3>
                           <p className="text-sm text-muted-foreground">{ejercicioActual.descripcion}</p>
@@ -354,8 +354,8 @@ export function PlataformaSqlIa() {
                   <motion.section
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                    className="lg:w-2/3"
+                    transition={{ delay: 0.2 }}
+                    className="w-full lg:w-2/3"
                   >
                     <div className="space-y-4">
                       <Card>
