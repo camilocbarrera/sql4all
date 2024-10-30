@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from 'next/font/google'
 import "./globals.css";
 import { Providers } from './providers'
 import { SQLErrorWrapper } from "@/components/sql-error-wrapper";
+import { Analytics } from "@vercel/analytics/react"
 
 const inter = Inter({
   subsets: ['latin'],
@@ -30,6 +31,7 @@ export default function RootLayout({
         <Providers>
           <SQLErrorWrapper>
             {children}
+            <Analytics />
           </SQLErrorWrapper>
         </Providers>
       </body>
