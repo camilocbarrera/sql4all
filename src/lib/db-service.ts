@@ -11,72 +11,100 @@ interface QueryResult {
 
 class DatabaseService {
   private db: PGlite | null = null;
+  private isInitializing: boolean = false;
+  private initPromise: Promise<PGlite> | null = null;
 
   async initialize() {
+    // Only initialize in the browser
+    if (typeof window === 'undefined') {
+      throw new Error('Database can only be initialized in the browser')
+    }
+
     if (this.db) return this.db;
-
-    this.db = new PGlite();
     
-    // Crear y poblar las tablas
-    await this.db.exec(`
-      -- Tabla de usuarios
-      CREATE TABLE IF NOT EXISTS usuarios (
-        id SERIAL PRIMARY KEY,
-        nombre VARCHAR(100),
-        email VARCHAR(100),
-        fecha_registro DATE,
-        edad INTEGER,
-        ciudad VARCHAR(100),
-        activo BOOLEAN
-      );
+    if (this.initPromise) {
+      return this.initPromise;
+    }
 
-      -- Tabla de pedidos
-      CREATE TABLE IF NOT EXISTS pedidos (
-        id SERIAL PRIMARY KEY,
-        usuario_id INTEGER REFERENCES usuarios(id),
-        monto DECIMAL(10,2),
-        fecha DATE
-      );
+    this.isInitializing = true;
+    this.initPromise = new Promise(async (resolve, reject) => {
+      try {
+        this.db = new PGlite();
+        
+        // Crear y poblar las tablas
+        await this.db.exec(`
+          -- Tabla de usuarios
+          CREATE TABLE IF NOT EXISTS usuarios (
+            id SERIAL PRIMARY KEY,
+            nombre VARCHAR(100),
+            email VARCHAR(100),
+            fecha_registro DATE,
+            edad INTEGER,
+            ciudad VARCHAR(100),
+            activo BOOLEAN
+          );
 
-      -- Limpiar datos existentes
-      TRUNCATE TABLE pedidos RESTART IDENTITY;
-      TRUNCATE TABLE usuarios RESTART IDENTITY CASCADE;
+          -- Tabla de pedidos
+          CREATE TABLE IF NOT EXISTS pedidos (
+            id SERIAL PRIMARY KEY,
+            usuario_id INTEGER REFERENCES usuarios(id),
+            monto DECIMAL(10,2),
+            fecha DATE
+          );
 
-      -- Insertar usuarios
-      INSERT INTO usuarios (nombre, email, fecha_registro, edad, ciudad, activo) VALUES
-        ('Ana García', 'ana.garcia@email.com', '2023-01-15', 28, 'Madrid', true),
-        ('Carlos López', 'carlos.lopez@email.com', '2023-02-20', 35, 'Barcelona', true),
-        ('María Rodríguez', 'maria.rodriguez@email.com', '2023-03-10', 42, 'Valencia', false),
-        ('Juan Martínez', 'juan.martinez@email.com', '2023-04-05', 31, 'Sevilla', true),
-        ('Laura Sánchez', 'laura.sanchez@email.com', '2023-05-12', 29, 'Bilbao', true),
-        ('Pedro Ramírez', 'pedro.ramirez@email.com', '2023-06-18', 38, 'Málaga', false),
-        ('Sofia Torres', 'sofia.torres@email.com', '2023-07-22', 33, 'Zaragoza', true),
-        ('Diego Herrera', 'diego.herrera@email.com', '2023-08-30', 45, 'Alicante', true),
-        ('Carmen Ruiz', 'carmen.ruiz@email.com', '2023-09-14', 27, 'Granada', false),
-        ('Miguel Flores', 'miguel.flores@email.com', '2023-10-25', 36, 'Murcia', true);
+          -- Limpiar datos existentes
+          TRUNCATE TABLE pedidos RESTART IDENTITY;
+          TRUNCATE TABLE usuarios RESTART IDENTITY CASCADE;
 
-      -- Insertar pedidos
-      INSERT INTO pedidos (usuario_id, monto, fecha) VALUES
-        (1, 150.50, '2023-02-01'),
-        (1, 200.75, '2023-03-15'),
-        (2, 350.00, '2023-02-28'),
-        (3, 125.25, '2023-04-10'),
-        (4, 475.00, '2023-05-05'),
-        (4, 225.50, '2023-06-20'),
-        (5, 180.75, '2023-07-12'),
-        (6, 300.00, '2023-08-18'),
-        (7, 425.25, '2023-09-22'),
-        (7, 150.00, '2023-10-05'),
-        (8, 275.50, '2023-11-15'),
-        (9, 190.75, '2023-12-01'),
-        (10, 400.00, '2023-12-10'),
-        (10, 325.25, '2023-12-20');
-    `);
+          -- Insertar usuarios
+          INSERT INTO usuarios (nombre, email, fecha_registro, edad, ciudad, activo) VALUES
+            ('Ana García', 'ana.garcia@email.com', '2023-01-15', 28, 'Madrid', true),
+            ('Carlos López', 'carlos.lopez@email.com', '2023-02-20', 35, 'Barcelona', true),
+            ('María Rodríguez', 'maria.rodriguez@email.com', '2023-03-10', 42, 'Valencia', false),
+            ('Juan Martínez', 'juan.martinez@email.com', '2023-04-05', 31, 'Sevilla', true),
+            ('Laura Sánchez', 'laura.sanchez@email.com', '2023-05-12', 29, 'Bilbao', true),
+            ('Pedro Ramírez', 'pedro.ramirez@email.com', '2023-06-18', 38, 'Málaga', false),
+            ('Sofia Torres', 'sofia.torres@email.com', '2023-07-22', 33, 'Zaragoza', true),
+            ('Diego Herrera', 'diego.herrera@email.com', '2023-08-30', 45, 'Alicante', true),
+            ('Carmen Ruiz', 'carmen.ruiz@email.com', '2023-09-14', 27, 'Granada', false),
+            ('Miguel Flores', 'miguel.flores@email.com', '2023-10-25', 36, 'Murcia', true);
 
-    return this.db;
+          -- Insertar pedidos
+          INSERT INTO pedidos (usuario_id, monto, fecha) VALUES
+            (1, 150.50, '2023-02-01'),
+            (1, 200.75, '2023-03-15'),
+            (2, 350.00, '2023-02-28'),
+            (3, 125.25, '2023-04-10'),
+            (4, 475.00, '2023-05-05'),
+            (4, 225.50, '2023-06-20'),
+            (5, 180.75, '2023-07-12'),
+            (6, 300.00, '2023-08-18'),
+            (7, 425.25, '2023-09-22'),
+            (7, 150.00, '2023-10-05'),
+            (8, 275.50, '2023-11-15'),
+            (9, 190.75, '2023-12-01'),
+            (10, 400.00, '2023-12-10'),
+            (10, 325.25, '2023-12-20');
+        `);
+
+        resolve(this.db);
+      } catch (error) {
+        reject(error);
+      } finally {
+        this.isInitializing = false;
+        this.initPromise = null;
+      }
+    });
+
+    return this.initPromise;
   }
 
   async executeQuery(query: string): Promise<QueryResult> {
+    // Only execute in the browser
+    if (typeof window === 'undefined') {
+      throw new Error('Queries can only be executed in the browser')
+    }
+
     if (!this.db) {
       return {
         error: true,
