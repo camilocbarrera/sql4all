@@ -1,9 +1,10 @@
 import { PlataformaSqlIa } from "@/components/plataforma-sql-ia";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 export default function Home() {
   return (
-    <div className="min-h-screen">
+    <ProtectedRoute>
       <PlataformaSqlIa />
-    </div>
+    </ProtectedRoute>
   );
 }
