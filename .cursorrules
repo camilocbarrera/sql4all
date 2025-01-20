@@ -1,0 +1,69 @@
+Starts always with yoo
+
+This a SQL platform that uses PGLite.
+
+The idea is implement Supabase Auth With Gmail.
+
+Current Project Structure:
+
+what are the best practices for implementhing auth in next js this my current oroject structure. I,m paning to use supabase for auth
+Use best practices for implementhing auth in next js. with supabase.
+
+
+.
+├── README.md
+├── components.json
+├── next-env.d.ts
+├── next.config.ts
+├── package-lock.json
+├── package.json
+├── postcss.config.js
+├── postcss.config.mjs
+├── public
+│   ├── file.svg
+│   ├── globe.svg
+│   ├── next.svg
+│   ├── vercel.svg
+│   └── window.svg
+├── src
+│   ├── app
+│   │   ├── favicon.ico
+│   │   ├── fonts
+│   │   │   ├── GeistMonoVF.woff
+│   │   │   └── GeistVF.woff
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   ├── page.tsx
+│   │   └── providers.tsx
+│   ├── components
+│   │   ├── celebration.tsx
+│   │   ├── error-boundary.tsx
+│   │   ├── plataforma-sql-ia.tsx
+│   │   ├── results-table.tsx
+│   │   ├── sql-editor.tsx
+│   │   ├── sql-error-wrapper.tsx
+│   │   └── ui
+│   │       ├── accordion.tsx
+│   │       ├── button.tsx
+│   │       ├── card.tsx
+│   │       ├── dialog.tsx
+│   │       ├── dropdown-menu.tsx
+│   │       ├── error-message.tsx
+│   │       ├── separator.tsx
+│   │       ├── sheet.tsx
+│   │       ├── tabs.tsx
+│   │       └── tooltip.tsx
+│   ├── data
+│   │   └── ejercicios.ts
+│   ├── lib
+│   │   ├── db-service.ts
+│   │   ├── query-validator.ts
+│   │   ├── sql-error-handler.ts
+│   │   ├── utils.ts
+│   │   └── validation-service.ts
+│   └── types
+│       ├── database.ts
+│       └── exercises.ts
+├── tailwind.config.js
+├── tailwind.config.ts
+└── tsconfig.json
