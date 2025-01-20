@@ -24,8 +24,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { ejercicios } from '@/data/ejercicios'
-import { Ejercicio } from '@/types/exercises'
+import { Exercise, getExercises } from '@/lib/exercises-service'
 import { cn } from "@/lib/utils"
 
 // Agregar estas interfaces al inicio del archivo
@@ -38,9 +37,27 @@ interface QueryResult {
   example?: string | null // Cambiar a string | null
 }
 
+type Difficulty = 'Principiante' | 'Intermedio' | 'Avanzado';
+
+const difficultyOrder: Difficulty[] = ['Principiante', 'Intermedio', 'Avanzado'];
+
+const difficultyColors: Record<Difficulty, string> = {
+  'Principiante': 'dark:bg-emerald-500/20 dark:text-emerald-500 dark:border-emerald-500/20 bg-emerald-100 text-emerald-700 border-emerald-200',
+  'Intermedio': 'dark:bg-yellow-500/20 dark:text-yellow-500 dark:border-yellow-500/20 bg-yellow-100 text-yellow-700 border-yellow-200',
+  'Avanzado': 'dark:bg-red-500/20 dark:text-red-500 dark:border-red-500/20 bg-red-100 text-red-700 border-red-200',
+};
+
+const difficultyIcons: Record<Difficulty, string> = {
+  'Principiante': '🌱',
+  'Intermedio': '🚀',
+  'Avanzado': '⚡',
+};
+
 export function PlataformaSqlIa() {
   const { theme, setTheme } = useTheme()
-  const [ejercicioActual, setEjercicioActual] = useState<Ejercicio | null>(null)
+  const [ejercicioActual, setEjercicioActual] = useState<Exercise | null>(null)
+  const [ejercicios, setEjercicios] = useState<Exercise[]>([])
+  const [loading, setLoading] = useState(true)
   const [consulta, setConsulta] = useState('')
   const [resultados, setResultados] = useState<QueryResult | null>(null)
   const [historial, setHistorial] = useState<string[]>([])
@@ -49,20 +66,42 @@ export function PlataformaSqlIa() {
   const [showCelebration, setShowCelebration] = useState(false)
   const [errorTimestamp, setErrorTimestamp] = useState<number>(0)
   const [errorExample, setErrorExample] = useState<string | null>(null)
-
-  // Agregar un estado para controlar el montaje
   const [mounted, setMounted] = useState(false)
 
-  // Usar useEffect para manejar el montaje
+  const groupedExercises = React.useMemo(() => {
+    return ejercicios.reduce((acc, exercise) => {
+      if (!acc[exercise.difficulty]) {
+        acc[exercise.difficulty] = [];
+      }
+      acc[exercise.difficulty].push(exercise);
+      return acc;
+    }, {} as Record<string, Exercise[]>);
+  }, [ejercicios]);
+
   useEffect(() => {
     setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    async function loadExercises() {
+      try {
+        const data = await getExercises()
+        setEjercicios(data)
+      } catch (error) {
+        console.error('Error loading exercises:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadExercises()
   }, [])
 
   const cambiarTema = () => {
     setTheme(theme === 'light' ? 'dark' : 'light')
   }
 
-  const seleccionarEjercicio = (ejercicio: Ejercicio) => {
+  const seleccionarEjercicio = (ejercicio: Exercise) => {
     setEjercicioActual(ejercicio)
     setConsulta('')
     setResultados(null)
@@ -95,18 +134,18 @@ export function PlataformaSqlIa() {
       setHistorial([...historial, consulta])
 
       // Validar el resultado contra la salida esperada
-      const isValid = validateQueryResult(result, ejercicioActual.validacion)
+      const isValid = validateQueryResult(result, ejercicioActual.validation)
 
       if (isValid) {
         setShowCelebration(true)
         setResultados({
           ...result,
-          mensajeExito: ejercicioActual.mensajeExito
+          mensajeExito: ejercicioActual.success_message
         })
         setTimeout(() => setShowCelebration(false), 4000)
       } else {
         setError('La consulta se ejecutó correctamente, pero el resultado no es el esperado')
-        setErrorExample(ejercicioActual.ejemplo.salida)
+        setErrorExample(ejercicioActual.example.salida || null)
         setErrorTimestamp(Date.now())
       }
     } catch (error) {
@@ -255,60 +294,95 @@ export function PlataformaSqlIa() {
           <main className="container mx-auto p-4">
             <AnimatePresence mode="wait">
               {!ejercicioActual ? (
-                // Vista inicial centrada
                 <motion.div
                   key="ejercicios-lista"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, x: -100 }}
-                  className="max-w-2xl mx-auto mt-20 ejercicios-lista" // <- Agregar ejercicios-lista aquí
+                  className="max-w-5xl mx-auto mt-10"
                 >
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Ejercicios SQL</CardTitle>
-                      <CardDescription>Selecciona un ejercicio para comenzar a practicar 😏</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        {ejercicios.map((ejercicio) => (
+                  <div className="text-center mb-8">
+                    <h1 className="text-4xl font-bold dark:text-white text-gray-900 mb-4">
+                      Aprende SQL Interactivamente
+                    </h1>
+                    <p className="dark:text-gray-400 text-gray-600 max-w-2xl mx-auto">
+                      Domina SQL paso a paso con ejercicios prácticos. Desde conceptos básicos hasta consultas avanzadas.
+                    </p>
+                  </div>
+
+                  {loading ? (
+                    <div className="flex justify-center items-center min-h-[400px]">
+                      <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-white"></div>
+                    </div>
+                  ) : (
+                    <div className="space-y-8">
+                      {difficultyOrder.map((difficulty) => (
+                        groupedExercises[difficulty] && (
                           <motion.div
-                            key={ejercicio.id}
+                            key={difficulty}
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: ejercicio.id * 0.1 }}
+                            transition={{ delay: 0.1 }}
                           >
-                            <Card 
-                              className={cn(
-                                "ejercicio-card", // Agregar esta clase
-                                "cursor-pointer transform transition-all duration-200 hover:scale-[1.02]",
-                                "border-border/50 hover:border-primary/50",
-                                "bg-card/95 backdrop-blur-sm shadow-md hover:shadow-xl",
-                                "hover:bg-accent/50"
-                              )}
-                              onClick={() => seleccionarEjercicio(ejercicio)}
-                            >
-                              <CardHeader>
-                                <div className="flex justify-between items-start">
-                                  <div>
-                                    <CardTitle className="text-lg group-hover:text-primary transition-colors">
-                                      {ejercicio.titulo}
-                                    </CardTitle>
-                                    <CardDescription>Dificultad: {ejercicio.dificultad}</CardDescription>
-                                  </div>
-                                  <div className="text-muted-foreground">
-                                    <ArrowRight className="h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />
-                                  </div>
+                            <div className="mb-4">
+                              <div className="flex items-center gap-2 mb-4">
+                                <span className="text-2xl">{difficultyIcons[difficulty]}</span>
+                                <h2 className="text-xl font-semibold dark:text-white text-gray-900">
+                                  {difficulty}
+                                </h2>
+                                <div className={`px-2 py-1 rounded-full text-xs ${difficultyColors[difficulty]}`}>
+                                  {groupedExercises[difficulty].length} ejercicios
                                 </div>
-                              </CardHeader>
-                              <CardContent>
-                                <p>{ejercicio.descripcion}</p>
-                              </CardContent>
-                            </Card>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                              {groupedExercises[difficulty].map((ejercicio) => (
+                                <motion.div
+                                  key={ejercicio.id}
+                                  initial={{ opacity: 0, y: 20 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{ delay: 0.1 }}
+                                >
+                                  <Card 
+                                    className={cn(
+                                      "cursor-pointer transform transition-all duration-200 hover:scale-[1.02]",
+                                      "border-border/50 hover:border-primary/50",
+                                      "dark:bg-card/95 bg-white/90 backdrop-blur-sm shadow-md hover:shadow-xl",
+                                      "dark:hover:bg-accent/50 hover:bg-gray-50/80 h-full"
+                                    )}
+                                    onClick={() => seleccionarEjercicio(ejercicio)}
+                                  >
+                                    <CardHeader className="pb-3">
+                                      <div className="flex justify-between items-start">
+                                        <div>
+                                          <CardTitle className="text-lg group-hover:text-primary transition-colors line-clamp-2 dark:text-white text-gray-900">
+                                            {ejercicio.title}
+                                          </CardTitle>
+                                        </div>
+                                      </div>
+                                    </CardHeader>
+                                    <CardContent>
+                                      <p className="dark:text-gray-400 text-gray-600 text-sm line-clamp-3 mb-4">
+                                        {ejercicio.description}
+                                      </p>
+                                      <div className="flex justify-between items-center">
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-xs dark:text-gray-500 text-gray-600">
+                                            ID: {ejercicio.id.slice(0, 4)}
+                                          </span>
+                                        </div>
+                                        <ArrowRight className="h-4 w-4 dark:text-gray-500 text-gray-600 transition-transform duration-200 group-hover:translate-x-1" />
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                </motion.div>
+                              ))}
+                            </div>
                           </motion.div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
+                        )
+                      ))}
+                    </div>
+                  )}
                 </motion.div>
               ) : (
                 // Vista del editor con lista a la izquierda
@@ -327,23 +401,23 @@ export function PlataformaSqlIa() {
                   >
                     <Card className="h-full flex flex-col sticky top-4"> {/* Añadir sticky para mejor UX */}
                       <CardHeader>
-                        <CardTitle>{ejercicioActual.titulo}</CardTitle>
-                        <CardDescription>Dificultad: {ejercicioActual.dificultad}</CardDescription>
+                        <CardTitle>{ejercicioActual.title}</CardTitle>
+                        <CardDescription>Dificultad: {ejercicioActual.difficulty}</CardDescription>
                       </CardHeader>
                       <CardContent className="space-y-4 flex-grow">
                         <div>
                           <h3 className="font-semibold mb-2">Descripción:</h3>
-                          <p className="text-sm text-muted-foreground">{ejercicioActual.descripcion}</p>
+                          <p className="text-sm text-muted-foreground">{ejercicioActual.description}</p>
                         </div>
                         <div>
                           <h3 className="font-semibold mb-2">Detalles:</h3>
-                          <p className="text-sm text-muted-foreground whitespace-pre-line">{ejercicioActual.detalles}</p>
+                          <p className="text-sm text-muted-foreground whitespace-pre-line">{ejercicioActual.details}</p>
                         </div>
                         <div>
                           <h3 className="font-semibold mb-2">Ejemplo:</h3>
                           <div className="text-sm text-muted-foreground">
-                            <p><strong>Entrada:</strong> {ejercicioActual.ejemplo.entrada}</p>
-                            <p><strong>Salida esperada:</strong> {ejercicioActual.ejemplo.salida}</p>
+                            <p><strong>Entrada:</strong> {ejercicioActual.example.entrada}</p>
+                            <p><strong>Salida esperada:</strong> {ejercicioActual.example.salida}</p>
                           </div>
                         </div>
                         <Accordion type="single" collapsible>
@@ -354,7 +428,7 @@ export function PlataformaSqlIa() {
                               </AccordionTrigger>
                             </Tooltip>
                             <AccordionContent>
-                              {ejercicioActual.pista}
+                              {ejercicioActual.hint}
                             </AccordionContent>
                           </AccordionItem>
                         </Accordion>
@@ -395,7 +469,7 @@ export function PlataformaSqlIa() {
                                   variant="outline"
                                   size="icon"
                                   onClick={irEjercicioAnterior}
-                                  disabled={ejercicioActual?.id === 1}
+                                  disabled={ejercicioActual?.id === ejercicios[0]?.id}
                                 >
                                   <ArrowLeft className="h-4 w-4" />
                                 </Button>
@@ -403,7 +477,7 @@ export function PlataformaSqlIa() {
                                   variant="outline"
                                   size="icon"
                                   onClick={irSiguienteEjercicio}
-                                  disabled={ejercicioActual?.id === ejercicios.length}
+                                  disabled={ejercicioActual?.id === ejercicios[ejercicios.length - 1]?.id}
                                 >
                                   <ArrowRight className="h-4 w-4" />
                                 </Button>
