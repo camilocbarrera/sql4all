@@ -79,14 +79,29 @@ export function PlataformaSqlIa() {
   }, [ejercicios]);
 
   useEffect(() => {
+    async function initDB() {
+      try {
+        await dbService.initialize()
+      } catch (error) {
+        console.error('Error initializing database:', error)
+      }
+    }
+    initDB()
+  }, [])
+
+  useEffect(() => {
     setMounted(true)
   }, [])
 
   useEffect(() => {
     async function loadExercises() {
       try {
-        const data = await getExercises()
-        setEjercicios(data)
+        const response = await fetch('/api/exercises')
+        if (!response.ok) {
+          throw new Error('Failed to fetch exercises')
+        }
+        const data = await response.json()
+        setEjercicios(data.exercises)
       } catch (error) {
         console.error('Error loading exercises:', error)
       } finally {
@@ -101,16 +116,18 @@ export function PlataformaSqlIa() {
     setTheme(theme === 'light' ? 'dark' : 'light')
   }
 
-  const seleccionarEjercicio = (ejercicio: Exercise) => {
-    setEjercicioActual(ejercicio)
-    setConsulta('')
-    setResultados(null)
+  const seleccionarEjercicio = async (ejercicio: Exercise) => {
+    try {
+      setLoading(true)
+      setEjercicioActual(ejercicio)
+      setConsulta('')
+      setResultados(null)
+    } catch (error) {
+      console.error('Error selecting exercise:', error)
+    } finally {
+      setLoading(false)
+    }
   }
-
-  // Inicializar la base de datos
-  useEffect(() => {
-    dbService.initialize().catch(console.error)
-  }, [])
 
   const ejecutarConsulta = async () => {
     setIsLoading(true)
@@ -120,32 +137,34 @@ export function PlataformaSqlIa() {
         throw new Error('Selecciona un ejercicio primero')
       }
 
+      // Initialize database if needed
+      await dbService.initialize()
+
+      // Execute query
       const result = await dbService.executeQuery(consulta)
-      
+
       if (result.error) {
-        setError(result.message || 'Error desconocido') // Proporcionar valor por defecto
-        setErrorExample(result.example || null) // Proporcionar valor por defecto
+        setError(result.message || 'Error desconocido')
+        setErrorExample(result.example || null)
         setErrorTimestamp(Date.now())
         setResultados({ rows: [], fields: [] })
         return
       }
 
-      setResultados(result)
-      setHistorial([...historial, consulta])
-
-      // Validar el resultado contra la salida esperada
+      // Validate the result against exercise conditions
       const isValid = validateQueryResult(result, ejercicioActual.validation)
+
+      setResultados({
+        ...result,
+        mensajeExito: isValid ? ejercicioActual.success_message : undefined
+      })
+      setHistorial([...historial, consulta])
 
       if (isValid) {
         setShowCelebration(true)
-        setResultados({
-          ...result,
-          mensajeExito: ejercicioActual.success_message
-        })
         setTimeout(() => setShowCelebration(false), 4000)
       } else {
         setError('La consulta se ejecutó correctamente, pero el resultado no es el esperado')
-        setErrorExample(ejercicioActual.example.salida || null)
         setErrorTimestamp(Date.now())
       }
     } catch (error) {
