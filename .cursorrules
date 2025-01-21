@@ -1,18 +1,17 @@
-Starts always with yoo
+Starts always with Yoo!!!
 
 This a SQL platform that uses PGLite.
+IMPORTANT: All api calls are made to the server.
 
-The idea is implement Supabase Auth With Gmail.
+Protected api calls please, they should no be accessible to the public.
 
 Current Project Structure:
-
-what are the best practices for implementhing auth in next js this my current oroject structure. I,m paning to use supabase for auth
-Use best practices for implementhing auth in next js. with supabase.
 
 
 .
 ├── README.md
 ├── components.json
+├── database.sql
 ├── next-env.d.ts
 ├── next.config.ts
 ├── package-lock.json
@@ -22,11 +21,20 @@ Use best practices for implementhing auth in next js. with supabase.
 ├── public
 │   ├── file.svg
 │   ├── globe.svg
+│   ├── google.svg
 │   ├── next.svg
 │   ├── vercel.svg
 │   └── window.svg
 ├── src
 │   ├── app
+│   │   ├── api
+│   │   │   ├── exercises
+│   │   │   │   └── route.ts
+│   │   │   └── validate-exercise
+│   │   │       └── route.ts
+│   │   ├── auth
+│   │   │   └── callback
+│   │   │       └── route.ts
 │   │   ├── favicon.ico
 │   │   ├── fonts
 │   │   │   ├── GeistMonoVF.woff
@@ -36,14 +44,19 @@ Use best practices for implementhing auth in next js. with supabase.
 │   │   ├── page.tsx
 │   │   └── providers.tsx
 │   ├── components
+│   │   ├── auth
+│   │   │   ├── LoginForm.tsx
+│   │   │   └── ProtectedRoute.tsx
 │   │   ├── celebration.tsx
 │   │   ├── error-boundary.tsx
+│   │   ├── exercises-list.tsx
 │   │   ├── plataforma-sql-ia.tsx
 │   │   ├── results-table.tsx
 │   │   ├── sql-editor.tsx
 │   │   ├── sql-error-wrapper.tsx
 │   │   └── ui
 │   │       ├── accordion.tsx
+│   │       ├── badge.tsx
 │   │       ├── button.tsx
 │   │       ├── card.tsx
 │   │       ├── dialog.tsx
@@ -53,12 +66,16 @@ Use best practices for implementhing auth in next js. with supabase.
 │   │       ├── sheet.tsx
 │   │       ├── tabs.tsx
 │   │       └── tooltip.tsx
+│   ├── contexts
+│   │   └── AuthContext.tsx
 │   ├── data
 │   │   └── ejercicios.ts
 │   ├── lib
 │   │   ├── db-service.ts
+│   │   ├── exercises-service.ts
 │   │   ├── query-validator.ts
 │   │   ├── sql-error-handler.ts
+│   │   ├── supabase.ts
 │   │   ├── utils.ts
 │   │   └── validation-service.ts
 │   └── types
@@ -67,3 +84,5 @@ Use best practices for implementhing auth in next js. with supabase.
 ├── tailwind.config.js
 ├── tailwind.config.ts
 └── tsconfig.json
+
+17 directories, 59 files
