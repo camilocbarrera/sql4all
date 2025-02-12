@@ -1,23 +1,26 @@
-import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { NextRequest, NextResponse } from 'next/server'
+import { getExercises } from '@/lib/exercises-service'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Validate that the request is coming from our application
+  const referer = request.headers.get('referer')
+  if (!referer?.includes(process.env.NEXT_PUBLIC_APP_URL || '')) {
+    return new NextResponse(
+      JSON.stringify({ error: true, message: 'Unauthorized' }),
+      { status: 401 }
+    )
+  }
+
   try {
-    const { data, error } = await supabase
-      .from('exercises')
-      .select('*')  // Get all fields since we'll need them for exercise selection
-      .eq('is_deleted', false)
-      .order('created_at', { ascending: true })
-
-    if (error) throw error
-
-    return NextResponse.json({
-      exercises: data
-    })
+    const exercises = await getExercises()
+    return new NextResponse(
+      JSON.stringify({ exercises }),
+      { status: 200 }
+    )
   } catch (error) {
     console.error('Error fetching exercises:', error)
-    return NextResponse.json(
-      { error: 'Error fetching exercises' },
+    return new NextResponse(
+      JSON.stringify({ error: true, message: 'Internal server error' }),
       { status: 500 }
     )
   }

@@ -1,39 +1,54 @@
-import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { NextRequest, NextResponse } from 'next/server'
+import { getExercises } from '@/lib/exercises-service'
+import { validateQueryResult } from '@/lib/validation-service'
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  // Validate that the request is coming from our application
+  const referer = request.headers.get('referer')
+  if (!referer?.includes(process.env.NEXT_PUBLIC_APP_URL || '')) {
+    return new NextResponse(
+      JSON.stringify({ error: true, message: 'Unauthorized' }),
+      { status: 401 }
+    )
+  }
+
   try {
-    const { query, exerciseId } = await request.json()
+    const body = await request.json()
+    const { query, exerciseId } = body
 
     if (!query || !exerciseId) {
-      return NextResponse.json(
-        { error: 'Query and exerciseId are required' },
+      return new NextResponse(
+        JSON.stringify({ error: true, message: 'Missing required fields' }),
         { status: 400 }
       )
     }
 
-    // Get exercise data directly from Supabase
-    const { data: exercise, error: exerciseError } = await supabase
-      .from('exercises')
-      .select('*')
-      .eq('id', exerciseId)
-      .eq('is_deleted', false)
-      .single()
+    // Get the exercise
+    const exercises = await getExercises()
+    const exercise = exercises.find((e: any) => e.id === exerciseId)
 
-    if (exerciseError) {
-      throw new Error('Failed to fetch exercise details')
+    if (!exercise) {
+      return new NextResponse(
+        JSON.stringify({ error: true, message: 'Exercise not found' }),
+        { status: 404 }
+      )
     }
 
-    // Return the exercise data to be validated client-side
-    return NextResponse.json({
-      exercise,
-      query
-    })
+    // Return the query and exercise for client-side validation
+    return new NextResponse(
+      JSON.stringify({
+        query,
+        exercise,
+        validation: exercise.validation,
+        success_message: exercise.success_message
+      }),
+      { status: 200 }
+    )
 
   } catch (error) {
-    console.error('Error fetching exercise:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
+    console.error('Error validating exercise:', error)
+    return new NextResponse(
+      JSON.stringify({ error: true, message: 'Internal server error' }),
       { status: 500 }
     )
   }
