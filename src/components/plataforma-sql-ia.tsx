@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/dialog"
 import { Exercise, getExercises } from '@/lib/exercises-service'
 import { cn } from "@/lib/utils"
+import { Profile } from './auth/Profile'
 
 // Agregar estas interfaces al inicio del archivo
 interface QueryResult {
@@ -217,7 +218,7 @@ export function PlataformaSqlIa() {
       </Head>
       <ErrorBoundary>
         <div className="min-h-screen bg-background text-foreground bg-gradient-to-b from-background to-secondary/20">
-          <header className="p-4 flex justify-between items-center border-b border-border/40 bg-background/95 backdrop-blur-sm sticky top-0 z-50">
+          <header className="p-4 flex justify-between items-center border-b border-border/40 bg-background/95 backdrop-blur-sm sticky top-0 z-40">
             <div className="flex items-center gap-4">
               <button
                 onClick={volverAInicio}
@@ -265,10 +266,10 @@ export function PlataformaSqlIa() {
                 </Dialog>
               </nav>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4 relative">
               <Button variant="ghost" size="icon" asChild>
                 <a
-                  href="https://github.com/camilocbarrera"
+                  href="https://github.com/camilocbarrera/sql4all"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="GitHub"
@@ -296,18 +297,12 @@ export function PlataformaSqlIa() {
                   <Coffee className="h-5 w-5" />
                 </a>
               </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={cambiarTema} 
-                aria-label="Cambiar tema"
-              >
-                {theme === 'light' ? (
-                  <Moon className="h-5 w-5" />
-                ) : (
-                  <Sun className="h-5 w-5" />
-                )}
+              <Button variant="ghost" size="icon" onClick={cambiarTema}>
+                {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
               </Button>
+              <div className="relative">
+                <Profile />
+              </div>
             </div>
           </header>
           <main className="container mx-auto p-4">

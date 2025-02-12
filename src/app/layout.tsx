@@ -4,7 +4,6 @@ import "./globals.css";
 import { Providers } from './providers'
 import { SQLErrorWrapper } from "@/components/sql-error-wrapper";
 import { Analytics } from "@vercel/analytics/react"
-import { AuthProvider } from "@/contexts/AuthContext";
 
 const inter = Inter({
   subsets: ['latin'],
@@ -30,12 +29,10 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans`}>
         <Providers>
-          <AuthProvider>
-            <SQLErrorWrapper>
-              {children}
-              <Analytics />
-            </SQLErrorWrapper>
-          </AuthProvider>
+          <SQLErrorWrapper>
+            {children}
+            <Analytics />
+          </SQLErrorWrapper>
         </Providers>
       </body>
     </html>
