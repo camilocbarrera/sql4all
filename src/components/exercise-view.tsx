@@ -24,7 +24,7 @@ interface QueryResult {
   example?: string | null
 }
 
-export function ExerciseView({ exercise }: { exercise: any }) {
+export function ExerciseView({ exercise, nextExerciseId }: { exercise: any, nextExerciseId?: string }) {
   const router = useRouter()
   const [consulta, setConsulta] = useState('')
   const [resultados, setResultados] = useState<QueryResult | null>(null)
@@ -33,6 +33,7 @@ export function ExerciseView({ exercise }: { exercise: any }) {
   const [showCelebration, setShowCelebration] = useState(false)
   const [errorTimestamp, setErrorTimestamp] = useState<number>(0)
   const [errorExample, setErrorExample] = useState<string | null>(null)
+  const [isValidated, setIsValidated] = useState(false)
 
   useEffect(() => {
     // Initialize database when component mounts
@@ -42,6 +43,7 @@ export function ExerciseView({ exercise }: { exercise: any }) {
   const ejecutarConsulta = async () => {
     setIsLoading(true)
     setError(null)
+    setIsValidated(false) // Reset validation state on new execution
     try {
       // Execute query in the browser
       const result = await dbService.executeQuery(consulta)
@@ -63,6 +65,7 @@ export function ExerciseView({ exercise }: { exercise: any }) {
       })
 
       if (isValid) {
+        setIsValidated(true) // Set validation state to true when query is correct
         setShowCelebration(true)
         setTimeout(() => setShowCelebration(false), 4000)
       } else {
@@ -162,6 +165,10 @@ export function ExerciseView({ exercise }: { exercise: any }) {
                     error={error}
                     errorTimestamp={errorTimestamp}
                     errorExample={errorExample}
+                    exerciseId={exercise.id}
+                    exerciseTitle={exercise.title}
+                    nextExerciseId={nextExerciseId}
+                    isValidated={isValidated}
                   />
                 </ErrorBoundary>
               </CardContent>

@@ -28,3 +28,13 @@ export interface CompletionSuggestion {
   detail?: string;
   documentation?: string;
 }
+
+
+export interface Submission {
+  id: string;
+  exercise_id: string;
+  score: number;
+  feedback?: string | null;
+  created_at: string;
+  user_id: string;
+}
