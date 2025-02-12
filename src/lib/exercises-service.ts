@@ -49,4 +49,27 @@ export async function getExerciseById(id: string) {
   }
 
   return data as Exercise
+}
+
+export async function createSubmission(exerciseId: string, userId: string) {
+  try {
+    const { data, error } = await supabase
+      .from('submissions')
+      .insert([
+        {
+          exercise_id: exerciseId,
+          user_id: userId,
+          score: 2, // Default score as specified
+          feedback: null,
+        }
+      ])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return { data, error: null };
+  } catch (error) {
+    console.error('Error creating submission:', error);
+    return { data: null, error };
+  }
 } 

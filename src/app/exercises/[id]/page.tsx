@@ -28,12 +28,19 @@ export async function generateStaticParams() {
 
 async function getExerciseById(id: string) {
   const exercises = await getExercises()
-  return exercises.find((e: any) => e.id === id)
+  const currentIndex = exercises.findIndex((e: any) => e.id === id)
+  const exercise = exercises[currentIndex]
+  const nextExercise = exercises[currentIndex + 1]
+  
+  return {
+    exercise,
+    nextExerciseId: nextExercise?.id
+  }
 }
 
 export default async function ExercisePage({ params }: PageProps) {
   const { id } = await params
-  const exercise = await getExerciseById(id)
+  const { exercise, nextExerciseId } = await getExerciseById(id)
 
   if (!exercise) {
     notFound()
@@ -41,7 +48,7 @@ export default async function ExercisePage({ params }: PageProps) {
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <ExerciseView exercise={exercise} />
+      <ExerciseView exercise={exercise} nextExerciseId={nextExerciseId} />
     </Suspense>
   )
 } 

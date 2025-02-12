@@ -7,7 +7,6 @@ Protected api calls please, they should no be accessible to the public.
 
 Current Project Structure:
 
-
 .
 ├── README.md
 ├── components.json
@@ -29,12 +28,11 @@ Current Project Structure:
 │   ├── app
 │   │   ├── api
 │   │   │   ├── exercises
-│   │   │   │   └── route.ts
 │   │   │   └── validate-exercise
-│   │   │       └── route.ts
 │   │   ├── auth
 │   │   │   └── callback
-│   │   │       └── route.ts
+│   │   ├── exercises
+│   │   │   └── [id]
 │   │   ├── favicon.ico
 │   │   ├── fonts
 │   │   │   ├── GeistMonoVF.woff
@@ -46,11 +44,14 @@ Current Project Structure:
 │   ├── components
 │   │   ├── auth
 │   │   │   ├── LoginForm.tsx
+│   │   │   ├── Profile.tsx
 │   │   │   └── ProtectedRoute.tsx
 │   │   ├── celebration.tsx
 │   │   ├── error-boundary.tsx
+│   │   ├── exercise-view.tsx
+│   │   ├── exercises-grid.tsx
 │   │   ├── exercises-list.tsx
-│   │   ├── plataforma-sql-ia.tsx
+│   │   ├── header.tsx
 │   │   ├── results-table.tsx
 │   │   ├── sql-editor.tsx
 │   │   ├── sql-error-wrapper.tsx
@@ -85,4 +86,4 @@ Current Project Structure:
 ├── tailwind.config.ts
 └── tsconfig.json
 
-17 directories, 59 files
+19 directories, 59 files
