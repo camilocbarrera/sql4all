@@ -1,18 +1,14 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import "./globals.css";
 import { Providers } from './providers'
-import { SQLErrorWrapper } from "@/components/sql-error-wrapper";
+import { Header } from '@/components/header'
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { Analytics } from "@vercel/analytics/react"
 
 const inter = Inter({
   subsets: ['latin'],
-  variable: '--font-inter',
-})
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
-  variable: '--font-jetbrains-mono',
+  display: 'swap',
 })
 
 export const metadata: Metadata = {
@@ -26,13 +22,16 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans`}>
+    <html lang="es" suppressHydrationWarning>
+      <body className={`${inter.className} antialiased min-h-screen`}>
         <Providers>
-          <SQLErrorWrapper>
-            {children}
-            <Analytics />
-          </SQLErrorWrapper>
+          <ProtectedRoute>
+            <div className="min-h-screen bg-background text-foreground bg-gradient-to-b from-background to-secondary/20">
+              <Header />
+              {children}
+            </div>
+          </ProtectedRoute>
+          <Analytics />
         </Providers>
       </body>
     </html>
