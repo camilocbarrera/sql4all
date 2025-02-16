@@ -212,13 +212,21 @@ export function SQLEditor({
           onMount={handleEditorDidMount}
         />
       </div>
-      <div className="flex items-center justify-between">
-        <div className="flex gap-2">
-          <Button onClick={onExecute} disabled={isLoading}>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-wrap gap-2">
+          <Button 
+            onClick={onExecute} 
+            disabled={isLoading}
+            className="flex-1 md:flex-none"
+          >
             <Play className="mr-2 h-4 w-4" />
             {isLoading ? 'Ejecutando...' : 'Ejecutar'}
           </Button>
-          <Button variant="outline" onClick={formatSQL}>
+          <Button 
+            variant="outline" 
+            onClick={formatSQL}
+            className="flex-1 md:flex-none"
+          >
             <FileCode className="mr-2 h-4 w-4" />
             Formatear SQL
           </Button>
@@ -226,7 +234,7 @@ export function SQLEditor({
             <Button 
               variant="outline" 
               onClick={handleSaveProgress} 
-              className={`${isValidated ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-400 hover:bg-gray-500'} text-white border-0`}
+              className={`flex-1 md:flex-none ${isValidated ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-400 hover:bg-gray-500'} text-white border-0`}
               disabled={!isValidated}
               title={!isValidated ? 'Resuelve el ejercicio correctamente para guardar el progreso' : 'Guardar Progreso'}
             >
@@ -235,13 +243,17 @@ export function SQLEditor({
             </Button>
           )}
           {isSaved && (
-            <Button variant="outline" disabled className="bg-gray-500 text-white border-0 cursor-not-allowed">
+            <Button 
+              variant="outline" 
+              disabled 
+              className="flex-1 md:flex-none bg-gray-500 text-white border-0 cursor-not-allowed"
+            >
               <Save className="mr-2 h-4 w-4" />
               Progreso Guardado
             </Button>
           )}
         </div>
-        <div className="text-sm text-muted-foreground">
+        <div className="text-sm text-muted-foreground text-center md:text-right">
           <kbd className="px-2 py-1 bg-muted rounded text-xs">Ctrl</kbd> +{" "}
           <kbd className="px-2 py-1 bg-muted rounded text-xs">Enter</kbd> para ejecutar
         </div>
