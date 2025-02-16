@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef, forwardRef, useImperativeHandle } from 'react'
+import { useEffect, useState, forwardRef, useImperativeHandle, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Trophy } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
@@ -15,17 +15,17 @@ export const ScoreBadge = forwardRef<ScoreBadgeRef>((_, ref) => {
   const [score, setScore] = useState<number>(0)
   const [isUpdating, setIsUpdating] = useState(false)
 
+  const fetchScore = useCallback(async () => {
+    if (!user) return
+    const { data } = await getTotalScore(user.id)
+    setScore(data)
+  }, [user])
+
   useEffect(() => {
     if (user) {
       fetchScore()
     }
-  }, [user])
-
-  const fetchScore = async () => {
-    if (!user) return
-    const { data } = await getTotalScore(user.id)
-    setScore(data)
-  }
+  }, [user, fetchScore])
 
   const updateScore = async () => {
     setIsUpdating(true)

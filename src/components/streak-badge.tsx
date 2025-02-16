@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, forwardRef, useImperativeHandle } from 'react'
+import { useEffect, useState, forwardRef, useImperativeHandle, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Flame } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
@@ -23,24 +23,24 @@ export const StreakBadge = forwardRef<StreakBadgeRef>((_, ref) => {
   const [weekProgress, setWeekProgress] = useState<any[]>([])
   const [isUpdating, setIsUpdating] = useState(false)
 
+  const fetchStreak = useCallback(async () => {
+    if (!user) return
+    const { data } = await getStreak(user.id)
+    setStreak(data)
+  }, [user])
+
+  const fetchWeekProgress = useCallback(async () => {
+    if (!user) return
+    const { data } = await getWeekProgress(user.id)
+    setWeekProgress(data)
+  }, [user])
+
   useEffect(() => {
     if (user) {
       fetchStreak()
       fetchWeekProgress()
     }
-  }, [user])
-
-  const fetchStreak = async () => {
-    if (!user) return
-    const { data } = await getStreak(user.id)
-    setStreak(data)
-  }
-
-  const fetchWeekProgress = async () => {
-    if (!user) return
-    const { data } = await getWeekProgress(user.id)
-    setWeekProgress(data)
-  }
+  }, [user, fetchStreak, fetchWeekProgress])
 
   const updateStreak = async () => {
     setIsUpdating(true)

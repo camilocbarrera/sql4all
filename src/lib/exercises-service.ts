@@ -115,7 +115,6 @@ export async function getStreak(userId: string) {
     if (!data || data.length === 0) return { data: 0, error: null };
 
     let streak = 0;
-    let currentDate = today;
     const submissions = data.map(sub => {
       const date = new Date(sub.created_at);
       date.setHours(0, 0, 0, 0);
@@ -134,7 +133,8 @@ export async function getStreak(userId: string) {
     }
 
     // Calculate streak
-    let checkDate = hasSubmittedToday ? today : new Date(submissions[0]);
+    const startDate = hasSubmittedToday ? today : new Date(submissions[0]);
+    const checkDate = new Date(startDate);
     while (true) {
       const submissionExists = submissions.some(date => date.getTime() === checkDate.getTime());
       if (!submissionExists) break;
