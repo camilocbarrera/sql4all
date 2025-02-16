@@ -3,14 +3,11 @@
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
 import Image from 'next/image'
 import { Dialog, DialogContent, DialogTrigger, DialogTitle } from '@/components/ui/dialog'
-import { useState } from 'react'
 
 export function LoginForm() {
   const { signInWithGoogle } = useAuth()
-  const [showDemo, setShowDemo] = useState(false)
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-950 via-blue-950 to-gray-900 p-4 overflow-hidden">
@@ -43,12 +40,9 @@ export function LoginForm() {
 
             <div className="space-y-6">
               <div className="space-y-4">
-                <h3 className="text-xl text-white font-semibold">
-                  {/* APRENDE SQL GRATIS!! */}
-                </h3>
                 <div className="prose prose-sm prose-invert">
                   <p className="text-gray-300">
-                    {/* Aprende SQL desde Cero */}
+                    Aprende SQL desde Cero
                   </p>
                 </div>
               </div>

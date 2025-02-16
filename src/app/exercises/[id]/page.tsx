@@ -1,4 +1,4 @@
-import { getExercises } from '@/lib/exercises-service'
+import { getExercises, getExerciseById as getExercise, getNextExercise } from '@/lib/exercises-service'
 import { ExerciseView } from '@/components/exercise-view'
 import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
@@ -26,11 +26,9 @@ export async function generateStaticParams() {
   }))
 }
 
-async function getExerciseById(id: string) {
-  const exercises = await getExercises()
-  const currentIndex = exercises.findIndex((e: any) => e.id === id)
-  const exercise = exercises[currentIndex]
-  const nextExercise = exercises[currentIndex + 1]
+async function getExerciseWithNext(id: string) {
+  const exercise = await getExercise(id)
+  const { data: nextExercise } = await getNextExercise(id)
   
   return {
     exercise,
@@ -40,7 +38,7 @@ async function getExerciseById(id: string) {
 
 export default async function ExercisePage({ params }: PageProps) {
   const { id } = await params
-  const { exercise, nextExerciseId } = await getExerciseById(id)
+  const { exercise, nextExerciseId } = await getExerciseWithNext(id)
 
   if (!exercise) {
     notFound()

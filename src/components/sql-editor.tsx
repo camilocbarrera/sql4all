@@ -13,6 +13,8 @@ import { useAuth } from '@/contexts/AuthContext'
 import { createSubmission } from '@/lib/exercises-service'
 import { toast } from 'sonner'
 import { SuccessModal } from './ui/success-modal'
+import { triggerScoreUpdate } from './score-badge'
+import { triggerStreakUpdate } from './streak-badge'
 
 interface SQLEditorProps {
   value: string
@@ -170,6 +172,9 @@ export function SQLEditor({
       if (error) throw error;
       setIsSaved(true);
       setShowSuccessModal(true);
+      // Trigger score and streak updates
+      triggerScoreUpdate();
+      triggerStreakUpdate();
     } catch (error) {
       console.error('Error saving progress:', error);
       toast.error('Error al guardar el progreso');
