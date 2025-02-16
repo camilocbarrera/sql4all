@@ -19,16 +19,16 @@ export function Header() {
   const { theme, setTheme } = useTheme()
 
   return (
-    <header className="p-4 flex justify-between items-center border-b border-border/40 bg-background/95 backdrop-blur-sm sticky top-0 z-40">
-      <div className="flex items-center gap-4">
-        <Link href="/" className="text-2xl font-bold hover:text-primary transition-colors">
+    <header className="p-4 flex justify-between items-center border-b border-border/40 bg-background/95 backdrop-blur-sm sticky top-0 z-50">
+      <div className="flex items-center gap-2 md:gap-4">
+        <Link href="/" className="text-xl md:text-2xl font-bold hover:text-primary transition-colors">
           sql4All
         </Link>
-        <Separator orientation="vertical" className="h-6" />
-        <nav className="flex items-center gap-4">
+        <Separator orientation="vertical" className="h-6 hidden md:block" />
+        <nav className="flex items-center gap-2 md:gap-4">
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="ghost" size="sm" className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" className="hidden md:flex items-center gap-2">
                 <BookOpen className="h-4 w-4" />
                 Documentación
               </Button>
@@ -64,41 +64,43 @@ export function Header() {
           </Dialog>
         </nav>
       </div>
-      <div className="flex items-center gap-4 relative">
-        <Button variant="ghost" size="icon" asChild>
-          <a
-            href="https://github.com/camilocbarrera/sql4all"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="GitHub"
-          >
-            <Github className="h-5 w-5" />
-          </a>
-        </Button>
-        <Button variant="ghost" size="icon" asChild>
-          <a
-            href="https://www.linkedin.com/in/cristiancamilocorrea/"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="LinkedIn"
-          >
-            <Linkedin className="h-5 w-5" />
-          </a>
-        </Button>
-        <Button variant="ghost" size="icon" asChild>
-          <a
-            href="https://buymeacoffee.com/camilocbarrera"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Buy me a coffee"
-          >
-            <Coffee className="h-5 w-5" />
-          </a>
-        </Button>
+      <div className="flex items-center gap-2 md:gap-4">
+        <div className="hidden md:flex items-center gap-2">
+          <Button variant="ghost" size="icon" asChild>
+            <a
+              href="https://github.com/camilocbarrera/sql4all"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="GitHub"
+            >
+              <Github className="h-5 w-5" />
+            </a>
+          </Button>
+          <Button variant="ghost" size="icon" asChild>
+            <a
+              href="https://www.linkedin.com/in/cristiancamilocorrea/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="LinkedIn"
+            >
+              <Linkedin className="h-5 w-5" />
+            </a>
+          </Button>
+          <Button variant="ghost" size="icon" asChild>
+            <a
+              href="https://buymeacoffee.com/camilocbarrera"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Buy me a coffee"
+            >
+              <Coffee className="h-5 w-5" />
+            </a>
+          </Button>
+        </div>
         <Button variant="ghost" size="icon" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
           {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
         </Button>
-        <div className="relative">
+        <div className="relative z-50">
           <Profile />
         </div>
       </div>

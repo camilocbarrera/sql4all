@@ -59,7 +59,7 @@ export function Profile() {
             )}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56 mt-2" align="end" sideOffset={5}>
+        <DropdownMenuContent className="w-56 mt-1" align="end" sideOffset={5} forceMount>
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none">
@@ -70,7 +70,7 @@ export function Profile() {
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            className="text-red-600 cursor-pointer hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+            className="text-red-600 cursor-pointer hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950 focus:bg-red-50 dark:focus:bg-red-950"
             onClick={() => signOut()}
           >
             Sign out
