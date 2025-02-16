@@ -6,6 +6,8 @@ import { Moon, Sun, Github, BookOpen, Linkedin, Coffee } from 'lucide-react'
 import { Separator } from "@/components/ui/separator"
 import Link from 'next/link'
 import { Profile } from './auth/Profile'
+import { ScoreBadge, ScoreBadgeRef, setScoreBadgeRef } from './score-badge'
+import { StreakBadge, StreakBadgeRef, setStreakBadgeRef } from './streak-badge'
 import {
   Dialog,
   DialogContent,
@@ -14,9 +16,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { useRef, useEffect } from 'react'
 
 export function Header() {
   const { theme, setTheme } = useTheme()
+  const scoreBadgeRef = useRef<ScoreBadgeRef>(null)
+  const streakBadgeRef = useRef<StreakBadgeRef>(null)
+
+  useEffect(() => {
+    setScoreBadgeRef(scoreBadgeRef.current)
+    setStreakBadgeRef(streakBadgeRef.current)
+  }, [])
 
   return (
     <header className="p-4 flex justify-between items-center border-b border-border/40 bg-background/95 backdrop-blur-sm sticky top-0 z-50">
@@ -97,9 +107,13 @@ export function Header() {
             </a>
           </Button>
         </div>
-        <Button variant="ghost" size="icon" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
-          {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
-        </Button>
+        <div className="flex items-center gap-2">
+          <StreakBadge ref={streakBadgeRef} />
+          <ScoreBadge ref={scoreBadgeRef} />
+          <Button variant="ghost" size="icon" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
+            {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+          </Button>
+        </div>
         <div className="relative z-50">
           <Profile />
         </div>

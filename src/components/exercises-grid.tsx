@@ -1,10 +1,14 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, CheckCircle2, Filter } from 'lucide-react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { cn } from "@/lib/utils"
+import { useAuth } from '@/contexts/AuthContext'
+import { getSolvedExercises } from '@/lib/exercises-service'
+import { Button } from './ui/button'
 
 type Difficulty = 'Principiante' | 'Intermedio' | 'Avanzado';
 
@@ -27,7 +31,25 @@ interface ExercisesGridProps {
 }
 
 export function ExercisesGrid({ exercises }: ExercisesGridProps) {
-  const groupedExercises = exercises.reduce((acc: any, exercise: any) => {
+  const { user } = useAuth()
+  const [solvedExercises, setSolvedExercises] = useState<Set<string>>(new Set())
+  const [showOnlyUnsolved, setShowOnlyUnsolved] = useState(false)
+  
+  useEffect(() => {
+    const fetchSolvedExercises = async () => {
+      if (user) {
+        const { data } = await getSolvedExercises(user.id)
+        setSolvedExercises(data as Set<string>)
+      }
+    }
+    fetchSolvedExercises()
+  }, [user])
+
+  const filteredExercises = showOnlyUnsolved 
+    ? exercises.filter(ex => !solvedExercises.has(ex.id))
+    : exercises
+
+  const groupedExercises = filteredExercises.reduce((acc: any, exercise: any) => {
     if (!acc[exercise.difficulty]) {
       acc[exercise.difficulty] = [];
     }
@@ -37,6 +59,21 @@ export function ExercisesGrid({ exercises }: ExercisesGridProps) {
 
   return (
     <div className="space-y-8">
+      <div className="flex justify-end mb-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setShowOnlyUnsolved(!showOnlyUnsolved)}
+          className={cn(
+            "text-sm gap-2 hover:bg-muted",
+            showOnlyUnsolved && "bg-muted text-primary"
+          )}
+        >
+          <Filter className="h-4 w-4" />
+          {showOnlyUnsolved ? "Mostrando sin resolver" : "Todos los ejercicios"}
+        </Button>
+      </div>
+
       {difficultyOrder.map((difficulty) => (
         groupedExercises[difficulty] && (
           <motion.div
@@ -64,12 +101,19 @@ export function ExercisesGrid({ exercises }: ExercisesGridProps) {
                       "cursor-pointer transform transition-all duration-200 hover:scale-[1.02]",
                       "border-border/50 hover:border-primary/50",
                       "dark:bg-card/95 bg-white/90 backdrop-blur-sm shadow-md hover:shadow-xl",
-                      "dark:hover:bg-accent/50 hover:bg-gray-50/80 h-full"
+                      "dark:hover:bg-accent/50 hover:bg-gray-50/80 h-full",
+                      "relative overflow-hidden",
+                      solvedExercises.has(ejercicio.id) && "border-emerald-500/20"
                     )}
                   >
+                    {solvedExercises.has(ejercicio.id) && (
+                      <div className="absolute top-3 right-3">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-500/70" />
+                      </div>
+                    )}
                     <CardHeader className="pb-3">
                       <div className="flex justify-between items-start">
-                        <div>
+                        <div className="pr-8">
                           <CardTitle className="text-lg group-hover:text-primary transition-colors line-clamp-2 dark:text-white text-gray-900">
                             {ejercicio.title}
                           </CardTitle>

@@ -59,18 +59,23 @@ export function Profile() {
             )}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56 mt-1" align="end" sideOffset={5} forceMount>
+        <DropdownMenuContent 
+          className="w-56 mt-1 bg-card/95 backdrop-blur-sm border-border/50 shadow-lg dark:bg-gray-900/95" 
+          align="end" 
+          sideOffset={5} 
+          forceMount
+        >
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">
+              <p className="text-sm font-medium leading-none text-foreground">
                 {user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'}
               </p>
               <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
             </div>
           </DropdownMenuLabel>
-          <DropdownMenuSeparator />
+          <DropdownMenuSeparator className="bg-border/50" />
           <DropdownMenuItem
-            className="text-red-600 cursor-pointer hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950 focus:bg-red-50 dark:focus:bg-red-950"
+            className="text-red-600 cursor-pointer hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/50 focus:bg-red-50 dark:focus:bg-red-950/50 focus:text-red-700"
             onClick={() => signOut()}
           >
             Sign out
