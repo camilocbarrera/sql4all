@@ -1,29 +1,36 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { getExercises } from '@/lib/exercises-service'
+import { NextResponse } from 'next/server'
+import { db } from '@/lib/db'
+import { exercises } from '@/lib/db/schema'
+import { eq } from 'drizzle-orm'
 
-export async function GET(request: NextRequest) {
-  // Validate that the request is coming from our application
-  const referer = request.headers.get('referer')
-  if (!referer?.includes(process.env.NEXT_PUBLIC_APP_URL || '')) {
-    return new NextResponse(
-      JSON.stringify({ error: true, message: 'Unauthorized' }),
-      { status: 401 }
-    )
-  }
-
+export async function GET() {
   try {
-    const exercises = await getExercises()
-    return new NextResponse(
-      JSON.stringify({ exercises }),
-      { status: 200 }
-    )
+    const data = await db
+      .select()
+      .from(exercises)
+      .where(eq(exercises.isDeleted, false))
+      .orderBy(exercises.createdAt)
+
+    const formattedExercises = data.map((ex) => ({
+      id: ex.id,
+      title: ex.title,
+      difficulty: ex.difficulty,
+      description: ex.description,
+      details: ex.details,
+      hint: ex.hint,
+      successMessage: ex.successMessage,
+      example: ex.example,
+      validation: ex.validation,
+      createdAt: ex.createdAt,
+      updatedAt: ex.updatedAt,
+    }))
+
+    return NextResponse.json({ exercises: formattedExercises })
   } catch (error) {
     console.error('Error fetching exercises:', error)
-    return new NextResponse(
-      JSON.stringify({ error: true, message: 'Internal server error' }),
+    return NextResponse.json(
+      { error: 'Internal server error' },
       { status: 500 }
     )
   }
 }
-
-// Remove the POST endpoint since we won't need it anymore 
