@@ -1,52 +1,42 @@
-import { getExercises, getExerciseById as getExercise, getNextExercise } from '@/lib/exercises-service'
-import { ExerciseView } from '@/components/exercise-view'
 import { notFound } from 'next/navigation'
-import { Suspense } from 'react'
+import { getExercises, getExerciseById, getExerciseContext } from '@/lib/exercises-service'
+import { ExerciseView } from '@/components/exercises'
 
 interface PageProps {
-  params: Promise<{
-    id: string
-  }>
+  params: Promise<{ id: string }>
 }
 
 export async function generateMetadata({ params }: PageProps) {
   const { id } = await params
-  const exercises = await getExercises()
-  const exercise = exercises.find((e: any) => e.id === id)
+  const exercise = await getExerciseById(id)
 
   return {
-    title: exercise ? `${exercise.title} - SQL4All` : 'Exercise Not Found - SQL4All'
+    title: exercise ? `${exercise.title} - SQL4All` : 'Ejercicio no encontrado',
   }
 }
 
 export async function generateStaticParams() {
   const exercises = await getExercises()
-  return exercises.map((exercise: any) => ({
-    id: exercise.id,
-  }))
-}
-
-async function getExerciseWithNext(id: string) {
-  const exercise = await getExercise(id)
-  const { data: nextExercise } = await getNextExercise(id)
-  
-  return {
-    exercise,
-    nextExerciseId: nextExercise?.id
-  }
+  return exercises.map((exercise) => ({ id: exercise.id }))
 }
 
 export default async function ExercisePage({ params }: PageProps) {
   const { id } = await params
-  const { exercise, nextExerciseId } = await getExerciseWithNext(id)
+  const exercise = await getExerciseById(id)
 
   if (!exercise) {
     notFound()
   }
 
+  const context = await getExerciseContext(id)
+
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <ExerciseView exercise={exercise} nextExerciseId={nextExerciseId} />
-    </Suspense>
+    <ExerciseView 
+      exercise={exercise} 
+      nextExerciseId={context?.nextExercise?.id}
+      prevExerciseId={context?.prevExercise?.id}
+      currentIndex={context?.currentIndex}
+      totalExercises={context?.totalExercises}
+    />
   )
-} 
+}

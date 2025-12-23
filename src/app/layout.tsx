@@ -1,20 +1,28 @@
-import type { Metadata } from "next";
-import { Inter } from 'next/font/google'
-import "./globals.css";
+import type { Metadata } from 'next'
+import { Inter, JetBrains_Mono } from 'next/font/google'
+import { ClerkProvider } from '@clerk/nextjs'
+import { Analytics } from '@vercel/analytics/react'
+import { Toaster } from 'sonner'
 import { Providers } from './providers'
-import { Header } from '@/components/header'
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
-import { Analytics } from "@vercel/analytics/react"
+import { Header } from '@/components/layout'
+import './globals.css'
 
 const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
+  variable: '--font-sans',
+})
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-mono',
 })
 
 export const metadata: Metadata = {
-  title: "SQL 4 All",
-  description: "Aprende SQL con ejercicios interactivos",
-};
+  title: 'SQL4All - Aprende SQL Interactivamente',
+  description: 'Domina SQL paso a paso con ejercicios prácticos y retroalimentación inmediata',
+}
 
 export default function RootLayout({
   children,
@@ -22,18 +30,19 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="es" suppressHydrationWarning>
-      <body className={`${inter.className} antialiased min-h-screen`}>
-        <Providers>
-          <ProtectedRoute>
-            <div className="min-h-screen bg-background text-foreground bg-gradient-to-b from-background to-secondary/20">
+    <ClerkProvider>
+      <html lang="es" suppressHydrationWarning>
+        <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
+          <Providers>
+            <div className="relative min-h-screen bg-background">
               <Header />
-              {children}
+              <main>{children}</main>
             </div>
-          </ProtectedRoute>
-          <Analytics />
-        </Providers>
-      </body>
-    </html>
-  );
+            <Toaster position="top-center" richColors />
+            <Analytics />
+          </Providers>
+        </body>
+      </html>
+    </ClerkProvider>
+  )
 }

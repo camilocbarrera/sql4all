@@ -1,26 +1,13 @@
-import { SQLResult } from './database'
+import type { QueryResult } from '@/lib/validations'
+
+export type { QueryResult }
 
 export interface ExpectedOutput {
-  type: 'exact' | 'partial' | 'count' | 'custom';
+  type: 'exact' | 'partial' | 'count' | 'custom'
   conditions: {
-    rows?: number;
-    columns?: string[];
-    values?: any[];
-    customValidation?: (result: SQLResult) => boolean;
-  };
-}
-
-export interface Ejercicio {
-  id: number;
-  titulo: string;
-  dificultad: string;
-  descripcion: string;
-  detalles: string;
-  ejemplo: {
-    entrada: string;
-    salida: string;
-  };
-  pista: string;
-  validacion: ExpectedOutput;
-  mensajeExito: string;
+    rows?: number
+    columns?: string[]
+    values?: Record<string, unknown>[]
+    customValidation?: (result: QueryResult) => boolean
+  }
 }

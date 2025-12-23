@@ -2,130 +2,116 @@
 @tailwind components;
 @tailwind utilities;
 
+/* View Transition API for circular theme animation */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+}
+
+/* Disable transition for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+}
+
 @layer base {
   :root {
-    /* Color principal más vibrante para light mode */
-    --background: 220 50% 98%;
-    --foreground: 224 71.4% 4.1%;
-    
-    /* Cards con un sutil tono azulado */
-    --card: 220 25% 99%;
-    --card-foreground: 224 71.4% 4.1%;
-    
-    /* Color primario más distintivo */
-    --primary: 222 85% 45%;
-    --primary-foreground: 210 40% 98%;
-    
-    /* Secondary más suave para contraste */
-    --secondary: 220 35% 95%;
-    --secondary-foreground: 222 70% 15%;
-    
-    /* Colores mutados más suaves */
-    --muted: 220 25% 94%;
-    --muted-foreground: 220 20% 40%;
-    
-    /* Acentos más pronunciados */
-    --accent: 222 85% 95%;
-    --accent-foreground: 222 85% 35%;
-    
-    /* Bordes más visibles */
-    --border: 220 25% 90%;
-    --input: 220 25% 88%;
-    --ring: 222 85% 45%;
-    
+    --background: oklch(0.9902 0.0039 106.4715);
+    --foreground: oklch(0.3043 0.0394 214.0798);
+    --card: oklch(0.9992 0.0039 106.4707);
+    --card-foreground: oklch(0.1400 0.0200 214.0798);
+    --popover: oklch(0.9992 0.0039 106.4707);
+    --popover-foreground: oklch(0.1400 0.0200 214.0798);
+    --primary: oklch(0.5322 0.0910 205.7465);
+    --primary-foreground: oklch(0.9800 0.0100 205.7465);
+    --secondary: oklch(0.9004 0.0101 212.5234);
+    --secondary-foreground: oklch(0.3043 0.0394 214.0798);
+    --muted: oklch(0.9297 0.0066 208.7822);
+    --muted-foreground: oklch(0.5292 0.0153 214.4327);
+    --accent: oklch(0.9410 0.0159 196.8866);
+    --accent-foreground: oklch(0.1400 0.0200 214.0798);
+    --destructive: oklch(0.6337 0.1570 54.9611);
+    --destructive-foreground: oklch(0.9800 0.0100 54.9611);
+    --border: oklch(0.8800 0.0100 214.0798);
+    --input: oklch(0.9200 0.0080 214.0798);
+    --ring: oklch(0.6312 0.0912 206.5386);
+    --chart-1: oklch(0.6267 0.1054 204.7118);
+    --chart-2: oklch(0.5443 0.1104 255.9391);
+    --chart-3: oklch(0.7877 0.0910 204.4517);
+    --chart-4: oklch(0.3858 0.0942 255.9170);
+    --chart-5: oklch(0.4406 0.0756 207.3871);
+    --sidebar: oklch(0.9628 0.0066 106.5233);
+    --sidebar-foreground: oklch(0.1400 0.0200 214.0798);
+    --sidebar-primary: oklch(0.5322 0.0910 205.7465);
+    --sidebar-primary-foreground: oklch(0.9800 0.0100 205.7465);
+    --sidebar-accent: oklch(0.9400 0.0100 196.8866);
+    --sidebar-accent-foreground: oklch(0.1400 0.0200 214.0798);
+    --sidebar-border: oklch(0.8736 0.0091 214.3465);
+    --sidebar-ring: oklch(0.6312 0.0912 206.5386);
     --radius: 0.75rem;
   }
 
   .dark {
-    /* Fondo oscuro más azulado y menos negro */
-    --background: 224 40% 10%;
-    --foreground: 220 40% 98%;
-    
-    /* Cards con contraste suave */
-    --card: 224 45% 12%;
-    --card-foreground: 220 40% 98%;
-    
-    /* Primary más brillante en dark mode */
-    --primary: 217.2 91.2% 65%;
-    --primary-foreground: 224 40% 10%;
-    
-    /* Secondary con mejor contraste */
-    --secondary: 224 35% 20%;
-    --secondary-foreground: 220 40% 98%;
-    
-    /* Muted más visible */
-    --muted: 224 35% 25%;
-    --muted-foreground: 220 25% 75%;
-    
-    /* Acentos más vibrantes */
-    --accent: 217.2 91.2% 65%;
-    --accent-foreground: 224 40% 10%;
-    
-    /* Bordes más suaves */
-    --border: 224 35% 20%;
-    --input: 224 35% 22%;
-    --ring: 217.2 91.2% 65%;
+    --background: oklch(0.2167 0.0015 197.0427);
+    --foreground: oklch(0.9500 0.0050 197.1231);
+    --card: oklch(0.2500 0.0030 197.0427);
+    --card-foreground: oklch(0.9500 0.0050 197.1231);
+    --popover: oklch(0.2200 0.0020 197.0184);
+    --popover-foreground: oklch(0.9500 0.0050 197.1231);
+    --primary: oklch(0.7216 0.1120 204.7055);
+    --primary-foreground: oklch(0.1500 0.0200 204.7055);
+    --secondary: oklch(0.3697 0.0080 196.8121);
+    --secondary-foreground: oklch(0.9500 0.0050 197.1231);
+    --muted: oklch(0.3123 0.0069 196.8025);
+    --muted-foreground: oklch(0.7138 0.0023 197.1059);
+    --accent: oklch(0.3500 0.0400 216.5952);
+    --accent-foreground: oklch(0.9500 0.0050 197.1231);
+    --destructive: oklch(0.7297 0.1130 55.5280);
+    --destructive-foreground: oklch(0.1500 0.0200 55.5280);
+    --border: oklch(0.3500 0.0080 196.8536);
+    --input: oklch(0.3000 0.0050 196.9624);
+    --ring: oklch(0.6234 0.1065 205.4181);
+    --chart-1: oklch(0.6267 0.1054 204.7118);
+    --chart-2: oklch(0.6074 0.0517 245.8473);
+    --chart-3: oklch(0.7877 0.0910 204.4517);
+    --chart-4: oklch(0.4214 0.0452 246.6475);
+    --chart-5: oklch(0.4406 0.0756 207.3871);
+    --sidebar: oklch(0.2457 0.0030 196.9624);
+    --sidebar-foreground: oklch(0.9500 0.0050 197.1231);
+    --sidebar-primary: oklch(0.7216 0.1120 204.7055);
+    --sidebar-primary-foreground: oklch(0.1500 0.0200 204.7055);
+    --sidebar-accent: oklch(0.2800 0.0050 197.0094);
+    --sidebar-accent-foreground: oklch(0.9500 0.0050 197.1231);
+    --sidebar-border: oklch(0.3200 0.0050 196.9776);
+    --sidebar-ring: oklch(0.6234 0.1065 205.4181);
+    --radius: 0.75rem;
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
-  
+
   body {
-    @apply bg-background text-foreground;
-    background-image: 
-      radial-gradient(at 100% 0%, 
-        hsl(var(--primary) / 0.15) 0px, 
-        transparent 50%),
-      radial-gradient(at 0% 100%, 
-        hsl(var(--secondary) / 0.15) 0px, 
-        transparent 50%);
+    @apply bg-background text-foreground antialiased;
   }
 
-  /* Mejoras en la tipografía */
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-semibold tracking-tight;
   }
-
-  /* Mejoras en los cards */
-  .card {
-    @apply backdrop-blur-[2px] bg-opacity-95 shadow-lg;
-  }
-}
-
-/* Modificar los selectores para apuntar específicamente a las tarjetas de ejercicios */
-.ejercicios-lista .ejercicio-card {
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease-in-out;
-}
-
-.ejercicios-lista .ejercicio-card:hover {
-  border: 1px solid rgba(0, 0, 0, 0.2);
-}
-
-/* Estilos para modo oscuro */
-.dark .ejercicios-lista .ejercicio-card {
-  background: linear-gradient(
-    to bottom right,
-    hsl(224 50% 18%),
-    hsl(224 50% 15%)
-  );
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 
-    0 4px 6px -1px rgb(0 0 0 / 0.3),
-    0 2px 4px -2px rgb(0 0 0 / 0.3);
-}
-
-.dark .ejercicios-lista .ejercicio-card:hover {
-  background: linear-gradient(
-    to bottom right,
-    hsl(224 50% 20%),
-    hsl(224 50% 17%)
-  );
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 
-    0 8px 12px -1px rgb(0 0 0 / 0.9),
-    0 4px 6px -2px rgb(0 0 0 / 0.9);
 }

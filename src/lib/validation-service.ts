@@ -1,58 +1,74 @@
-import { ExpectedOutput } from '@/types/exercises'
+import type { ExpectedOutput } from '@/types/exercises'
 
-export function validateQueryResult(result: any, expectedOutput: ExpectedOutput): boolean {
-  const { type, conditions } = expectedOutput;
+interface QueryResult {
+  rows: Record<string, unknown>[]
+  fields: { name: string }[]
+}
+
+interface ValidationConfig {
+  type: 'exact' | 'partial'
+  conditions: Record<string, unknown>
+}
+
+export function validateQueryResult(
+  result: QueryResult,
+  expectedOutput: ValidationConfig | ExpectedOutput
+): boolean {
+  const { type, conditions } = expectedOutput
 
   switch (type) {
-    case 'exact':
-      // Validar número exacto de filas
-      if (conditions.rows && result.rows.length !== conditions.rows) {
-        return false;
-      }
-      
-      // Validar columnas esperadas
-      if (conditions.columns) {
-        const hasAllColumns = conditions.columns.every(col => 
-          result.fields.some((field: any) => field.name === col)
-        );
-        if (!hasAllColumns) return false;
+    case 'exact': {
+      const conds = conditions as {
+        rows?: number
+        columns?: string[]
+        values?: Record<string, unknown>[]
       }
 
-      // Validar valores específicos
-      if (conditions.values) {
-        return conditions.values.every((expectedRow, index) => {
-          const actualRow = result.rows[index];
-          return Object.entries(expectedRow).every(([key, value]) => 
-            actualRow[key] === value
-          );
-        });
-      }
-      
-      return true;
-
-    case 'partial':
-      // Validar columnas requeridas
-      if (conditions.columns) {
-        const hasRequiredColumns = conditions.columns.every(col => 
-          result.fields.some((field: any) => field.name === col)
-        );
-        if (!hasRequiredColumns) return false;
+      if (conds.rows !== undefined && result.rows.length !== conds.rows) {
+        return false
       }
 
-      // Ejecutar validación personalizada si existe
-      if (conditions.customValidation) {
-        return conditions.customValidation(result);
+      if (conds.columns) {
+        const hasAllColumns = conds.columns.every((col) =>
+          result.fields.some((field) => field.name === col)
+        )
+        if (!hasAllColumns) return false
       }
-      
-      return true;
 
-    case 'count':
-      return result.rows.length === conditions.rows;
+      if (conds.values) {
+        return conds.values.every((expectedRow, index) => {
+          const actualRow = result.rows[index]
+          if (!actualRow) return false
+          return Object.entries(expectedRow).every(
+            ([key, value]) => actualRow[key] === value
+          )
+        })
+      }
 
-    case 'custom':
-      return conditions.customValidation ? conditions.customValidation(result) : false;
+      return true
+    }
+
+    case 'partial': {
+      const conds = conditions as {
+        columns?: string[]
+        customValidation?: (result: QueryResult) => boolean
+      }
+
+      if (conds.columns) {
+        const hasRequiredColumns = conds.columns.every((col) =>
+          result.fields.some((field) => field.name === col)
+        )
+        if (!hasRequiredColumns) return false
+      }
+
+      if (conds.customValidation) {
+        return conds.customValidation(result)
+      }
+
+      return true
+    }
 
     default:
-      return false;
+      return false
   }
 }

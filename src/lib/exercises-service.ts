@@ -1,262 +1,119 @@
-import { supabase } from './supabase'
+import { db } from '@/lib/db'
+import { exercises } from '@/lib/db/schema'
+import { eq, and, asc } from 'drizzle-orm'
+import type { Exercise } from '@/lib/validations'
 
-export type Exercise = {
-  id: string
-  title: string
-  difficulty: string
-  description: string
-  details: string
-  hint: string
-  success_message: string
-  example: {
-    entrada?: string
-    salida?: string
-  }
-  validation: {
-    type: 'exact' | 'partial'
-    conditions: any
-  }
-  created_at?: string
-  updated_at?: string
-}
+const difficultyOrder = ['Principiante', 'Intermedio', 'Avanzado'] as const
 
-export async function getExercises() {
-  const { data, error } = await supabase
-    .from('exercises')
-    .select('*')
-    .eq('is_deleted', false)
-    .order('created_at', { ascending: true })
-
-  if (error) {
-    console.error('Error fetching exercises:', error)
-    throw error
-  }
-
-  return data as Exercise[]
-}
-
-export async function getExerciseById(id: string) {
-  const { data, error } = await supabase
-    .from('exercises')
-    .select('*')
-    .eq('id', id)
-    .eq('is_deleted', false)
-    .single()
-
-  if (error) {
-    console.error('Error fetching exercise:', error)
-    throw error
-  }
-
-  return data as Exercise
-}
-
-export async function createSubmission(exerciseId: string, userId: string) {
-  try {
-    const { data, error } = await supabase
-      .from('submissions')
-      .insert([
-        {
-          exercise_id: exerciseId,
-          user_id: userId,
-          score: 2, // Default score as specified
-          feedback: null,
-        }
-      ])
-      .select()
-      .single();
-
-    if (error) throw error;
-    return { data, error: null };
-  } catch (error) {
-    console.error('Error creating submission:', error);
-    return { data: null, error };
+function mapExercise(ex: typeof exercises.$inferSelect): Exercise {
+  return {
+    id: ex.id,
+    title: ex.title,
+    difficulty: ex.difficulty as Exercise['difficulty'],
+    description: ex.description,
+    details: ex.details,
+    hint: ex.hint,
+    successMessage: ex.successMessage,
+    example: ex.example as Exercise['example'],
+    validation: ex.validation as Exercise['validation'],
+    isDeleted: ex.isDeleted,
+    createdAt: ex.createdAt,
+    updatedAt: ex.updatedAt,
   }
 }
 
-export async function getTotalScore(userId: string) {
-  try {
-    const { data, error } = await supabase
-      .from('submissions')
-      .select('exercise_id, score')
-      .eq('user_id', userId);
+export async function getExercises(): Promise<Exercise[]> {
+  const data = await db
+    .select()
+    .from(exercises)
+    .where(eq(exercises.isDeleted, false))
+    .orderBy(asc(exercises.createdAt))
 
-    if (error) throw error;
-
-    // Create a map to store the highest score for each exercise
-    const exerciseScores = new Map<string, number>();
-    data.forEach(submission => {
-      const currentScore = exerciseScores.get(submission.exercise_id) || 0;
-      exerciseScores.set(submission.exercise_id, Math.max(currentScore, submission.score || 0));
-    });
-
-    // Sum up the highest scores for each exercise
-    const totalScore = Array.from(exerciseScores.values()).reduce((sum, score) => sum + score, 0);
-    return { data: totalScore, error: null };
-  } catch (error) {
-    console.error('Error fetching total score:', error);
-    return { data: 0, error };
-  }
+  return data.map(mapExercise)
 }
 
-export async function getStreak(userId: string) {
-  try {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
+export async function getExerciseById(id: string): Promise<Exercise | null> {
+  const [exercise] = await db
+    .select()
+    .from(exercises)
+    .where(and(eq(exercises.id, id), eq(exercises.isDeleted, false)))
+    .limit(1)
 
-    const { data, error } = await supabase
-      .from('submissions')
-      .select('created_at')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
+  if (!exercise) return null
+  return mapExercise(exercise)
+}
 
-    if (error) throw error;
+interface ExerciseContext {
+  nextExercise: Exercise | null
+  prevExercise: Exercise | null
+  currentIndex: number
+  totalExercises: number
+}
 
-    if (!data || data.length === 0) return { data: 0, error: null };
+export async function getExerciseContext(currentExerciseId: string): Promise<ExerciseContext | null> {
+  const currentExercise = await getExerciseById(currentExerciseId)
+  if (!currentExercise) return null
 
-    let streak = 0;
-    const submissions = data.map(sub => {
-      const date = new Date(sub.created_at);
-      date.setHours(0, 0, 0, 0);
-      return date;
-    });
+  const allExercises = await getExercises()
+  const flatIndex = allExercises.findIndex((ex) => ex.id === currentExerciseId)
 
-    // Check if user has submitted today
-    const hasSubmittedToday = submissions.some(date => date.getTime() === today.getTime());
-    if (!hasSubmittedToday) {
-      // Check if last submission was yesterday to maintain streak
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
-      if (!submissions.some(date => date.getTime() === yesterday.getTime())) {
-        return { data: 0, error: null };
+  const groupedExercises = allExercises.reduce<Record<string, Exercise[]>>((acc, ex) => {
+    if (!acc[ex.difficulty]) {
+      acc[ex.difficulty] = []
+    }
+    acc[ex.difficulty].push(ex)
+    return acc
+  }, {})
+
+  const currentDifficultyExercises = groupedExercises[currentExercise.difficulty] || []
+  const currentIndex = currentDifficultyExercises.findIndex((ex) => ex.id === currentExerciseId)
+
+  let nextExercise: Exercise | null = null
+  let prevExercise: Exercise | null = null
+
+  // Previous in same difficulty
+  if (currentIndex > 0) {
+    prevExercise = currentDifficultyExercises[currentIndex - 1]
+  } else {
+    // Move to previous difficulty
+    const currentDifficultyIndex = difficultyOrder.indexOf(
+      currentExercise.difficulty as (typeof difficultyOrder)[number]
+    )
+    if (currentDifficultyIndex > 0) {
+      const prevDifficulty = difficultyOrder[currentDifficultyIndex - 1]
+      const prevDifficultyExercises = groupedExercises[prevDifficulty] || []
+      if (prevDifficultyExercises.length > 0) {
+        prevExercise = prevDifficultyExercises[prevDifficultyExercises.length - 1]
       }
     }
-
-    // Calculate streak
-    const startDate = hasSubmittedToday ? today : new Date(submissions[0]);
-    const checkDate = new Date(startDate);
-    while (true) {
-      const submissionExists = submissions.some(date => date.getTime() === checkDate.getTime());
-      if (!submissionExists) break;
-      
-      streak++;
-      checkDate.setDate(checkDate.getDate() - 1);
-    }
-
-    return { data: streak, error: null };
-  } catch (error) {
-    console.error('Error calculating streak:', error);
-    return { data: 0, error };
   }
-}
 
-export async function getWeekProgress(userId: string) {
-  try {
-    const today = new Date();
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - today.getDay());
-    startOfWeek.setHours(0, 0, 0, 0);
-
-    const { data, error } = await supabase
-      .from('submissions')
-      .select('created_at')
-      .eq('user_id', userId)
-      .gte('created_at', startOfWeek.toISOString());
-
-    if (error) throw error;
-
-    const daysWithSubmissions = new Set(
-      data.map(sub => {
-        const date = new Date(sub.created_at);
-        date.setHours(0, 0, 0, 0);
-        return date.getTime();
-      })
-    );
-
-    const weekProgress = [];
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(startOfWeek);
-      date.setDate(startOfWeek.getDate() + i);
-      weekProgress.push({
-        day: date.toLocaleDateString('en-US', { weekday: 'short' }),
-        completed: daysWithSubmissions.has(date.getTime())
-      });
-    }
-
-    return { data: weekProgress, error: null };
-  } catch (error) {
-    console.error('Error fetching week progress:', error);
-    return { data: [], error };
-  }
-}
-
-export async function getSolvedExercises(userId: string) {
-  try {
-    const { data, error } = await supabase
-      .from('submissions')
-      .select('exercise_id')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-
-    // Create a Set of solved exercise IDs for efficient lookup
-    const solvedExerciseIds = new Set(data.map(sub => sub.exercise_id));
-    return { data: solvedExerciseIds, error: null };
-  } catch (error) {
-    console.error('Error fetching solved exercises:', error);
-    return { data: new Set(), error };
-  }
-}
-
-const difficultyOrder = ['Principiante', 'Intermedio', 'Avanzado'] as const;
-
-export async function getNextExercise(currentExerciseId: string): Promise<{ data: Exercise | null, error: any }> {
-  try {
-    // Get current exercise to know its difficulty
-    const currentExercise = await getExerciseById(currentExerciseId);
-    
-    // Get all exercises
-    const { data: exercises, error } = await supabase
-      .from('exercises')
-      .select('*')
-      .eq('is_deleted', false)
-      .order('created_at', { ascending: true });
-
-    if (error) throw error;
-
-    // Group exercises by difficulty
-    const groupedExercises = exercises.reduce((acc: Record<string, Exercise[]>, exercise) => {
-      if (!acc[exercise.difficulty]) {
-        acc[exercise.difficulty] = [];
-      }
-      acc[exercise.difficulty].push(exercise);
-      return acc;
-    }, {});
-
-    // Find current exercise index in its difficulty group
-    const currentDifficultyExercises = groupedExercises[currentExercise.difficulty] || [];
-    const currentIndex = currentDifficultyExercises.findIndex(ex => ex.id === currentExerciseId);
-
-    // If there's a next exercise in the same difficulty
-    if (currentIndex < currentDifficultyExercises.length - 1) {
-      return { data: currentDifficultyExercises[currentIndex + 1], error: null };
-    }
-
-    // If we need to move to the next difficulty
-    const currentDifficultyIndex = difficultyOrder.indexOf(currentExercise.difficulty as any);
+  // Next in same difficulty
+  if (currentIndex < currentDifficultyExercises.length - 1) {
+    nextExercise = currentDifficultyExercises[currentIndex + 1]
+  } else {
+    // Move to next difficulty
+    const currentDifficultyIndex = difficultyOrder.indexOf(
+      currentExercise.difficulty as (typeof difficultyOrder)[number]
+    )
     if (currentDifficultyIndex < difficultyOrder.length - 1) {
-      const nextDifficulty = difficultyOrder[currentDifficultyIndex + 1];
-      const nextDifficultyExercises = groupedExercises[nextDifficulty] || [];
+      const nextDifficulty = difficultyOrder[currentDifficultyIndex + 1]
+      const nextDifficultyExercises = groupedExercises[nextDifficulty] || []
       if (nextDifficultyExercises.length > 0) {
-        return { data: nextDifficultyExercises[0], error: null };
+        nextExercise = nextDifficultyExercises[0]
       }
     }
-
-    // No next exercise found
-    return { data: null, error: null };
-  } catch (error) {
-    console.error('Error getting next exercise:', error);
-    return { data: null, error };
   }
-} 
+
+  return {
+    nextExercise,
+    prevExercise,
+    currentIndex: flatIndex,
+    totalExercises: allExercises.length,
+  }
+}
+
+export async function getNextExercise(currentExerciseId: string): Promise<Exercise | null> {
+  const context = await getExerciseContext(currentExerciseId)
+  return context?.nextExercise ?? null
+}
