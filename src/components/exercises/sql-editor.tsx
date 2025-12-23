@@ -11,7 +11,39 @@ import type * as Monaco from 'monaco-editor'
 import type { editor } from 'monaco-editor'
 import { Button, Card, CardContent } from '@/components/ui'
 import { ErrorMessage } from '@/components/shared/error-message'
+import { SignupPromptModal } from '@/components/shared/signup-prompt-modal'
 import { useCreateSubmission, useSolvedExercises } from '@/hooks/use-submissions'
+
+const LOCAL_COMPLETED_KEY = 'sql4all_completed_exercises'
+const SIGNUP_DISMISSED_KEY = 'sql4all_signup_dismissed'
+
+function getLocalCompletedExercises(): string[] {
+  if (typeof window === 'undefined') return []
+  try {
+    const stored = localStorage.getItem(LOCAL_COMPLETED_KEY)
+    return stored ? JSON.parse(stored) : []
+  } catch {
+    return []
+  }
+}
+
+function addLocalCompletedExercise(exerciseId: string): string[] {
+  const completed = getLocalCompletedExercises()
+  if (!completed.includes(exerciseId)) {
+    completed.push(exerciseId)
+    localStorage.setItem(LOCAL_COMPLETED_KEY, JSON.stringify(completed))
+  }
+  return completed
+}
+
+function isSignupDismissed(): boolean {
+  if (typeof window === 'undefined') return false
+  return localStorage.getItem(SIGNUP_DISMISSED_KEY) === 'true'
+}
+
+function dismissSignup(): void {
+  localStorage.setItem(SIGNUP_DISMISSED_KEY, 'true')
+}
 
 interface SqlEditorProps {
   value: string
@@ -58,6 +90,7 @@ export function SqlEditor({
   const { user } = useUser()
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null)
   const [isSaved, setIsSaved] = useState(false)
+  const [showSignupPrompt, setShowSignupPrompt] = useState(false)
   const createSubmission = useCreateSubmission()
   const { data: solvedExercises } = useSolvedExercises()
   
@@ -69,19 +102,37 @@ export function SqlEditor({
     try {
       await createSubmission.mutateAsync({ exerciseId, solution: value })
       setIsSaved(true)
-      toast.success('¡Progreso guardado automáticamente!')
+      toast.success('Progreso guardado')
       onSaveSuccess?.()
     } catch {
       toast.error('Error al guardar el progreso')
     }
   }, [user, exerciseId, isSaved, wasAlreadySolved, createSubmission, onSaveSuccess, value])
-  
-  // Auto-save when exercise is validated correctly
-  useEffect(() => {
-    if (isValidated && user && !isSaved && !wasAlreadySolved) {
+
+  const handleExerciseValidated = useCallback(() => {
+    if (!exerciseId) return
+    
+    if (user) {
       autoSave()
+    } else {
+      const completed = addLocalCompletedExercise(exerciseId)
+      // Show signup prompt on first completed exercise if not dismissed
+      if (completed.length === 1 && !isSignupDismissed()) {
+        setShowSignupPrompt(true)
+      }
     }
-  }, [isValidated, user, isSaved, wasAlreadySolved, autoSave])
+  }, [exerciseId, user, autoSave])
+  
+  useEffect(() => {
+    if (isValidated && !isSaved && !wasAlreadySolved) {
+      handleExerciseValidated()
+    }
+  }, [isValidated, isSaved, wasAlreadySolved, handleExerciseValidated])
+
+  const handleSignupSkip = useCallback(() => {
+    dismissSignup()
+    setShowSignupPrompt(false)
+  }, [])
 
   const handleEditorDidMount = (
     editor: editor.IStandaloneCodeEditor,
@@ -245,6 +296,12 @@ export function SqlEditor({
           timestamp={errorTimestamp}
         />
       )}
+
+      <SignupPromptModal
+        isOpen={showSignupPrompt}
+        onClose={() => setShowSignupPrompt(false)}
+        onSkip={handleSignupSkip}
+      />
     </div>
   )
 }

@@ -91,7 +91,7 @@ export function SqlDemoAnimation({ className }: SqlDemoAnimationProps) {
             <div className="w-3 h-3 rounded-full bg-yellow-400/80" />
             <div className="w-3 h-3 rounded-full bg-green-400/80" />
           </div>
-          <span className="text-xs text-muted-foreground font-mono ml-2">sql-editor.sql</span>
+          <span className="text-xs text-muted-foreground font-mono ml-2"></span>
         </div>
 
         {/* Editor Content */}
