@@ -5,6 +5,7 @@ import { Analytics } from '@vercel/analytics/react'
 import { Toaster } from 'sonner'
 import { Providers } from './providers'
 import { Header } from '@/components/layout'
+import { GithubBadge } from '@/components/shared'
 import './globals.css'
 
 const inter = Inter({
@@ -60,6 +61,7 @@ export default function RootLayout({
               <Header />
               <main>{children}</main>
             </div>
+            <GithubBadge />
             <Toaster position="top-center" richColors />
             <Analytics />
           </Providers>
