@@ -174,7 +174,7 @@ async function generateOG() {
           },
         ],
       },
-    },
+    } as any,
     {
       width: WIDTH,
       height: HEIGHT,
@@ -276,7 +276,7 @@ async function generateFavicon() {
           },
         },
       },
-    },
+    } as any,
     {
       width: size,
       height: size,
