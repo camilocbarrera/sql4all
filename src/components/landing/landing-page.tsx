@@ -100,7 +100,7 @@ export function LandingPage() {
             className="flex flex-col items-center gap-6"
           >
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>Impulsado por</span>
+              <span>Powered by</span>
               <a
                 href="https://pglite.dev"
                 target="_blank"
