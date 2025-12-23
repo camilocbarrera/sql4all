@@ -1,0 +1,44 @@
+import { pgTable, uuid, text, timestamp, boolean, integer, jsonb } from 'drizzle-orm/pg-core'
+import { relations } from 'drizzle-orm'
+
+export const exercises = pgTable('exercises', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  title: text('title').notNull(),
+  difficulty: text('difficulty').notNull(),
+  description: text('description').notNull(),
+  details: text('details').notNull(),
+  hint: text('hint').notNull(),
+  successMessage: text('success_message').notNull(),
+  example: jsonb('example').notNull().$type<{ entrada?: string; salida?: string }>(),
+  validation: jsonb('validation').notNull().$type<{
+    type: 'exact' | 'partial'
+    conditions: Record<string, unknown>
+  }>(),
+  isDeleted: boolean('is_deleted').default(false).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
+export const submissions = pgTable('submissions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: text('user_id').notNull(), // Clerk user ID (not UUID)
+  exerciseId: uuid('exercise_id').notNull().references(() => exercises.id, { onDelete: 'cascade' }),
+  score: integer('score').default(2).notNull(),
+  solution: text('solution'), // User's SQL solution
+  feedback: text('feedback'),
+  attempts: integer('attempts').default(1).notNull(),
+  timeSpentSeconds: integer('time_spent_seconds'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+})
+
+// Relations
+export const exercisesRelations = relations(exercises, ({ many }) => ({
+  submissions: many(submissions),
+}))
+
+export const submissionsRelations = relations(submissions, ({ one }) => ({
+  exercise: one(exercises, {
+    fields: [submissions.exerciseId],
+    references: [exercises.id],
+  }),
+}))
