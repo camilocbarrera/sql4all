@@ -22,6 +22,28 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: 'SQL4All - Aprende SQL Interactivamente',
   description: 'Domina SQL paso a paso con ejercicios prácticos y retroalimentación inmediata',
+  openGraph: {
+    title: 'SQL4All - Aprende SQL Interactivamente',
+    description: 'Domina SQL paso a paso con ejercicios prácticos y retroalimentación inmediata',
+    url: 'https://www.sql4all.org',
+    siteName: 'SQL4All',
+    images: [
+      {
+        url: 'https://www.sql4all.org/og.png',
+        width: 1200,
+        height: 630,
+        alt: 'SQL4All - Interactive SQL Learning Platform',
+      },
+    ],
+    locale: 'es',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'SQL4All - Aprende SQL Interactivamente',
+    description: 'Domina SQL paso a paso con ejercicios prácticos y retroalimentación inmediata',
+    images: ['https://www.sql4all.org/og.png'],
+  },
 }
 
 export default function RootLayout({
