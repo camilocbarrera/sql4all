@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { Github, BookOpen, Linkedin, Coffee, Menu, User } from 'lucide-react'
+import { BookOpen, Menu, User } from 'lucide-react'
 import Link from 'next/link'
 import { useUser } from '@clerk/nextjs'
+import { useTheme } from 'next-themes'
 import {
   Button,
   Separator,
@@ -17,10 +18,13 @@ import { UserProfile } from '@/components/auth/user-profile'
 import { ScoreBadge } from '@/components/shared/score-badge'
 import { StreakBadge } from '@/components/shared/streak-badge'
 import { ThemeToggle } from '@/components/shared/theme-toggle'
+import { CrafterStationLogo } from '@/components/logos/crafter-station'
+import { GithubLogo } from '@/components/logos/github'
 
 export function Header() {
   const { user } = useUser()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { resolvedTheme } = useTheme()
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -62,37 +66,30 @@ export function Header() {
         </div>
 
         <div className="flex flex-1 items-center justify-end gap-2 md:gap-4">
-          <div className="hidden md:flex items-center gap-1">
-            <Button variant="ghost" size="icon" asChild>
-              <a
-                href="https://github.com/camilocbarrera/sql4all"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="GitHub"
-              >
-                <Github className="h-4 w-4" />
-              </a>
-            </Button>
-            <Button variant="ghost" size="icon" asChild>
-              <a
-                href="https://www.linkedin.com/in/cristiancamilocorrea/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="LinkedIn"
-              >
-                <Linkedin className="h-4 w-4" />
-              </a>
-            </Button>
-            <Button variant="ghost" size="icon" asChild>
-              <a
-                href="https://buymeacoffee.com/camilocbarrera"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Buy me a coffee"
-              >
-                <Coffee className="h-4 w-4" />
-              </a>
-            </Button>
+          <div className="hidden md:flex items-center gap-3">
+            <a
+              href="https://www.crafterstation.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center hover:opacity-80 transition-opacity"
+              aria-label="Crafter Station"
+            >
+              <CrafterStationLogo className="h-5 w-auto" />
+            </a>
+            <div className="h-4 w-px bg-border" />
+            <a
+              href="https://github.com/camilocbarrera/sql4all"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center hover:opacity-80 transition-opacity"
+              aria-label="GitHub"
+            >
+              <GithubLogo
+                className="h-5 w-auto"
+                variant="invertocat"
+                mode={resolvedTheme === 'dark' ? 'dark' : 'light'}
+              />
+            </a>
           </div>
 
           <div className="hidden sm:flex items-center gap-2">
@@ -169,32 +166,26 @@ export function Header() {
                   <p className="text-xs text-muted-foreground px-2">Enlaces</p>
                   <Button variant="ghost" className="justify-start" asChild>
                     <a
+                      href="https://www.crafterstation.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <CrafterStationLogo className="h-4 w-auto mr-2" />
+                      Crafter Station
+                    </a>
+                  </Button>
+                  <Button variant="ghost" className="justify-start" asChild>
+                    <a
                       href="https://github.com/camilocbarrera/sql4all"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <Github className="h-4 w-4 mr-2" />
+                      <GithubLogo
+                        className="h-4 w-auto mr-2"
+                        variant="invertocat"
+                        mode={resolvedTheme === 'dark' ? 'dark' : 'light'}
+                      />
                       GitHub
-                    </a>
-                  </Button>
-                  <Button variant="ghost" className="justify-start" asChild>
-                    <a
-                      href="https://www.linkedin.com/in/cristiancamilocorrea/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Linkedin className="h-4 w-4 mr-2" />
-                      LinkedIn
-                    </a>
-                  </Button>
-                  <Button variant="ghost" className="justify-start" asChild>
-                    <a
-                      href="https://buymeacoffee.com/camilocbarrera"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Coffee className="h-4 w-4 mr-2" />
-                      Buy me a coffee
                     </a>
                   </Button>
                 </div>

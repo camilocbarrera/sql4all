@@ -137,8 +137,8 @@ export function SqlDemoAnimation({ className }: SqlDemoAnimationProps) {
               className={cn(
                 'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
                 phase === 'executing'
-                  ? 'bg-primary/80 text-primary-foreground'
-                  : 'bg-primary text-primary-foreground'
+                  ? 'bg-primary/80 text-black dark:text-white'
+                  : 'bg-primary text-black dark:text-white'
               )}
               disabled
             >
