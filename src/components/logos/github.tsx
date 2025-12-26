@@ -1,13 +1,11 @@
 export function GithubLogo({
   className,
   variant = "invertocat",
-  mode = "light",
 }: {
   className?: string;
   variant?: "invertocat" | "wordmark" | "lockup";
-  mode?: "dark" | "light";
 }) {
-  const fillColor = mode === "dark" ? "#FFFFFF" : "#1B1F24";
+  const fillColor = "currentColor";
 
   if (variant === "invertocat") {
     return (

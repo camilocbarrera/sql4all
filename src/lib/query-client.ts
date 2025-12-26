@@ -38,3 +38,4 @@ export const queryKeys = {
   solvedExercises: (userId: string) => ['solvedExercises', userId] as const,
 }
 
+

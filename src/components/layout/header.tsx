@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { BookOpen, Menu, User } from 'lucide-react'
 import Link from 'next/link'
 import { useUser } from '@clerk/nextjs'
-import { useTheme } from 'next-themes'
 import {
   Button,
   Separator,
@@ -24,7 +23,6 @@ import { GithubLogo } from '@/components/logos/github'
 export function Header() {
   const { user } = useUser()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const { resolvedTheme } = useTheme()
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -84,11 +82,7 @@ export function Header() {
               className="flex items-center hover:opacity-80 transition-opacity"
               aria-label="GitHub"
             >
-              <GithubLogo
-                className="h-5 w-auto"
-                variant="invertocat"
-                mode={resolvedTheme === 'dark' ? 'dark' : 'light'}
-              />
+              <GithubLogo className="h-5 w-auto" variant="invertocat" />
             </a>
           </div>
 
@@ -180,11 +174,7 @@ export function Header() {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <GithubLogo
-                        className="h-4 w-auto mr-2"
-                        variant="invertocat"
-                        mode={resolvedTheme === 'dark' ? 'dark' : 'light'}
-                      />
+                      <GithubLogo className="h-4 w-auto mr-2" variant="invertocat" />
                       GitHub
                     </a>
                   </Button>

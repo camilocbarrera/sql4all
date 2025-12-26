@@ -96,3 +96,4 @@ export function ExerciseGrid({ exercises }: ExerciseGridProps) {
   )
 }
 
+
