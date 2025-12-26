@@ -10,8 +10,9 @@ export const exercises = pgTable('exercises', {
   hint: text('hint').notNull(),
   successMessage: text('success_message').notNull(),
   example: jsonb('example').notNull().$type<{ entrada?: string; salida?: string }>(),
+  type: text('type').default('dml').notNull().$type<'dml' | 'ddl'>(),
   validation: jsonb('validation').notNull().$type<{
-    type: 'exact' | 'partial'
+    type: 'exact' | 'partial' | 'ddl_schema'
     conditions: Record<string, unknown>
   }>(),
   isDeleted: boolean('is_deleted').default(false).notNull(),
