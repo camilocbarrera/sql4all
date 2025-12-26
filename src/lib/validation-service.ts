@@ -1,4 +1,5 @@
-import type { ExpectedOutput } from '@/types/exercises'
+import type { ExpectedOutput, DDLConditions } from '@/types/exercises'
+import { validateDDL, type DDLValidationConfig, type DDLValidationResult } from './ddl-validator'
 
 interface QueryResult {
   rows: Record<string, unknown>[]
@@ -6,7 +7,7 @@ interface QueryResult {
 }
 
 interface ValidationConfig {
-  type: 'exact' | 'partial'
+  type: 'exact' | 'partial' | 'ddl_schema'
   conditions: Record<string, unknown>
 }
 
@@ -68,7 +69,34 @@ export function validateQueryResult(
       return true
     }
 
+    case 'ddl_schema': {
+      // DDL validation is handled asynchronously by validateDDLExercise
+      // This case should not be reached in synchronous validation
+      return false
+    }
+
     default:
       return false
   }
+}
+
+export async function validateDDLExercise(
+  conditions: DDLConditions
+): Promise<DDLValidationResult> {
+  const config: DDLValidationConfig = {
+    schemaInspection: conditions.schemaInspection,
+    testQueries: conditions.testQueries,
+  }
+
+  return validateDDL(config)
+}
+
+export function isDDLValidation(
+  expectedOutput: ValidationConfig | ExpectedOutput
+): expectedOutput is ExpectedOutput & { type: 'ddl_schema' } {
+  return expectedOutput.type === 'ddl_schema'
+}
+
+export function getDDLSetupSQL(conditions: DDLConditions): string | undefined {
+  return conditions.setupSQL
 }

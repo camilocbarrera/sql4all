@@ -5,10 +5,50 @@ export const exerciseExampleSchema = z.object({
   salida: z.string().optional(),
 })
 
+export const expectedColumnSchema = z.object({
+  name: z.string(),
+  type: z.string().optional(),
+  nullable: z.boolean().optional(),
+})
+
+export const expectedConstraintSchema = z.object({
+  type: z.enum(['PRIMARY KEY', 'FOREIGN KEY', 'UNIQUE', 'CHECK']),
+  columns: z.array(z.string()),
+  definition: z.string().optional(),
+})
+
+export const expectedIndexSchema = z.object({
+  name: z.string().optional(),
+  columns: z.array(z.string()),
+  isUnique: z.boolean().optional(),
+})
+
+export const schemaInspectionSchema = z.object({
+  table: z.string(),
+  shouldExist: z.boolean().optional(),
+  columns: z.array(expectedColumnSchema).optional(),
+  constraints: z.array(expectedConstraintSchema).optional(),
+  indexes: z.array(expectedIndexSchema).optional(),
+})
+
+export const testQuerySchema = z.object({
+  query: z.string(),
+  shouldSucceed: z.boolean(),
+  description: z.string().optional(),
+})
+
+export const ddlConditionsSchema = z.object({
+  schemaInspection: schemaInspectionSchema.optional(),
+  testQueries: z.array(testQuerySchema).optional(),
+  setupSQL: z.string().optional(),
+})
+
 export const exerciseValidationSchema = z.object({
-  type: z.enum(['exact', 'partial']),
+  type: z.enum(['exact', 'partial', 'ddl_schema']),
   conditions: z.record(z.unknown()),
 })
+
+export const exerciseTypeSchema = z.enum(['dml', 'ddl'])
 
 export const exerciseSchema = z.object({
   id: z.string().uuid(),
@@ -19,6 +59,7 @@ export const exerciseSchema = z.object({
   hint: z.string().min(1),
   successMessage: z.string().min(1),
   example: exerciseExampleSchema,
+  type: exerciseTypeSchema.default('dml'),
   validation: exerciseValidationSchema,
   isDeleted: z.boolean().default(false),
   createdAt: z.coerce.date(),
@@ -91,9 +132,16 @@ export const solvedExercisesResponseSchema = z.object({
 
 // Type exports
 export type Exercise = z.infer<typeof exerciseSchema>
+export type ExerciseType = z.infer<typeof exerciseTypeSchema>
 export type User = z.infer<typeof userSchema>
 export type Submission = z.infer<typeof submissionSchema>
 export type CreateSubmission = z.infer<typeof createSubmissionSchema>
 export type QueryResult = z.infer<typeof queryResultSchema>
 export type WeekProgress = z.infer<typeof weekProgressSchema>
+export type ExpectedColumn = z.infer<typeof expectedColumnSchema>
+export type ExpectedConstraint = z.infer<typeof expectedConstraintSchema>
+export type ExpectedIndex = z.infer<typeof expectedIndexSchema>
+export type SchemaInspection = z.infer<typeof schemaInspectionSchema>
+export type TestQuery = z.infer<typeof testQuerySchema>
+export type DDLConditions = z.infer<typeof ddlConditionsSchema>
 
