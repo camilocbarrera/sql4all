@@ -142,14 +142,17 @@ export function SqlDemoAnimation({ className }: SqlDemoAnimationProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.1 }}
-        className="rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden shadow-xl shadow-primary/5"
+        className="rounded-2xl border-2 border-primary/20 bg-gradient-to-b from-card/95 to-card/70 
+                   backdrop-blur-xl overflow-hidden 
+                   shadow-2xl shadow-primary/10 
+                   ring-1 ring-white/10 dark:ring-white/5"
       >
         {/* Window Chrome */}
-        <div className="flex items-center gap-2 px-4 py-3 border-b border-border/50 bg-muted/30">
-          <div className="flex gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-red-400/80" />
-            <div className="w-3 h-3 rounded-full bg-yellow-400/80" />
-            <div className="w-3 h-3 rounded-full bg-green-400/80" />
+        <div className="flex items-center gap-2 px-4 py-3 border-b border-primary/10 bg-muted/40">
+          <div className="flex gap-2">
+            <div className="w-3 h-3 rounded-full bg-red-500 shadow-sm shadow-red-500/50" />
+            <div className="w-3 h-3 rounded-full bg-yellow-500 shadow-sm shadow-yellow-500/50" />
+            <div className="w-3 h-3 rounded-full bg-green-500 shadow-sm shadow-green-500/50" />
           </div>
           <span className="text-xs text-muted-foreground ml-2">Obtener los nombres y emails de usuarios activos (máximo 3)</span>
         </div>
@@ -275,13 +278,13 @@ export function SqlDemoAnimation({ className }: SqlDemoAnimationProps) {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="border-t border-border/50"
+              className="border-t border-primary/10"
             >
-              <div className="p-4">
+              <div className="p-4 bg-gradient-to-b from-transparent to-primary/5">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-foreground/80">Resultados</span>
-                    <span className="text-xs text-muted-foreground px-2 py-0.5 bg-muted/50 rounded-full">
+                    <span className="text-sm font-medium text-foreground/90">Resultados</span>
+                    <span className="text-xs text-primary-foreground/80 px-2 py-0.5 bg-primary/20 rounded-full font-medium">
                       {DEMO_RESULTS.length} filas
                     </span>
                   </div>
@@ -290,9 +293,9 @@ export function SqlDemoAnimation({ className }: SqlDemoAnimationProps) {
                       <motion.span
                         initial={{ opacity: 0, scale: 0.8, x: 10 }}
                         animate={{ opacity: 1, scale: 1, x: 0 }}
-                        className="flex items-center gap-1.5 text-xs text-emerald-500 font-medium"
+                        className="flex items-center gap-1.5 text-xs text-emerald-500 font-semibold"
                       >
-                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <CheckCircle2 className="w-4 h-4" />
                         ¡Correcto!
                       </motion.span>
                     )}
@@ -300,12 +303,12 @@ export function SqlDemoAnimation({ className }: SqlDemoAnimationProps) {
                 </div>
 
                 {/* Results Table */}
-                <div className="rounded-lg border border-border/50 overflow-hidden">
+                <div className="rounded-xl border border-primary/10 overflow-hidden shadow-sm">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-muted/30">
-                        <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">nombre</th>
-                        <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">email</th>
+                      <tr className="bg-primary/5">
+                        <th className="px-3 py-2.5 text-left text-xs font-semibold text-foreground/70 uppercase tracking-wide">nombre</th>
+                        <th className="px-3 py-2.5 text-left text-xs font-semibold text-foreground/70 uppercase tracking-wide">email</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -315,10 +318,10 @@ export function SqlDemoAnimation({ className }: SqlDemoAnimationProps) {
                           initial={{ opacity: 0, x: -8 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: i * 0.05 }}
-                          className="border-t border-border/30"
+                          className="border-t border-primary/5 hover:bg-primary/5 transition-colors"
                         >
-                          <td className="px-3 py-2 text-foreground/90">{row.nombre}</td>
-                          <td className="px-3 py-2 text-muted-foreground">{row.email}</td>
+                          <td className="px-3 py-2.5 text-foreground font-medium">{row.nombre}</td>
+                          <td className="px-3 py-2.5 text-muted-foreground">{row.email}</td>
                         </motion.tr>
                       ))}
                     </tbody>
@@ -336,7 +339,7 @@ export function SqlDemoAnimation({ className }: SqlDemoAnimationProps) {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="border-t border-border/50 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5"
+              className="border-t border-primary/10 bg-gradient-to-r from-emerald-500/10 via-primary/15 to-emerald-500/10"
             >
               <div className="p-4">
                 <motion.div
@@ -346,10 +349,15 @@ export function SqlDemoAnimation({ className }: SqlDemoAnimationProps) {
                   className="flex items-center justify-center gap-3"
                 >
                   <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                  <span className="text-sm text-muted-foreground">
+                  <span className="text-sm text-foreground/80 font-medium">
                     ¡Así de fácil! Llevándote a los ejercicios...
                   </span>
-                  <ArrowRight className="w-4 h-4 text-primary" />
+                  <motion.div
+                    animate={{ x: [0, 4, 0] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                  >
+                    <ArrowRight className="w-4 h-4 text-primary" />
+                  </motion.div>
                 </motion.div>
               </div>
             </motion.div>
