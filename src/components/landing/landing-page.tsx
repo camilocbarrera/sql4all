@@ -15,6 +15,32 @@ export function LandingPage() {
       <section className="relative flex-1 flex flex-col items-center justify-center px-4 py-12 md:py-20 overflow-hidden">
         {/* Subtle background fade */}
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
+        
+        {/* Decorative blurred ellipses */}
+        <div 
+          className="absolute pointer-events-none bg-primary rounded-full"
+          style={{
+            width: 367,
+            height: 367,
+            right: -100,
+            top: -168,
+            mixBlendMode: 'hard-light',
+            filter: 'blur(350px)',
+            opacity: 0.6,
+          }}
+        />
+        <div 
+          className="absolute pointer-events-none bg-primary rounded-full"
+          style={{
+            width: 367,
+            height: 367,
+            left: -150,
+            top: 808,
+            mixBlendMode: 'hard-light',
+            filter: 'blur(350px)',
+            opacity: 0.4,
+          }}
+        />
         <div className="relative z-10 flex-1 flex flex-col items-center justify-center w-full">
           <motion.div
           initial={{ opacity: 0, y: 20 }}
