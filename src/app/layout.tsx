@@ -52,7 +52,61 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      appearance={{
+        variables: {
+          colorPrimary: 'oklch(0.62 0.10 205)',
+          colorTextOnPrimaryBackground: 'oklch(0.98 0.01 205)',
+          colorBackground: 'oklch(0.25 0.003 197)',
+          colorInputBackground: 'oklch(0.30 0.005 197)',
+          colorInputText: 'oklch(0.95 0.005 197)',
+          colorText: 'oklch(0.95 0.005 197)',
+          colorTextSecondary: 'oklch(0.71 0.002 197)',
+          colorDanger: 'oklch(0.73 0.11 55)',
+          colorSuccess: 'oklch(0.70 0.15 145)',
+          colorWarning: 'oklch(0.80 0.15 85)',
+          borderRadius: '0.75rem',
+          fontFamily: 'var(--font-sans), Inter, system-ui, sans-serif',
+          fontFamilyButtons: 'var(--font-sans), Inter, system-ui, sans-serif',
+        },
+        elements: {
+          rootBox: 'font-sans',
+          card: 'bg-card shadow-xl backdrop-blur-sm',
+          headerTitle: 'text-foreground font-semibold tracking-tight',
+          headerSubtitle: 'text-muted-foreground',
+          socialButtonsBlockButton:
+            'bg-secondary hover:bg-secondary/80 text-foreground transition-colors',
+          socialButtonsBlockButtonText: 'text-foreground font-medium',
+          dividerLine: 'bg-muted',
+          dividerText: 'text-muted-foreground',
+          formFieldLabel: 'text-foreground font-medium',
+          formFieldInput:
+            'bg-input text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring transition-all',
+          formButtonPrimary:
+            'bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-md hover:shadow-lg transition-all',
+          formButtonReset: 'text-primary hover:text-primary/80',
+          footerActionLink: 'text-primary hover:text-primary/80 font-medium',
+          identityPreviewText: 'text-foreground',
+          identityPreviewEditButton: 'text-primary hover:text-primary/80',
+          formFieldSuccessText: 'text-emerald-500',
+          formFieldErrorText: 'text-destructive',
+          alert: 'bg-destructive/10 text-destructive',
+          alertText: 'text-destructive',
+          userButtonPopoverCard: 'bg-card shadow-xl',
+          userButtonPopoverActionButton:
+            'hover:bg-accent text-foreground transition-colors',
+          userButtonPopoverActionButtonText: 'text-foreground',
+          userButtonPopoverActionButtonIcon: 'text-muted-foreground',
+          userButtonPopoverFooter: '',
+          userPreviewMainIdentifier: 'text-foreground font-medium',
+          userPreviewSecondaryIdentifier: 'text-muted-foreground',
+          avatarBox: 'ring-2 ring-primary/20',
+          badge: 'bg-primary/10 text-primary',
+          modalBackdrop: 'bg-background/80 backdrop-blur-sm',
+          modalContent: 'bg-card shadow-2xl',
+        },
+      }}
+    >
       <html lang="es" suppressHydrationWarning>
         <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
           <Providers>
