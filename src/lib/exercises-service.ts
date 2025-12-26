@@ -15,6 +15,7 @@ function mapExercise(ex: typeof exercises.$inferSelect): Exercise {
     hint: ex.hint,
     successMessage: ex.successMessage,
     example: ex.example as Exercise['example'],
+    type: ex.type as Exercise['type'],
     validation: ex.validation as Exercise['validation'],
     isDeleted: ex.isDeleted,
     createdAt: ex.createdAt,
