@@ -1,7 +1,7 @@
 import { PGlite } from '@electric-sql/pglite'
 import { handleSQLError } from './sql-error-handler'
 
-interface QueryResult {
+export interface QueryResult {
   error: boolean
   message?: string
   example?: string
@@ -9,9 +9,43 @@ interface QueryResult {
   fields: { name: string }[]
 }
 
+export interface ColumnInfo {
+  name: string
+  type: string
+  nullable: boolean
+  defaultValue: string | null
+}
+
+export interface ConstraintInfo {
+  name: string
+  type: 'PRIMARY KEY' | 'FOREIGN KEY' | 'UNIQUE' | 'CHECK' | 'NOT NULL'
+  columns: string[]
+  definition?: string
+}
+
+export interface IndexInfo {
+  name: string
+  columns: string[]
+  isUnique: boolean
+}
+
+export interface TableInfo {
+  name: string
+  columns: ColumnInfo[]
+  constraints: ConstraintInfo[]
+  indexes: IndexInfo[]
+}
+
+export interface SchemaInfo {
+  tables: TableInfo[]
+}
+
+const DDL_SCHEMA = 'practice_ddl'
+
 class DatabaseService {
   private db: PGlite | null = null
   private initPromise: Promise<PGlite> | null = null
+  private ddlSchemaInitialized = false
 
   async initialize() {
     if (typeof window === 'undefined') {
@@ -87,6 +121,267 @@ class DatabaseService {
     })
 
     return this.initPromise
+  }
+
+  async initializeDDLSchema(): Promise<void> {
+    if (!this.db) {
+      await this.initialize()
+    }
+
+    if (this.ddlSchemaInitialized) return
+
+    try {
+      await this.db!.exec(`
+        CREATE SCHEMA IF NOT EXISTS ${DDL_SCHEMA};
+        SET search_path TO ${DDL_SCHEMA}, public;
+      `)
+      this.ddlSchemaInitialized = true
+    } catch (error) {
+      console.error('Error initializing DDL schema:', error)
+      throw error
+    }
+  }
+
+  async resetDDLSchema(setupSQL?: string): Promise<void> {
+    if (!this.db) {
+      await this.initialize()
+    }
+
+    try {
+      await this.db!.exec(`
+        DROP SCHEMA IF EXISTS ${DDL_SCHEMA} CASCADE;
+        CREATE SCHEMA ${DDL_SCHEMA};
+        SET search_path TO ${DDL_SCHEMA}, public;
+      `)
+
+      if (setupSQL) {
+        await this.db!.exec(setupSQL)
+      }
+
+      this.ddlSchemaInitialized = true
+    } catch (error) {
+      console.error('Error resetting DDL schema:', error)
+      throw error
+    }
+  }
+
+  async inspectSchema(): Promise<SchemaInfo> {
+    if (!this.db) {
+      await this.initialize()
+    }
+
+    try {
+      const tablesResult = await this.db!.query(`
+        SELECT table_name 
+        FROM information_schema.tables 
+        WHERE table_schema = '${DDL_SCHEMA}'
+        ORDER BY table_name
+      `)
+
+      const tables: TableInfo[] = []
+
+      for (const row of tablesResult.rows as { table_name: string }[]) {
+        const tableName = row.table_name
+
+        const columnsResult = await this.db!.query(`
+          SELECT 
+            column_name,
+            data_type,
+            is_nullable,
+            column_default
+          FROM information_schema.columns
+          WHERE table_schema = '${DDL_SCHEMA}' AND table_name = '${tableName}'
+          ORDER BY ordinal_position
+        `)
+
+        const columns: ColumnInfo[] = (columnsResult.rows as {
+          column_name: string
+          data_type: string
+          is_nullable: string
+          column_default: string | null
+        }[]).map(col => ({
+          name: col.column_name,
+          type: col.data_type,
+          nullable: col.is_nullable === 'YES',
+          defaultValue: col.column_default,
+        }))
+
+        const constraintsResult = await this.db!.query(`
+          SELECT 
+            tc.constraint_name,
+            tc.constraint_type,
+            kcu.column_name
+          FROM information_schema.table_constraints tc
+          JOIN information_schema.key_column_usage kcu 
+            ON tc.constraint_name = kcu.constraint_name 
+            AND tc.table_schema = kcu.table_schema
+          WHERE tc.table_schema = '${DDL_SCHEMA}' 
+            AND tc.table_name = '${tableName}'
+          ORDER BY tc.constraint_name, kcu.ordinal_position
+        `)
+
+        const constraintMap = new Map<string, ConstraintInfo>()
+        for (const row of constraintsResult.rows as {
+          constraint_name: string
+          constraint_type: string
+          column_name: string
+        }[]) {
+          const existing = constraintMap.get(row.constraint_name)
+          if (existing) {
+            existing.columns.push(row.column_name)
+          } else {
+            constraintMap.set(row.constraint_name, {
+              name: row.constraint_name,
+              type: row.constraint_type as ConstraintInfo['type'],
+              columns: [row.column_name],
+            })
+          }
+        }
+
+        const checkConstraintsResult = await this.db!.query(`
+          SELECT 
+            cc.constraint_name,
+            cc.check_clause
+          FROM information_schema.check_constraints cc
+          JOIN information_schema.table_constraints tc 
+            ON cc.constraint_name = tc.constraint_name
+          WHERE tc.table_schema = '${DDL_SCHEMA}' 
+            AND tc.table_name = '${tableName}'
+            AND tc.constraint_type = 'CHECK'
+        `)
+
+        for (const row of checkConstraintsResult.rows as {
+          constraint_name: string
+          check_clause: string
+        }[]) {
+          const existing = constraintMap.get(row.constraint_name)
+          if (existing) {
+            existing.definition = row.check_clause
+          }
+        }
+
+        const constraints = Array.from(constraintMap.values())
+
+        const indexesResult = await this.db!.query(`
+          SELECT 
+            i.relname as index_name,
+            array_agg(a.attname ORDER BY array_position(ix.indkey, a.attnum)) as columns,
+            ix.indisunique as is_unique
+          FROM pg_class t
+          JOIN pg_index ix ON t.oid = ix.indrelid
+          JOIN pg_class i ON i.oid = ix.indexrelid
+          JOIN pg_attribute a ON a.attrelid = t.oid AND a.attnum = ANY(ix.indkey)
+          JOIN pg_namespace n ON n.oid = t.relnamespace
+          WHERE n.nspname = '${DDL_SCHEMA}'
+            AND t.relname = '${tableName}'
+            AND NOT ix.indisprimary
+          GROUP BY i.relname, ix.indisunique
+          ORDER BY i.relname
+        `)
+
+        const indexes: IndexInfo[] = (indexesResult.rows as {
+          index_name: string
+          columns: string[]
+          is_unique: boolean
+        }[]).map(idx => ({
+          name: idx.index_name,
+          columns: idx.columns,
+          isUnique: idx.is_unique,
+        }))
+
+        tables.push({
+          name: tableName,
+          columns,
+          constraints,
+          indexes,
+        })
+      }
+
+      return { tables }
+    } catch (error) {
+      console.error('Error inspecting schema:', error)
+      return { tables: [] }
+    }
+  }
+
+  async executeDDLQuery(query: string): Promise<QueryResult> {
+    if (typeof window === 'undefined') {
+      throw new Error('Queries can only be executed in the browser')
+    }
+
+    if (!this.db) {
+      return {
+        error: true,
+        message: 'Base de datos no inicializada',
+        rows: [],
+        fields: [],
+      }
+    }
+
+    try {
+      if (!query.trim()) {
+        return {
+          error: true,
+          message: 'La consulta SQL no puede estar vacía',
+          example: 'CREATE TABLE productos (id SERIAL PRIMARY KEY, nombre VARCHAR(100))',
+          rows: [],
+          fields: [],
+        }
+      }
+
+      await this.db.exec(`SET search_path TO ${DDL_SCHEMA}, public;`)
+
+      try {
+        const result = await this.db.query(query)
+        return {
+          error: false,
+          rows: result.rows as Record<string, unknown>[],
+          fields: result.fields as { name: string }[],
+        }
+      } catch (sqlError: unknown) {
+        console.error('DDL Error:', sqlError)
+
+        const errorObj = sqlError as { message?: string; stack?: string; code?: string }
+        const errorMessage = errorObj?.message || 'Error desconocido'
+
+        const formattedError = handleSQLError({
+          message: errorMessage,
+          stack: errorObj?.stack,
+          code: errorObj?.code,
+        })
+
+        return {
+          error: true,
+          message: formattedError.message,
+          example: formattedError.example,
+          rows: [],
+          fields: [],
+        }
+      }
+    } catch {
+      return {
+        error: true,
+        message: 'Error inesperado al ejecutar la consulta DDL',
+        example: 'Intenta verificar la sintaxis de tu consulta',
+        rows: [],
+        fields: [],
+      }
+    }
+  }
+
+  async executeTestQuery(query: string): Promise<{ success: boolean; error?: string }> {
+    if (!this.db) {
+      return { success: false, error: 'Base de datos no inicializada' }
+    }
+
+    try {
+      await this.db.exec(`SET search_path TO ${DDL_SCHEMA}, public;`)
+      await this.db.query(query)
+      return { success: true }
+    } catch (error) {
+      const errorObj = error as { message?: string }
+      return { success: false, error: errorObj?.message || 'Error desconocido' }
+    }
   }
 
   async executeQuery(query: string): Promise<QueryResult> {

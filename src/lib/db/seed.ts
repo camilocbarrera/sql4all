@@ -37,9 +37,10 @@ async function seed() {
         hint: exercise.hint,
         successMessage: exercise.successMessage,
         example: exercise.example,
+        type: exercise.type || 'dml',
         validation: exercise.validation,
       })
-      console.log(`  ✓ Added: ${exercise.title}`)
+      console.log(`  ✓ Added: ${exercise.title} (${exercise.type || 'dml'})`)
     }
 
     console.log(`\n✅ Successfully seeded ${exercisesData.length} exercises!`)
