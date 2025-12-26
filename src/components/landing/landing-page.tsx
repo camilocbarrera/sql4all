@@ -8,10 +8,8 @@ import { Button } from '@/components/ui'
 import { SqlDemoAnimation } from './sql-demo-animation'
 import { CrafterStationLogo } from '@/components/logos/crafter-station'
 import { GithubLogo } from '@/components/logos/github'
-import { useTheme } from 'next-themes'
 
 export function LandingPage() {
-  const { resolvedTheme } = useTheme()
 
   return (
     <div className="min-h-[calc(100vh-3.5rem)] flex flex-col">
@@ -139,7 +137,6 @@ export function LandingPage() {
                 <GithubLogo
                   className="h-5 w-auto"
                   variant="invertocat"
-                  mode={resolvedTheme === 'dark' ? 'dark' : 'light'}
                 />
               </a>
             </div>

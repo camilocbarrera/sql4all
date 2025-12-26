@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { BookOpen, Menu, User } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { BookOpen, Menu, User, Star } from 'lucide-react'
 import Link from 'next/link'
 import { useUser } from '@clerk/nextjs'
 import {
@@ -23,6 +23,24 @@ import { GithubLogo } from '@/components/logos/github'
 export function Header() {
   const { user } = useUser()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [githubStars, setGithubStars] = useState<number | null>(null)
+
+  useEffect(() => {
+    const fetchGithubStars = async () => {
+      try {
+        const response = await fetch(
+          'https://api.github.com/repos/camilocbarrera/sql4all'
+        )
+        if (response.ok) {
+          const data = await response.json()
+          setGithubStars(data.stargazers_count)
+        }
+      } catch (error) {
+        console.warn('Failed to fetch GitHub stars:', error)
+      }
+    }
+    fetchGithubStars()
+  }, [])
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -79,10 +97,16 @@ export function Header() {
               href="https://github.com/camilocbarrera/sql4all"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center hover:opacity-80 transition-opacity"
+              className="flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-muted/50 hover:bg-muted transition-colors"
               aria-label="GitHub"
             >
-              <GithubLogo className="h-5 w-auto" variant="invertocat" />
+              <GithubLogo className="h-4 w-auto" variant="invertocat" />
+              {githubStars !== null && (
+                <span className="flex items-center gap-1 text-sm font-medium text-muted-foreground">
+                  <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                  {githubStars}
+                </span>
+              )}
             </a>
           </div>
 
@@ -168,14 +192,22 @@ export function Header() {
                       Crafter Station
                     </a>
                   </Button>
-                  <Button variant="ghost" className="justify-start" asChild>
+                  <Button variant="ghost" className="justify-between w-full" asChild>
                     <a
                       href="https://github.com/camilocbarrera/sql4all"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <GithubLogo className="h-4 w-auto mr-2" variant="invertocat" />
-                      GitHub
+                      <span className="flex items-center">
+                        <GithubLogo className="h-4 w-auto mr-2" variant="invertocat" />
+                        GitHub
+                      </span>
+                      {githubStars !== null && (
+                        <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                          {githubStars}
+                        </span>
+                      )}
                     </a>
                   </Button>
                 </div>
