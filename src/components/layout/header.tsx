@@ -21,9 +21,17 @@ import { CrafterStationLogo } from '@/components/logos/crafter-station'
 import { GithubLogo } from '@/components/logos/github'
 
 export function Header() {
-  const { user } = useUser()
+  const { user, isLoaded: isClerkLoaded } = useUser()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [githubStars, setGithubStars] = useState<number | null>(null)
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+  
+  // Only show user-specific UI after Clerk has loaded
+  const showUserUI = isClerkLoaded && !!user
 
   useEffect(() => {
     const fetchGithubStars = async () => {
@@ -65,7 +73,7 @@ export function Header() {
                 Documentación
               </Link>
             </Button>
-            {user && (
+            {showUserUI && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -121,105 +129,112 @@ export function Header() {
             <UserProfile />
           </div>
 
-          {/* Mobile Menu */}
-          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden">
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Menú</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-80">
-              <SheetHeader>
-                <SheetTitle>Menú</SheetTitle>
-              </SheetHeader>
-              <div className="flex flex-col gap-4 mt-6">
-                {user && (
-                  <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                    <StreakBadge />
-                    <ScoreBadge />
-                  </div>
-                )}
-                
-                <nav className="flex flex-col gap-2">
-                  <Button
-                    variant="ghost"
-                    className="justify-start"
-                    asChild
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <Link href="/">
-                      Ejercicios
-                    </Link>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="justify-start"
-                    asChild
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <Link href="/docs">
-                      <BookOpen className="h-4 w-4 mr-2" />
-                      Documentación
-                    </Link>
-                  </Button>
-                  {user && (
+          {/* Mobile Menu - Only render after mount to avoid hydration mismatch */}
+          {isMounted ? (
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden">
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Menú</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-80">
+                <SheetHeader>
+                  <SheetTitle>Menú</SheetTitle>
+                </SheetHeader>
+                <div className="flex flex-col gap-4 mt-6">
+                  {showUserUI && (
+                    <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                      <StreakBadge />
+                      <ScoreBadge />
+                    </div>
+                  )}
+                  
+                  <nav className="flex flex-col gap-2">
                     <Button
                       variant="ghost"
                       className="justify-start"
                       asChild
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      <Link href="/profile">
-                        <User className="h-4 w-4 mr-2" />
-                        Mi Perfil
+                      <Link href="/">
+                        Ejercicios
                       </Link>
                     </Button>
-                  )}
-                </nav>
-
-                <Separator />
-
-                <div className="flex flex-col gap-2">
-                  <p className="text-xs text-muted-foreground px-2">Enlaces</p>
-                  <Button variant="ghost" className="justify-start" asChild>
-                    <a
-                      href="https://www.crafterstation.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <Button
+                      variant="ghost"
+                      className="justify-start"
+                      asChild
+                      onClick={() => setMobileMenuOpen(false)}
                     >
-                      <CrafterStationLogo className="h-4 w-auto mr-2" />
-                      Crafter Station
-                    </a>
-                  </Button>
-                  <Button variant="ghost" className="justify-between w-full" asChild>
-                    <a
-                      href="https://github.com/camilocbarrera/sql4all"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <span className="flex items-center">
-                        <GithubLogo className="h-4 w-auto mr-2" variant="invertocat" />
-                        GitHub
-                      </span>
-                      {githubStars !== null && (
-                        <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
-                          {githubStars}
+                      <Link href="/docs">
+                        <BookOpen className="h-4 w-4 mr-2" />
+                        Documentación
+                      </Link>
+                    </Button>
+                    {showUserUI && (
+                      <Button
+                        variant="ghost"
+                        className="justify-start"
+                        asChild
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <Link href="/profile">
+                          <User className="h-4 w-4 mr-2" />
+                          Mi Perfil
+                        </Link>
+                      </Button>
+                    )}
+                  </nav>
+
+                  <Separator />
+
+                  <div className="flex flex-col gap-2">
+                    <p className="text-xs text-muted-foreground px-2">Enlaces</p>
+                    <Button variant="ghost" className="justify-start" asChild>
+                      <a
+                        href="https://www.crafterstation.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <CrafterStationLogo className="h-4 w-auto mr-2" />
+                        Crafter Station
+                      </a>
+                    </Button>
+                    <Button variant="ghost" className="justify-between w-full" asChild>
+                      <a
+                        href="https://github.com/camilocbarrera/sql4all"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <span className="flex items-center">
+                          <GithubLogo className="h-4 w-auto mr-2" variant="invertocat" />
+                          GitHub
                         </span>
-                      )}
-                    </a>
-                  </Button>
-                </div>
+                        {githubStars !== null && (
+                          <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                            <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                            {githubStars}
+                          </span>
+                        )}
+                      </a>
+                    </Button>
+                  </div>
 
-                <Separator />
+                  <Separator />
 
-                <div className="sm:hidden">
-                  <UserProfile />
+                  <div className="sm:hidden">
+                    <UserProfile />
+                  </div>
                 </div>
-              </div>
-            </SheetContent>
-          </Sheet>
+              </SheetContent>
+            </Sheet>
+          ) : (
+            <Button variant="ghost" size="icon" className="md:hidden">
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">Menú</span>
+            </Button>
+          )}
         </div>
       </div>
     </header>

@@ -8,12 +8,19 @@ import { useUserStreak } from '@/hooks/use-submissions'
 import { Badge, Skeleton } from '@/components/ui'
 
 export function StreakBadge() {
-  const { user } = useUser()
-  const { data: streak, isLoading: streakLoading } = useUserStreak()
+  const { user, isLoaded: isClerkLoaded } = useUser()
+  const { data: streak, isLoading: streakLoading, isFetched } = useUserStreak()
+
+  console.log('[StreakBadge] State:', { isClerkLoaded, hasUser: !!user, streak, isLoading: streakLoading, isFetched })
+
+  // Wait for Clerk to load before deciding to hide
+  if (!isClerkLoaded) {
+    return <Skeleton className="h-7 w-20 rounded-full" />
+  }
 
   if (!user) return null
 
-  if (streakLoading) {
+  if (streakLoading || streak === undefined) {
     return <Skeleton className="h-7 w-20 rounded-full" />
   }
 

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
-import { submissions } from '@/lib/db/schema'
+import { submissions, exercises } from '@/lib/db/schema'
 import { createSubmissionSchema } from '@/lib/validations'
+import { eq } from 'drizzle-orm'
 
 export async function POST(request: NextRequest) {
   const { userId } = await auth()
@@ -16,9 +17,25 @@ export async function POST(request: NextRequest) {
     const parsed = createSubmissionSchema.safeParse(body)
 
     if (!parsed.success) {
+      console.error('Validation failed:', parsed.error.flatten())
       return NextResponse.json(
         { error: 'Invalid request body', details: parsed.error.flatten() },
         { status: 400 }
+      )
+    }
+
+    // Verify exercise exists
+    const [exercise] = await db
+      .select({ id: exercises.id })
+      .from(exercises)
+      .where(eq(exercises.id, parsed.data.exerciseId))
+      .limit(1)
+
+    if (!exercise) {
+      console.error('Exercise not found:', parsed.data.exerciseId)
+      return NextResponse.json(
+        { error: 'Exercise not found', exerciseId: parsed.data.exerciseId },
+        { status: 404 }
       )
     }
 
@@ -32,9 +49,12 @@ export async function POST(request: NextRequest) {
       })
       .returning()
 
+    console.log('Submission created:', { id: submission.id, exerciseId: submission.exerciseId, userId })
+    
     return NextResponse.json({ submission })
   } catch (error) {
     console.error('Error creating submission:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return NextResponse.json({ error: 'Internal server error', details: message }, { status: 500 })
   }
 }

@@ -25,12 +25,30 @@ interface ExerciseGridProps {
 }
 
 export function ExerciseGrid({ exercises }: ExerciseGridProps) {
-  const { user } = useUser()
-  const { data: solvedExercises } = useSolvedExercises()
+  const { user, isLoaded: isClerkLoaded } = useUser()
+  const { data: solvedExercises, isLoading, isFetching, isFetched, status } = useSolvedExercises()
   const [showOnlyUnsolved, setShowOnlyUnsolved] = useState(false)
+  
+  // Debug logging
+  console.log('[ExerciseGrid] render:', { 
+    isClerkLoaded,
+    hasUser: !!user,
+    status,
+    isLoading, 
+    isFetching,
+    isFetched,
+    solvedCount: solvedExercises?.size ?? 'undefined',
+    solvedIds: solvedExercises ? Array.from(solvedExercises) : 'undefined'
+  })
+  
+  // Use empty set as fallback when data is not yet loaded
+  const solvedSet = solvedExercises ?? new Set<string>()
+  
+  // Only show user-specific UI after Clerk has loaded
+  const showUserUI = isClerkLoaded && !!user
 
   const filteredExercises = showOnlyUnsolved
-    ? exercises.filter((ex) => !solvedExercises?.has(ex.id))
+    ? exercises.filter((ex) => !solvedSet.has(ex.id))
     : exercises
 
   const groupedExercises = filteredExercises.reduce<Record<string, Exercise[]>>(
@@ -45,8 +63,8 @@ export function ExerciseGrid({ exercises }: ExerciseGridProps) {
   )
 
   return (
-    <div className="space-y-10">
-      {user && (
+    <div className="space-y-6">
+      {showUserUI && (
         <div className="flex justify-end">
           <Button
             variant="outline"
@@ -72,20 +90,20 @@ export function ExerciseGrid({ exercises }: ExerciseGridProps) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
             >
-              <div className="flex items-center gap-3 mb-6">
-                <span className="text-2xl">{difficultyIcons[difficulty]}</span>
-                <h2 className="text-xl font-semibold">{difficulty}</h2>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-lg">{difficultyIcons[difficulty]}</span>
+                <h2 className="text-base font-semibold">{difficulty}</h2>
                 <Badge variant="secondary">
                   {groupedExercises[difficulty].length} ejercicios
                 </Badge>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                 {groupedExercises[difficulty].map((exercise) => (
                   <ExerciseCard
                     key={exercise.id}
                     exercise={exercise}
-                    isSolved={solvedExercises?.has(exercise.id)}
+                    isSolved={solvedSet.has(exercise.id)}
                   />
                 ))}
               </div>
@@ -95,5 +113,6 @@ export function ExerciseGrid({ exercises }: ExerciseGridProps) {
     </div>
   )
 }
+
 
 

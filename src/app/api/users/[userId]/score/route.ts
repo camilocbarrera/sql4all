@@ -35,6 +35,8 @@ export async function GET(
       0
     )
 
+    console.log('Score calculated:', { userId, exerciseCount: exerciseScores.size, totalScore })
+
     return NextResponse.json({ score: totalScore })
   } catch (error) {
     console.error('Error fetching score:', error)

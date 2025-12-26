@@ -163,47 +163,59 @@ export function SqlEditor({
   isDDL = false,
 }: SqlEditorProps) {
   const { theme } = useTheme()
-  const { user } = useUser()
+  const { user, isLoaded: isClerkLoaded } = useUser()
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null)
   const [isSaved, setIsSaved] = useState(false)
   const [showSignupPrompt, setShowSignupPrompt] = useState(false)
   const createSubmission = useCreateSubmission()
   const { data: solvedExercises } = useSolvedExercises()
   
+  // Ref to prevent double-triggering of save on validation
+  const hasTriggeredSaveRef = useRef(false)
+  
   const wasAlreadySolved = exerciseId ? solvedExercises?.has(exerciseId) : false
   
-  const autoSave = useCallback(async () => {
-    if (!user || !exerciseId || isSaved || wasAlreadySolved) return
-    
-    try {
-      await createSubmission.mutateAsync({ exerciseId, solution: value })
-      setIsSaved(true)
-      toast.success('Progreso guardado')
-      onSaveSuccess?.()
-    } catch {
-      toast.error('Error al guardar el progreso')
-    }
-  }, [user, exerciseId, isSaved, wasAlreadySolved, createSubmission, onSaveSuccess, value])
-
-  const handleExerciseValidated = useCallback(() => {
+  // Reset the save trigger when exercise changes
+  useEffect(() => {
+    hasTriggeredSaveRef.current = false
+    setIsSaved(false)
+  }, [exerciseId])
+  
+  useEffect(() => {
+    if (!isValidated || isSaved || wasAlreadySolved || hasTriggeredSaveRef.current) return
     if (!exerciseId) return
     
+    // Wait for Clerk to load before deciding what to do
+    if (!isClerkLoaded) {
+      console.log('[SqlEditor] Waiting for Clerk to load...')
+      return
+    }
+    
+    hasTriggeredSaveRef.current = true
+    
+    console.log('[SqlEditor] Exercise validated, user state:', { isClerkLoaded, hasUser: !!user })
+    
     if (user) {
-      autoSave()
+      createSubmission.mutateAsync({ exerciseId, solution: value })
+        .then((data) => {
+          console.log('Submission saved successfully:', data)
+          setIsSaved(true)
+          toast.success('Progreso guardado')
+          onSaveSuccess?.()
+        })
+        .catch((err) => {
+          console.error('Failed to save submission:', err)
+          hasTriggeredSaveRef.current = false
+          toast.error('Error al guardar el progreso')
+        })
     } else {
+      // Only show signup prompt for truly unauthenticated users
       const completed = addLocalCompletedExercise(exerciseId)
-      // Show signup prompt on first completed exercise if not dismissed
       if (completed.length === 1 && !isSignupDismissed()) {
         setShowSignupPrompt(true)
       }
     }
-  }, [exerciseId, user, autoSave])
-  
-  useEffect(() => {
-    if (isValidated && !isSaved && !wasAlreadySolved) {
-      handleExerciseValidated()
-    }
-  }, [isValidated, isSaved, wasAlreadySolved, handleExerciseValidated])
+  }, [isValidated, isSaved, wasAlreadySolved, exerciseId, user, isClerkLoaded, value, createSubmission, onSaveSuccess])
 
   const handleSignupSkip = useCallback(() => {
     dismissSignup()

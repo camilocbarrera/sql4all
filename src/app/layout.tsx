@@ -60,7 +60,21 @@ export default function RootLayout({
               <Header />
               <main>{children}</main>
             </div>
-            <Toaster position="top-center" richColors />
+            <Toaster 
+              position="top-center"
+              toastOptions={{
+                unstyled: true,
+                classNames: {
+                  toast: 'group flex items-center gap-3 w-full p-4 rounded-lg border shadow-lg bg-card',
+                  title: 'text-sm font-medium',
+                  description: 'text-sm opacity-90',
+                  success: 'bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200',
+                  error: 'bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200',
+                  warning: 'bg-yellow-50 dark:bg-yellow-950/50 border-yellow-200 dark:border-yellow-800 text-yellow-800 dark:text-yellow-200',
+                  info: 'bg-blue-50 dark:bg-blue-950/50 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-200',
+                },
+              }}
+            />
             <Analytics />
           </Providers>
         </body>

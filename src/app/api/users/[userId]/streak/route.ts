@@ -63,6 +63,7 @@ export async function GET(
       checkDate.setDate(checkDate.getDate() - 1)
     }
 
+    console.log('Streak calculated:', { userId, streak, submissionCount: userSubmissions.length })
     return NextResponse.json({ streak })
   } catch (error) {
     console.error('Error calculating streak:', error)

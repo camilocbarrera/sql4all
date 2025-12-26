@@ -46,6 +46,8 @@ class DatabaseService {
   private db: PGlite | null = null
   private initPromise: Promise<PGlite> | null = null
   private ddlSchemaInitialized = false
+  private ddlResetInProgress = false
+  private ddlResetPromise: Promise<void> | null = null
 
   async initialize() {
     if (typeof window === 'undefined') {
@@ -143,26 +145,48 @@ class DatabaseService {
   }
 
   async resetDDLSchema(setupSQL?: string): Promise<void> {
-    if (!this.db) {
-      await this.initialize()
+    // If a reset is already in progress, wait for it to complete
+    if (this.ddlResetInProgress && this.ddlResetPromise) {
+      console.log('[DDL] Reset already in progress, waiting...')
+      await this.ddlResetPromise
+      return
     }
 
-    try {
-      await this.db!.exec(`
-        DROP SCHEMA IF EXISTS ${DDL_SCHEMA} CASCADE;
-        CREATE SCHEMA ${DDL_SCHEMA};
-        SET search_path TO ${DDL_SCHEMA}, public;
-      `)
-
-      if (setupSQL) {
-        await this.db!.exec(setupSQL)
+    this.ddlResetInProgress = true
+    
+    this.ddlResetPromise = (async () => {
+      if (!this.db) {
+        await this.initialize()
       }
 
-      this.ddlSchemaInitialized = true
-    } catch (error) {
-      console.error('Error resetting DDL schema:', error)
-      throw error
-    }
+      try {
+        console.log('[DDL] Starting schema reset...')
+        
+        // Drop and recreate schema
+        await this.db!.exec(`
+          DROP SCHEMA IF EXISTS ${DDL_SCHEMA} CASCADE;
+          CREATE SCHEMA ${DDL_SCHEMA};
+          SET search_path TO ${DDL_SCHEMA}, public;
+        `)
+        
+        console.log('[DDL] Schema reset complete, running setup SQL...')
+
+        if (setupSQL) {
+          await this.db!.exec(setupSQL)
+          console.log('[DDL] Setup SQL executed successfully')
+        }
+
+        this.ddlSchemaInitialized = true
+      } catch (error) {
+        console.error('[DDL] Error resetting DDL schema:', error)
+        throw error
+      } finally {
+        this.ddlResetInProgress = false
+        this.ddlResetPromise = null
+      }
+    })()
+
+    await this.ddlResetPromise
   }
 
   async inspectSchema(): Promise<SchemaInfo> {

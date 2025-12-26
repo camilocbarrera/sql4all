@@ -8,12 +8,19 @@ import { useUserScore } from '@/hooks/use-submissions'
 import { Badge, Skeleton } from '@/components/ui'
 
 export function ScoreBadge() {
-  const { user } = useUser()
-  const { data: score, isLoading } = useUserScore()
+  const { user, isLoaded: isClerkLoaded } = useUser()
+  const { data: score, isLoading, isFetched } = useUserScore()
+
+  console.log('[ScoreBadge] State:', { isClerkLoaded, hasUser: !!user, score, isLoading, isFetched })
+
+  // Wait for Clerk to load before deciding to hide
+  if (!isClerkLoaded) {
+    return <Skeleton className="h-7 w-20 rounded-full" />
+  }
 
   if (!user) return null
 
-  if (isLoading) {
+  if (isLoading || score === undefined) {
     return <Skeleton className="h-7 w-20 rounded-full" />
   }
 

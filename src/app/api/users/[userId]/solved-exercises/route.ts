@@ -23,6 +23,8 @@ export async function GET(
 
     const exerciseIds = [...new Set(userSubmissions.map((sub) => sub.exerciseId))]
 
+    console.log('Fetched solved exercises:', { userId, count: exerciseIds.length, exerciseIds })
+
     return NextResponse.json({ exerciseIds })
   } catch (error) {
     console.error('Error fetching solved exercises:', error)

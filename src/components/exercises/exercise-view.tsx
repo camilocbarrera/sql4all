@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -75,32 +75,77 @@ export function ExerciseView({
   const [isSchemaLoading, setIsSchemaLoading] = useState(false)
 
   const isDDLExercise = exercise.type === 'ddl' || isDDLValidation(exercise.validation)
-
+  
+  // Ref to prevent concurrent DDL initialization
+  const ddlInitRef = useRef<{ exerciseId: string; inProgress: boolean } | null>(null)
+  
+  // Track mount state for hydration-safe rendering of Radix components
+  const [isMounted, setIsMounted] = useState(false)
+  
   useEffect(() => {
-    const initDb = async () => {
+    setIsMounted(true)
+  }, [])
+
+  // Single effect to handle DB initialization and DDL environment setup
+  useEffect(() => {
+    let cancelled = false
+    
+    const initializeExercise = async () => {
+      // Reset state when exercise changes
+      setResults(null)
+      setError(null)
+      setIsValidated(false)
+      setSchemaInfo(null)
+      setDdlValidationResult(null)
+      
       await dbService.initialize()
-      if (isDDLExercise) {
-        await initializeDDLEnvironment()
+      
+      if (!isDDLExercise || cancelled) return
+      
+      // Prevent concurrent initialization for the same exercise
+      if (ddlInitRef.current?.exerciseId === exercise.id && ddlInitRef.current?.inProgress) {
+        return
+      }
+      
+      ddlInitRef.current = { exerciseId: exercise.id, inProgress: true }
+      setIsSchemaLoading(true)
+      
+      try {
+        const conditions = exercise.validation.conditions as DDLConditions
+        const setupSQL = getDDLSetupSQL(conditions)
+        await dbService.resetDDLSchema(setupSQL)
+        
+        if (cancelled) return
+        
+        const info = await dbService.inspectSchema()
+        if (!cancelled) {
+          setSchemaInfo(info)
+        }
+      } catch (err) {
+        console.error('Error initializing DDL environment:', err)
+      } finally {
+        if (ddlInitRef.current?.exerciseId === exercise.id) {
+          ddlInitRef.current.inProgress = false
+        }
+        if (!cancelled) {
+          setIsSchemaLoading(false)
+        }
       }
     }
-    initDb().catch(console.error)
-  }, [isDDLExercise])
-
-  // Reset DDL environment when exercise changes
-  useEffect(() => {
-    if (isDDLExercise) {
-      initializeDDLEnvironment()
+    
+    initializeExercise().catch(console.error)
+    
+    return () => {
+      cancelled = true
     }
-    // Reset state when exercise changes
-    setResults(null)
-    setError(null)
-    setIsValidated(false)
-    setSchemaInfo(null)
-    setDdlValidationResult(null)
-  }, [exercise.id, isDDLExercise])
+  }, [exercise.id, exercise.validation, isDDLExercise])
 
   const initializeDDLEnvironment = async () => {
+    if (ddlInitRef.current?.inProgress) return
+    
+    ddlInitRef.current = { exerciseId: exercise.id, inProgress: true }
     setIsSchemaLoading(true)
+    
     try {
       const conditions = exercise.validation.conditions as DDLConditions
       const setupSQL = getDDLSetupSQL(conditions)
@@ -110,14 +155,18 @@ export function ExerciseView({
     } catch (err) {
       console.error('Error initializing DDL environment:', err)
     } finally {
+      if (ddlInitRef.current?.exerciseId === exercise.id) {
+        ddlInitRef.current.inProgress = false
+      }
       setIsSchemaLoading(false)
     }
   }
   
   const handleSaveSuccess = useCallback(() => {
     setIsSaved(true)
-    clearQuery()
-  }, [clearQuery])
+    // Note: We don't clear the query here to keep it visible in the editor
+    // The solution is saved to the server and will be loaded on refresh
+  }, [])
 
   const executeDMLQuery = async () => {
     const result = await dbService.executeQuery(query)
@@ -148,6 +197,12 @@ export function ExerciseView({
   }
 
   const executeDDLQuery = async () => {
+    const conditions = exercise.validation.conditions as DDLConditions
+    
+    // Reset DDL schema before each execution to ensure clean state
+    const setupSQL = getDDLSetupSQL(conditions)
+    await dbService.resetDDLSchema(setupSQL)
+    
     // Execute the DDL query
     const result = await dbService.executeDDLQuery(query)
 
@@ -164,7 +219,6 @@ export function ExerciseView({
     setSchemaInfo(updatedSchema)
 
     // Validate DDL result
-    const conditions = exercise.validation.conditions as DDLConditions
     const validationResult = await validateDDLExercise(conditions)
     setDdlValidationResult(validationResult)
 
@@ -253,7 +307,7 @@ export function ExerciseView({
                       </Badge>
                     )}
                   </div>
-                  <CardDescription className="line-clamp-3 mt-1">{exercise.description}</CardDescription>
+                  <CardDescription className="mt-1">{exercise.description}</CardDescription>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <Badge variant="outline" className="text-xs">{exercise.difficulty}</Badge>
@@ -298,21 +352,32 @@ export function ExerciseView({
                   </div>
                 </div>
 
-                <Accordion type="single" collapsible>
-                  <AccordionItem value="hint" className="border-none">
-                    <AccordionTrigger className="hover:no-underline py-2">
-                      <span className="flex items-center gap-2 text-sm">
-                        <Lightbulb className="h-4 w-4 text-yellow-500" />
-                        Ver pista
-                      </span>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <p className="text-sm text-muted-foreground p-3 bg-yellow-500/10 rounded-lg">
-                        {exercise.hint}
-                      </p>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
+                {/* Render Accordion only after mount to avoid hydration mismatch */}
+                {isMounted ? (
+                  <Accordion type="single" collapsible>
+                    <AccordionItem value="hint" className="border-none">
+                      <AccordionTrigger className="hover:no-underline py-2">
+                        <span className="flex items-center gap-2 text-sm">
+                          <Lightbulb className="h-4 w-4 text-yellow-500" />
+                          Ver pista
+                        </span>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <p className="text-sm text-muted-foreground p-3 bg-yellow-500/10 rounded-lg">
+                          {exercise.hint}
+                        </p>
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
+                ) : (
+                  <button
+                    type="button"
+                    className="flex flex-1 items-center gap-2 text-sm py-2"
+                  >
+                    <Lightbulb className="h-4 w-4 text-yellow-500" />
+                    Ver pista
+                  </button>
+                )}
 
                 {/* Schema State Viewer for DDL exercises */}
                 {isDDLExercise && (

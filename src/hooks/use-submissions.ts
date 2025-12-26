@@ -6,16 +6,20 @@ import { queryKeys } from '@/lib/query-client'
 import type { WeekProgress } from '@/lib/validations'
 
 async function fetchUserScore(userId: string): Promise<number> {
+  console.log('[fetchUserScore] Fetching for userId:', userId)
   const res = await fetch(`/api/users/${userId}/score`)
   if (!res.ok) throw new Error('Failed to fetch score')
   const data = await res.json()
+  console.log('[fetchUserScore] Response:', data)
   return data.score
 }
 
 async function fetchUserStreak(userId: string): Promise<number> {
+  console.log('[fetchUserStreak] Fetching for userId:', userId)
   const res = await fetch(`/api/users/${userId}/streak`)
   if (!res.ok) throw new Error('Failed to fetch streak')
   const data = await res.json()
+  console.log('[fetchUserStreak] Response:', data)
   return data.streak
 }
 
@@ -27,10 +31,17 @@ async function fetchWeekProgress(userId: string): Promise<WeekProgress[]> {
 }
 
 async function fetchSolvedExercises(userId: string): Promise<Set<string>> {
+  console.log('[fetchSolvedExercises] Fetching for userId:', userId)
   const res = await fetch(`/api/users/${userId}/solved-exercises`)
-  if (!res.ok) throw new Error('Failed to fetch solved exercises')
+  if (!res.ok) {
+    console.error('[fetchSolvedExercises] Failed:', res.status, res.statusText)
+    throw new Error('Failed to fetch solved exercises')
+  }
   const data = await res.json()
-  return new Set(data.exerciseIds)
+  console.log('[fetchSolvedExercises] Raw response:', data)
+  const exerciseSet = new Set<string>(data.exerciseIds)
+  console.log('[fetchSolvedExercises] Created Set with size:', exerciseSet.size, 'ids:', Array.from(exerciseSet))
+  return exerciseSet
 }
 
 interface CreateSubmissionParams {
@@ -38,13 +49,21 @@ interface CreateSubmissionParams {
   solution?: string
 }
 
-async function createSubmission({ exerciseId, solution }: CreateSubmissionParams): Promise<void> {
+async function createSubmission({ exerciseId, solution }: CreateSubmissionParams): Promise<{ submission: unknown }> {
   const res = await fetch('/api/submissions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ exerciseId, solution }),
   })
-  if (!res.ok) throw new Error('Failed to create submission')
+  
+  const data = await res.json()
+  
+  if (!res.ok) {
+    console.error('Submission failed:', data)
+    throw new Error(data.error || 'Failed to create submission')
+  }
+  
+  return data
 }
 
 async function fetchSavedSolution(userId: string, exerciseId: string): Promise<string | null> {
@@ -55,27 +74,45 @@ async function fetchSavedSolution(userId: string, exerciseId: string): Promise<s
 }
 
 export function useUserScore() {
-  const { user } = useUser()
+  const { user, isLoaded } = useUser()
   const userId = user?.id
 
-  return useQuery({
+  const query = useQuery({
     queryKey: queryKeys.userScore(userId ?? ''),
     queryFn: () => fetchUserScore(userId!),
     enabled: !!userId,
-    initialData: 0,
   })
+
+  console.log('[useUserScore] State:', { 
+    isLoaded, 
+    userId, 
+    enabled: !!userId,
+    status: query.status,
+    data: query.data 
+  })
+
+  return query
 }
 
 export function useUserStreak() {
-  const { user } = useUser()
+  const { user, isLoaded } = useUser()
   const userId = user?.id
 
-  return useQuery({
+  const query = useQuery({
     queryKey: queryKeys.userStreak(userId ?? ''),
     queryFn: () => fetchUserStreak(userId!),
     enabled: !!userId,
-    initialData: 0,
   })
+
+  console.log('[useUserStreak] State:', { 
+    isLoaded, 
+    userId, 
+    enabled: !!userId,
+    status: query.status,
+    data: query.data 
+  })
+
+  return query
 }
 
 export function useWeekProgress() {
@@ -91,15 +128,32 @@ export function useWeekProgress() {
 }
 
 export function useSolvedExercises() {
-  const { user } = useUser()
+  const { user, isLoaded: isUserLoaded } = useUser()
   const userId = user?.id
 
-  return useQuery({
+  console.log('[useSolvedExercises] Hook called:', { 
+    isUserLoaded, 
+    hasUser: !!user, 
+    userId,
+    enabled: !!userId 
+  })
+
+  const query = useQuery({
     queryKey: queryKeys.solvedExercises(userId ?? ''),
     queryFn: () => fetchSolvedExercises(userId!),
     enabled: !!userId,
-    initialData: new Set<string>(),
   })
+
+  console.log('[useSolvedExercises] Query state:', {
+    status: query.status,
+    isLoading: query.isLoading,
+    isFetching: query.isFetching,
+    isFetched: query.isFetched,
+    dataSize: query.data?.size ?? 0,
+    dataIds: query.data ? Array.from(query.data) : []
+  })
+
+  return query
 }
 
 export function useSavedSolution(exerciseId: string) {
@@ -140,7 +194,11 @@ export function useCreateSubmission() {
 
       return { previousScore, previousStreak, previousSolved }
     },
-    onError: (_err, _params, context) => {
+    onSuccess: (data, { exerciseId }) => {
+      console.log('Mutation succeeded - submission created:', { data, exerciseId, userId })
+    },
+    onError: (err, _params, context) => {
+      console.error('Mutation failed:', err)
       if (context?.previousScore !== undefined) {
         queryClient.setQueryData(queryKeys.userScore(userId ?? ''), context.previousScore)
       }
@@ -151,7 +209,8 @@ export function useCreateSubmission() {
         queryClient.setQueryData(queryKeys.solvedExercises(userId ?? ''), context.previousSolved)
       }
     },
-    onSettled: (_data, _error, { exerciseId }) => {
+    onSettled: (data, error, { exerciseId }) => {
+      console.log('Mutation settled:', { data, error, exerciseId })
       queryClient.invalidateQueries({ queryKey: queryKeys.userScore(userId ?? '') })
       queryClient.invalidateQueries({ queryKey: queryKeys.userStreak(userId ?? '') })
       queryClient.invalidateQueries({ queryKey: queryKeys.weekProgress(userId ?? '') })
