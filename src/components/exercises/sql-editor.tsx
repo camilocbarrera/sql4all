@@ -13,6 +13,7 @@ import { Button, Card, CardContent } from '@/components/ui'
 import { ErrorMessage } from '@/components/shared/error-message'
 import { SignupPromptModal } from '@/components/shared/signup-prompt-modal'
 import { useCreateSubmission, useSolvedExercises } from '@/hooks/use-submissions'
+import { cn } from '@/lib/utils'
 
 const LOCAL_COMPLETED_KEY = 'sql4all_completed_exercises'
 const SIGNUP_DISMISSED_KEY = 'sql4all_signup_dismissed'
@@ -333,40 +334,76 @@ export function SqlEditor({
   
   const showSavedState = isSaved || wasAlreadySolved
 
+  const hasError = !!error
+
   return (
     <div className="space-y-4">
-      <Card className="overflow-hidden">
-        <CardContent className="p-0">
-          {/* Responsive editor height: smaller on mobile, larger on desktop */}
-          <div className="h-[150px] sm:h-[200px] lg:h-[250px]">
-            <Editor
-              height="100%"
-              defaultLanguage="sql"
-              value={value}
-              onChange={(val) => onChange(val || '')}
-              theme={theme === 'light' ? 'vs-light' : 'vs-dark'}
-              options={{
-                minimap: { enabled: false },
-                fontSize: 13,
-                lineNumbers: 'on',
-                wordWrap: 'on',
-                automaticLayout: true,
-                tabSize: 2,
-                scrollBeyondLastLine: false,
-                quickSuggestionsDelay: 10,
-                padding: { top: 8, bottom: 8 },
-                suggest: {
-                  showWords: true,
-                  preview: true,
-                  showMethods: true,
-                  showFunctions: true,
-                },
-              }}
-              onMount={handleEditorDidMount}
-            />
-          </div>
-        </CardContent>
-      </Card>
+      {/* Glowing border wrapper */}
+      <div className="group relative">
+        {/* Outer glow - blurred */}
+        <div 
+          className={cn(
+            "absolute -inset-px rounded-xl transition-all duration-300 blur-sm",
+            isValidated 
+              ? "bg-gradient-to-r from-emerald-500/60 via-emerald-500/30 to-emerald-500/60 opacity-100"
+              : hasError
+                ? "bg-gradient-to-r from-red-500/50 via-red-500/20 to-red-500/50 opacity-100"
+                : "bg-gradient-to-r from-primary/50 via-transparent to-primary/50 opacity-0 group-focus-within:opacity-100"
+          )} 
+        />
+        {/* Inner glow - sharp */}
+        <div 
+          className={cn(
+            "absolute -inset-px rounded-xl transition-all duration-300",
+            isValidated
+              ? "bg-gradient-to-r from-emerald-500/40 via-transparent to-emerald-500/40 opacity-100"
+              : hasError
+                ? "bg-gradient-to-r from-red-500/30 via-transparent to-red-500/30 opacity-100"
+                : "bg-gradient-to-r from-primary/30 via-transparent to-primary/30 opacity-0 group-focus-within:opacity-100"
+          )} 
+        />
+        <Card 
+          className={cn(
+            "relative overflow-hidden transition-colors duration-300",
+            isValidated 
+              ? "border-emerald-500/30" 
+              : hasError
+                ? "border-red-500/30"
+                : "border-transparent group-focus-within:border-primary/20"
+          )}
+        >
+          <CardContent className="p-0">
+            {/* Responsive editor height: smaller on mobile, larger on desktop */}
+            <div className="h-[150px] sm:h-[200px] lg:h-[250px]">
+              <Editor
+                height="100%"
+                defaultLanguage="sql"
+                value={value}
+                onChange={(val) => onChange(val || '')}
+                theme={theme === 'light' ? 'vs-light' : 'vs-dark'}
+                options={{
+                  minimap: { enabled: false },
+                  fontSize: 13,
+                  lineNumbers: 'on',
+                  wordWrap: 'on',
+                  automaticLayout: true,
+                  tabSize: 2,
+                  scrollBeyondLastLine: false,
+                  quickSuggestionsDelay: 10,
+                  padding: { top: 8, bottom: 8 },
+                  suggest: {
+                    showWords: true,
+                    preview: true,
+                    showMethods: true,
+                    showFunctions: true,
+                  },
+                }}
+                onMount={handleEditorDidMount}
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-2">
