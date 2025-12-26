@@ -114,6 +114,11 @@
   h6 {
     @apply font-semibold tracking-tight;
   }
+
+  ::selection {
+    background-color: oklch(from var(--primary) l c h / 0.5);
+    color: oklch(from var(--primary-foreground) l c h);
+  }
 }
 
 /* GitHub Badge Animations */
