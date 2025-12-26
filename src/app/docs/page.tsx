@@ -135,10 +135,14 @@ function IntroSection() {
         <h1 className="text-3xl font-bold tracking-tight mb-4">
           Documentación SQL4All
         </h1>
-        <p className="text-lg text-muted-foreground">
+        <p className="text-lg text-muted-foreground mb-3">
           Guía completa para aprender SQL de forma interactiva. Desde conceptos
           básicos hasta consultas avanzadas.
         </p>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Database className="h-4 w-4" />
+          <span>Basado en <strong className="text-foreground">PostgreSQL</strong> - Aprende SQL con la sintaxis y características de PostgreSQL</span>
+        </div>
       </div>
 
       <Card>
@@ -151,7 +155,7 @@ function IntroSection() {
         <CardContent className="space-y-4">
           <p className="text-muted-foreground">
             SQL (Structured Query Language) es el lenguaje estándar para
-            manipular y consultar bases de datos relacionales. Te permite:
+            manipular y consultar bases de datos relacionales. En SQL4All aprenderás SQL usando <strong className="text-foreground">PostgreSQL</strong>, uno de los sistemas de bases de datos más populares y potentes. Te permite:
           </p>
           <ul className="list-disc list-inside space-y-2 text-muted-foreground">
             <li>Consultar datos de una o más tablas</li>

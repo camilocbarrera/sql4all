@@ -77,11 +77,21 @@ export function LandingPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8"
+            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-4"
           >
             Domina SQL paso a paso con ejercicios prácticos y retroalimentación inmediata.
             Desde conceptos básicos hasta consultas avanzadas.
           </motion.p>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.35 }}
+            className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-8"
+          >
+            <Database className="h-4 w-4" />
+            <span>Aprende SQL con <strong className="text-foreground">PostgreSQL</strong></span>
+          </motion.div>
         </motion.div>
 
         {/* Interactive Demo */}
