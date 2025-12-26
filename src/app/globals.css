@@ -257,3 +257,115 @@
   inset: 1px;
   z-index: 0;
 }
+
+/* Clerk Auth Component Theming */
+.cl-rootBox {
+  font-family: var(--font-sans), Inter, system-ui, sans-serif;
+}
+
+.cl-card {
+  background: var(--card) !important;
+  border: none !important;
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25) !important;
+}
+
+.cl-headerTitle,
+.cl-headerSubtitle,
+.cl-socialButtonsBlockButtonText,
+.cl-formFieldLabel,
+.cl-identityPreviewText,
+.cl-userPreviewMainIdentifier {
+  color: var(--foreground) !important;
+}
+
+.cl-dividerText,
+.cl-userPreviewSecondaryIdentifier {
+  color: var(--muted-foreground) !important;
+}
+
+.cl-dividerLine {
+  background: var(--muted) !important;
+}
+
+.cl-formFieldInput {
+  background: var(--input) !important;
+  border: none !important;
+  color: var(--foreground) !important;
+}
+
+.cl-formFieldInput::placeholder {
+  color: var(--muted-foreground) !important;
+}
+
+.cl-formFieldInput:focus {
+  box-shadow: 0 0 0 2px oklch(from var(--ring) l c h / 0.3) !important;
+}
+
+.cl-formButtonPrimary {
+  background: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+  font-weight: 500 !important;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) !important;
+  transition: all 0.2s ease !important;
+}
+
+.cl-formButtonPrimary:hover {
+  background: oklch(from var(--primary) calc(l - 0.05) c h) !important;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.15) !important;
+}
+
+.cl-socialButtonsBlockButton {
+  background: var(--secondary) !important;
+  border: none !important;
+  transition: all 0.2s ease !important;
+}
+
+.cl-socialButtonsBlockButton:hover {
+  background: oklch(from var(--secondary) calc(l - 0.05) c h) !important;
+}
+
+.cl-footerActionLink,
+.cl-formButtonReset,
+.cl-identityPreviewEditButton {
+  color: var(--primary) !important;
+}
+
+.cl-footerActionLink:hover,
+.cl-formButtonReset:hover,
+.cl-identityPreviewEditButton:hover {
+  color: oklch(from var(--primary) calc(l - 0.1) c h) !important;
+}
+
+.cl-userButtonPopoverCard {
+  background: var(--card) !important;
+  border: none !important;
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25) !important;
+}
+
+.cl-userButtonPopoverActionButton:hover {
+  background: var(--accent) !important;
+}
+
+.cl-userButtonPopoverFooter {
+  border: none !important;
+}
+
+.cl-avatarBox {
+  box-shadow: 0 0 0 2px oklch(from var(--primary) l c h / 0.2) !important;
+}
+
+.cl-badge {
+  background: oklch(from var(--primary) l c h / 0.1) !important;
+  color: var(--primary) !important;
+  border: none !important;
+}
+
+.cl-modalBackdrop {
+  background: oklch(from var(--background) l c h / 0.8) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+.cl-modalContent {
+  background: var(--card) !important;
+  border: none !important;
+}
