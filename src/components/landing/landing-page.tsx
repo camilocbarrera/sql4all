@@ -18,20 +18,20 @@ export function LandingPage() {
         
         {/* Ellipse 1 - Top Right */}
         <div 
-          className="absolute pointer-events-none bg-primary rounded-full w-[200px] h-[200px] md:w-[367px] md:h-[367px] -right-[50px] -top-[80px] md:-right-[100px] md:-top-[168px]"
+          className="absolute pointer-events-none bg-primary rounded-full w-[180px] h-[367px] -right-[100px] -top-[168px]"
           style={{
             mixBlendMode: 'hard-light',
             filter: 'blur(237px)',
-            opacity: 0.99,
+            opacity: 0.64,
           }}
         />
         {/* Ellipse 2 - Bottom Left */}
         <div 
-          className="absolute pointer-events-none bg-primary rounded-full w-[200px] h-[200px] md:w-[367px] md:h-[367px] -left-[80px] bottom-[-10%] md:-left-[150px] md:bottom-[-20%]"
+          className="absolute pointer-events-none bg-primary rounded-full w-[180px] h-[367px] -left-[150px] -bottom-[250px]"
           style={{
             mixBlendMode: 'hard-light',
             filter: 'blur(236px)',
-            opacity: 0.78,
+            opacity: 0.64,
           }}
         />
         <div className="relative z-10 flex-1 flex flex-col items-center justify-center w-full">
