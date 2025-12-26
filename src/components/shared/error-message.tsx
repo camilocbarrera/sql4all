@@ -3,14 +3,25 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { AlertCircle, Lightbulb } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui'
+import { AIHint } from './ai-hint'
+
+interface ExerciseContext {
+  title: string
+  description: string
+  details: string
+  hint: string
+  type?: 'dml' | 'ddl'
+}
 
 interface ErrorMessageProps {
   message: string
   example?: string | null
   timestamp?: number
+  exercise?: ExerciseContext
+  userQuery?: string
 }
 
-export function ErrorMessage({ message, example, timestamp }: ErrorMessageProps) {
+export function ErrorMessage({ message, example, timestamp, exercise, userQuery }: ErrorMessageProps) {
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -38,6 +49,13 @@ export function ErrorMessage({ message, example, timestamp }: ErrorMessageProps)
                       </code>
                     </div>
                   </div>
+                )}
+                {exercise && userQuery && (
+                  <AIHint
+                    exercise={exercise}
+                    userQuery={userQuery}
+                    error={message}
+                  />
                 )}
               </div>
             </div>

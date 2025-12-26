@@ -461,6 +461,13 @@ export function ExerciseView({
                     errorTimestamp={errorTimestamp}
                     errorExample={errorExample}
                     exerciseId={exercise.id}
+                    exercise={{
+                      title: exercise.title,
+                      description: exercise.description,
+                      details: exercise.details,
+                      hint: exercise.hint,
+                      type: exercise.type,
+                    }}
                     isValidated={isValidated}
                     isDDL={isDDLExercise}
                   />

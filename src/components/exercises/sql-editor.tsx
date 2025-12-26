@@ -45,6 +45,14 @@ function dismissSignup(): void {
   localStorage.setItem(SIGNUP_DISMISSED_KEY, 'true')
 }
 
+interface ExerciseContext {
+  title: string
+  description: string
+  details: string
+  hint: string
+  type?: 'dml' | 'ddl'
+}
+
 interface SqlEditorProps {
   value: string
   onChange: (value: string) => void
@@ -55,7 +63,7 @@ interface SqlEditorProps {
   errorTimestamp?: number
   errorExample?: string | null
   exerciseId?: string
-  exerciseTitle?: string
+  exercise?: ExerciseContext
   nextExerciseId?: string
   isValidated?: boolean
   isDDL?: boolean
@@ -159,6 +167,7 @@ export function SqlEditor({
   errorTimestamp,
   errorExample,
   exerciseId,
+  exercise,
   isValidated = false,
   isDDL = false,
 }: SqlEditorProps) {
@@ -401,6 +410,8 @@ export function SqlEditor({
           message={error}
           example={errorExample}
           timestamp={errorTimestamp}
+          exercise={exercise}
+          userQuery={value}
         />
       )}
 
