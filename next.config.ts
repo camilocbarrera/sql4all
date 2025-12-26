@@ -17,6 +17,16 @@ const nextConfig = {
         hostname: 'pglite.dev',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'img.clerk.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.clerk.com',
+        pathname: '/**',
+      },
     ],
   },
 }

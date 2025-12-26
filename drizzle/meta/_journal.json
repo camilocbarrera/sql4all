@@ -8,6 +8,20 @@
       "when": 1766521876401,
       "tag": "0000_add_solution_to_submissions",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1766521876402,
+      "tag": "0001_add_exercise_type",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1735228800000,
+      "tag": "0002_add_profiles_table",
+      "breakpoints": true
     }
   ]
 }

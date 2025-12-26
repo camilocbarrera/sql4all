@@ -1,18 +1,9 @@
 'use client'
 
-import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { CheckCircle2, Clock, ArrowRight } from 'lucide-react'
+import { CheckCircle2, Clock, ArrowRight, History } from 'lucide-react'
 import { formatDistanceToNow } from '@/lib/utils'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Badge,
-  Button,
-} from '@/components/ui'
+import { Badge, Button } from '@/components/ui'
 
 interface HistoryItem {
   exerciseId: string
@@ -24,88 +15,109 @@ interface HistoryItem {
 
 interface ExerciseHistoryProps {
   history: HistoryItem[]
+  hasSolvedExercises?: boolean
 }
 
 const difficultyColors: Record<string, string> = {
-  Principiante: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
-  Intermedio: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20',
-  Avanzado: 'bg-red-500/10 text-red-600 border-red-500/20',
+  Principiante: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400',
+  Intermedio: 'bg-amber-500/10 text-amber-600 border-amber-500/20 dark:text-amber-400',
+  Avanzado: 'bg-rose-500/10 text-rose-600 border-rose-500/20 dark:text-rose-400',
 }
 
-export function ExerciseHistory({ history }: ExerciseHistoryProps) {
-  if (history.length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Historial de Ejercicios</CardTitle>
-          <CardDescription>Ejercicios que has completado</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8">
-            <p className="text-muted-foreground mb-4">
-              Aún no has completado ningún ejercicio
-            </p>
-            <Button asChild>
-              <Link href="/">
-                Empezar a practicar
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
+export function ExerciseHistory({ history, hasSolvedExercises }: ExerciseHistoryProps) {
+  if (!history || history.length === 0) {
+    if (hasSolvedExercises) {
+      return (
+        <div className="rounded-lg border border-border/40 bg-card/30 p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <History className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium">Historial</span>
           </div>
-        </CardContent>
-      </Card>
+          <div className="text-center py-8">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-amber-500/10 mb-3">
+              <Clock className="h-6 w-6 text-amber-500" />
+            </div>
+            <p className="text-muted-foreground text-sm">Cargando historial...</p>
+          </div>
+        </div>
+      )
+    }
+    return (
+      <div className="rounded-lg border border-border/40 bg-card/30 p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <History className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-medium">Historial</span>
+        </div>
+        <div className="text-center py-8">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-muted/50 mb-3">
+            <CheckCircle2 className="h-6 w-6 text-muted-foreground/50" />
+          </div>
+          <p className="text-muted-foreground mb-4 text-sm">
+            Aún no has completado ningún ejercicio
+          </p>
+          <Button asChild size="sm" className="gap-2">
+            <Link href="/exercises">
+              Empezar a practicar
+              <ArrowRight className="h-3 w-3" />
+            </Link>
+          </Button>
+        </div>
+      </div>
     )
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Historial de Ejercicios</CardTitle>
-        <CardDescription>
-          {history.length} ejercicio{history.length !== 1 ? 's' : ''} completado{history.length !== 1 ? 's' : ''}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          {history.map((item, index) => (
-            <motion.div
-              key={`${item.exerciseId}-${item.solvedAt.toISOString()}`}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.05 }}
-            >
-              <Link href={`/exercises/${item.exerciseId}`}>
-                <div className="flex items-center gap-4 p-3 rounded-lg border hover:bg-muted/50 transition-colors group">
-                  <div className="shrink-0">
-                    <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate group-hover:text-primary transition-colors">
-                      {item.exerciseTitle}
-                    </p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge
-                        variant="outline"
-                        className={`text-xs ${difficultyColors[item.difficulty] || ''}`}
-                      >
-                        {item.difficulty}
-                      </Badge>
-                      <span className="text-xs text-muted-foreground flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {formatDistanceToNow(item.solvedAt)}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="shrink-0 text-sm font-medium text-muted-foreground">
-                    +{item.score} pts
-                  </div>
-                </div>
-              </Link>
-            </motion.div>
-          ))}
+    <div className="rounded-lg border border-border/40 bg-card/30 p-5">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <History className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-medium">Historial</span>
         </div>
-      </CardContent>
-    </Card>
+        <span className="text-xs text-muted-foreground">
+          {history.length} completado{history.length !== 1 ? 's' : ''}
+        </span>
+      </div>
+
+      {/* Grid of exercises */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-[320px] overflow-y-auto pr-1 custom-scrollbar">
+        {history.map((item) => (
+          <Link
+            key={`${item.exerciseId}-${item.solvedAt.toISOString()}`}
+            href={`/exercises/${item.exerciseId}`}
+          >
+            <div className="flex items-center gap-3 p-3 rounded-lg border border-border/40 hover:bg-primary/5 hover:border-primary/20 transition-all group bg-background/50">
+              <div className="shrink-0">
+                <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center group-hover:bg-emerald-500/20 transition-colors">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">
+                  {item.exerciseTitle}
+                </p>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <Badge
+                    variant="outline"
+                    className={`text-[9px] px-1.5 py-0 h-4 ${difficultyColors[item.difficulty] || ''}`}
+                  >
+                    {item.difficulty.slice(0, 3)}
+                  </Badge>
+                  <span className="text-[10px] text-muted-foreground/70">
+                    {formatDistanceToNow(item.solvedAt)}
+                  </span>
+                </div>
+              </div>
+              <div className="shrink-0">
+                <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                  +{item.score}
+                </span>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
   )
 }
 

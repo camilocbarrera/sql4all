@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { BookOpen, Menu, User, Star } from 'lucide-react'
+import { BookOpen, Menu, User, Star, Database, Trophy } from 'lucide-react'
 import Link from 'next/link'
 import { useUser } from '@clerk/nextjs'
 import {
@@ -14,6 +14,7 @@ import {
   SheetTrigger,
 } from '@/components/ui'
 import { UserProfile } from '@/components/auth/user-profile'
+import { useProfileSync } from '@/hooks/use-profile-sync'
 import { ScoreBadge } from '@/components/shared/score-badge'
 import { StreakBadge } from '@/components/shared/streak-badge'
 import { ThemeToggle } from '@/components/shared/theme-toggle'
@@ -25,6 +26,9 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [githubStars, setGithubStars] = useState<number | null>(null)
   const [isMounted, setIsMounted] = useState(false)
+
+  // Sync profile to database on login
+  useProfileSync()
 
   useEffect(() => {
     setIsMounted(true)
@@ -68,9 +72,31 @@ export function Header() {
               asChild
               className="flex items-center gap-2"
             >
+              <Link href="/exercises">
+                <Database className="h-4 w-4" />
+                Practicar
+              </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              asChild
+              className="flex items-center gap-2"
+            >
               <Link href="/docs">
                 <BookOpen className="h-4 w-4" />
-                Documentación
+                Tutoriales
+              </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              asChild
+              className="flex items-center gap-2"
+            >
+              <Link href="/leaderboard">
+                <Trophy className="h-4 w-4" />
+                Ranking
               </Link>
             </Button>
             {showUserUI && (
@@ -157,8 +183,9 @@ export function Header() {
                       asChild
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      <Link href="/">
-                        Ejercicios
+                      <Link href="/exercises">
+                        <Database className="h-4 w-4 mr-2" />
+                        Practicar
                       </Link>
                     </Button>
                     <Button
@@ -169,7 +196,18 @@ export function Header() {
                     >
                       <Link href="/docs">
                         <BookOpen className="h-4 w-4 mr-2" />
-                        Documentación
+                        Tutoriales
+                      </Link>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="justify-start"
+                      asChild
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Link href="/leaderboard">
+                        <Trophy className="h-4 w-4 mr-2" />
+                        Ranking
                       </Link>
                     </Button>
                     {showUserUI && (

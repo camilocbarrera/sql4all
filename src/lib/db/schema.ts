@@ -1,6 +1,17 @@
 import { pgTable, uuid, text, timestamp, boolean, integer, jsonb } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 
+// User profiles - synced from Clerk
+export const profiles = pgTable('profiles', {
+  id: text('id').primaryKey(), // Clerk user ID
+  displayName: text('display_name'),
+  email: text('email'),
+  imageUrl: text('image_url'),
+  countryCode: text('country_code'), // ISO 3166-1 alpha-2 (e.g., 'CO', 'US')
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
 export const exercises = pgTable('exercises', {
   id: uuid('id').primaryKey().defaultRandom(),
   title: text('title').notNull(),
@@ -33,6 +44,10 @@ export const submissions = pgTable('submissions', {
 })
 
 // Relations
+export const profilesRelations = relations(profiles, ({ many }) => ({
+  submissions: many(submissions),
+}))
+
 export const exercisesRelations = relations(exercises, ({ many }) => ({
   submissions: many(submissions),
 }))
@@ -41,5 +56,9 @@ export const submissionsRelations = relations(submissions, ({ one }) => ({
   exercise: one(exercises, {
     fields: [submissions.exerciseId],
     references: [exercises.id],
+  }),
+  profile: one(profiles, {
+    fields: [submissions.userId],
+    references: [profiles.id],
   }),
 }))

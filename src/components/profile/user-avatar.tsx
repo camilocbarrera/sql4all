@@ -12,10 +12,10 @@ interface UserAvatarProps {
 
 // Level tiers based on score
 const getLevelTier = (score: number) => {
-  if (score >= 100) return { tier: 'Maestro', color: 'from-purple-500 to-pink-500', emoji: '👑' }
-  if (score >= 50) return { tier: 'Experto', color: 'from-yellow-500 to-orange-500', emoji: '⚡' }
-  if (score >= 20) return { tier: 'Intermedio', color: 'from-blue-500 to-cyan-500', emoji: '🚀' }
-  return { tier: 'Principiante', color: 'from-emerald-500 to-teal-500', emoji: '🌱' }
+  if (score >= 100) return { tier: 'Maestro', level: 4 }
+  if (score >= 50) return { tier: 'Experto', level: 3 }
+  if (score >= 20) return { tier: 'Intermedio', level: 2 }
+  return { tier: 'Principiante', level: 1 }
 }
 
 const getInitials = (name?: string | null) => {
@@ -27,42 +27,34 @@ const getInitials = (name?: string | null) => {
 
 const sizeClasses = {
   sm: 'h-8 w-8 text-xs',
-  md: 'h-12 w-12 text-sm',
-  lg: 'h-16 w-16 text-lg',
-  xl: 'h-24 w-24 text-2xl',
+  md: 'h-10 w-10 text-sm',
+  lg: 'h-14 w-14 text-base',
+  xl: 'h-16 w-16 text-lg',
 }
 
-export function UserAvatar({ name, score, size = 'md', className }: UserAvatarProps) {
-  const { tier, color } = useMemo(() => getLevelTier(score), [score])
+export function UserAvatar({ name, size = 'md', className }: UserAvatarProps) {
   const initials = useMemo(() => getInitials(name), [name])
 
   return (
     <div
       className={cn(
-        'relative rounded-full bg-gradient-to-br font-bold text-white flex items-center justify-center',
-        color,
+        'rounded-full bg-primary/10 text-primary font-medium flex items-center justify-center',
         sizeClasses[size],
         className
       )}
-      title={`${name || 'Usuario'} - ${tier}`}
+      title={name || 'Usuario'}
     >
       {initials}
     </div>
   )
 }
 
-export function LevelBadge({ score, showEmoji = true }: { score: number; showEmoji?: boolean }) {
-  const { tier, color, emoji } = useMemo(() => getLevelTier(score), [score])
+export function LevelBadge({ score }: { score: number }) {
+  const { tier, level } = useMemo(() => getLevelTier(score), [score])
 
   return (
-    <span
-      className={cn(
-        'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium text-white bg-gradient-to-r',
-        color
-      )}
-    >
-      {showEmoji && <span>{emoji}</span>}
-      {tier}
+    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium bg-muted text-muted-foreground">
+      Nv.{level} · {tier}
     </span>
   )
 }

@@ -2,24 +2,23 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
 import { useUser } from '@clerk/nextjs'
-import { ArrowLeft, Settings } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import {
   useUserScore,
   useUserStreak,
-  useWeekProgress,
   useSolvedExercises,
 } from '@/hooks/use-submissions'
-import { useUserHistory } from '@/hooks/use-profile'
-import { Button, Card, CardContent, Skeleton } from '@/components/ui'
+import { useUserHistory, useHeatmapData } from '@/hooks/use-profile'
+import { Button, Skeleton } from '@/components/ui'
 import {
   UserAvatar,
   LevelBadge,
   StatsGrid,
   ExerciseHistory,
-  ActivityHeatmap,
+  GitHubHeatmap,
 } from '@/components/profile'
 
 export default function ProfilePage() {
@@ -27,9 +26,9 @@ export default function ProfilePage() {
   const { user, isLoaded } = useUser()
   const { data: score, isLoading: scoreLoading } = useUserScore()
   const { data: streak, isLoading: streakLoading } = useUserStreak()
-  const { data: weekProgress, isLoading: weekLoading } = useWeekProgress()
   const { data: solvedExercises } = useSolvedExercises()
   const { data: history, isLoading: historyLoading } = useUserHistory()
+  const { data: heatmapDates, isLoading: heatmapLoading } = useHeatmapData()
 
   useEffect(() => {
     if (isLoaded && !user) {
@@ -53,22 +52,25 @@ export default function ProfilePage() {
     )
   }
 
-  const isLoading = scoreLoading || streakLoading || weekLoading
+  const isLoading = scoreLoading || streakLoading
 
-  const historyItems = (history || []).map((item) => ({
-    ...item,
-    solvedAt: new Date(item.solvedAt),
-  }))
+  const historyItems = Array.isArray(history) 
+    ? history.map((item) => ({
+        ...item,
+        solvedAt: new Date(item.solvedAt),
+      }))
+    : []
 
   // Get total exercises from a fetch (we'll use a rough estimate for now)
   const totalExercises = 15 // TODO: fetch from API
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-5xl">
+    <div className="container mx-auto px-4 py-6 max-w-5xl">
       <motion.div
+        className="space-y-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="space-y-8"
+        transition={{ duration: 0.3 }}
       >
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -78,45 +80,42 @@ export default function ProfilePage() {
               Volver
             </Link>
           </Button>
-          <Button variant="ghost" size="icon" asChild>
-            <a
-              href="https://accounts.clerk.dev/user"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Configuración de cuenta"
-            >
-              <Settings className="h-4 w-4" />
-            </a>
-          </Button>
         </div>
 
         {/* Profile Header */}
-        <Card>
-          <CardContent className="p-6 sm:p-8">
-            <div className="flex flex-col sm:flex-row items-center gap-6">
-              <UserAvatar
-                name={user.fullName || user.username}
-                score={score || 0}
-                size="xl"
-              />
-              <div className="text-center sm:text-left">
-                <h1 className="text-2xl font-bold">
-                  {user.fullName || user.username || 'Usuario'}
-                </h1>
-                <p className="text-muted-foreground mb-3">
-                  {user.primaryEmailAddress?.emailAddress}
-                </p>
-                <LevelBadge score={score || 0} />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="flex items-center gap-4">
+          <UserAvatar
+            name={user.fullName || user.username}
+            score={score || 0}
+            size="lg"
+          />
+          <div>
+            <h1 className="text-lg font-semibold">
+              {user.fullName || user.username || 'Usuario'}
+            </h1>
+            <p className="text-xs text-muted-foreground">
+              {user.primaryEmailAddress?.emailAddress}
+            </p>
+          </div>
+          <div className="ml-auto">
+            <LevelBadge score={score || 0} />
+          </div>
+        </div>
+
+        {/* GitHub Style Heatmap Banner */}
+        <div className="rounded-lg border border-border/40 bg-card/30 px-5 py-4">
+          {heatmapLoading ? (
+            <Skeleton className="h-32 w-full" />
+          ) : (
+            <GitHubHeatmap submissionDates={heatmapDates || []} />
+          )}
+        </div>
 
         {/* Stats Grid */}
         {isLoading ? (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-4 gap-3">
             {[...Array(4)].map((_, i) => (
-              <Skeleton key={i} className="h-24 w-full" />
+              <Skeleton key={i} className="h-20 w-full" />
             ))}
           </div>
         ) : (
@@ -128,23 +127,15 @@ export default function ProfilePage() {
           />
         )}
 
-        {/* Activity & History */}
-        <div className="grid gap-8 lg:grid-cols-2">
-          {weekLoading ? (
-            <Skeleton className="h-64 w-full" />
-          ) : (
-            <ActivityHeatmap
-              weekProgress={weekProgress || []}
-              streak={streak || 0}
-            />
-          )}
-
-          {historyLoading ? (
-            <Skeleton className="h-64 w-full" />
-          ) : (
-            <ExerciseHistory history={historyItems} />
-          )}
-        </div>
+        {/* Exercise History */}
+        {historyLoading ? (
+          <Skeleton className="h-64 w-full" />
+        ) : (
+          <ExerciseHistory 
+            history={historyItems} 
+            hasSolvedExercises={solvedExercises && solvedExercises.size > 0}
+          />
+        )}
       </motion.div>
     </div>
   )

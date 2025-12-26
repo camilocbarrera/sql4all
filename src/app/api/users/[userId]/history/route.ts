@@ -37,6 +37,13 @@ export async function GET(
       return acc
     }, [])
 
+    console.log('[History API] User history:', {
+      userId,
+      totalSubmissions: userHistory.length,
+      uniqueHistory: uniqueHistory.length,
+      sample: uniqueHistory[0]
+    })
+
     return NextResponse.json({ history: uniqueHistory })
   } catch (error) {
     console.error('Error fetching history:', error)
