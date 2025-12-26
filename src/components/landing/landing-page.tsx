@@ -55,12 +55,19 @@ export function LandingPage() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="mb-4 flex justify-center"
           >
-            <div className="relative w-14 h-14 md:w-16 md:h-16">
+            <motion.div 
+              className="relative w-14 h-14 md:w-16 md:h-16"
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            >
               <div className="absolute inset-0 bg-primary/20 rounded-xl blur-lg" />
-              <div className="relative flex items-center justify-center w-full h-full rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20">
-                <Database className="w-7 h-7 md:w-8 md:h-8 text-primary" />
+              <div className="stellar-border w-full h-full rounded-xl">
+                <div className="stellar-border-inner bg-gradient-to-br from-primary/10 to-primary/5" />
+                <div className="relative flex items-center justify-center w-full h-full">
+                  <Database className="w-7 h-7 md:w-8 md:h-8 text-primary" />
+                </div>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
 
           <motion.h1
