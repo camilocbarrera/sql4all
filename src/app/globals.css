@@ -201,6 +201,11 @@
   to { --stellar-angle: 360deg; }
 }
 
+@keyframes stellar-rotate-transform {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .stellar-border {
   position: relative;
   isolation: isolate;
@@ -222,7 +227,7 @@
 
 .stellar-border::after {
   background: conic-gradient(
-    from var(--stellar-angle),
+    from 0deg,
     transparent 0%,
     transparent 65%,
     oklch(from var(--primary) l c h / 0.1) 72%,
@@ -236,9 +241,31 @@
     oklch(from var(--primary) l c h / 0.25) 99%,
     transparent 100%
   );
-  animation: stellar-rotate 4s linear infinite;
+  animation: stellar-rotate-transform 4s linear infinite;
   z-index: -1;
   filter: blur(0.5px);
+}
+
+@supports (@property --stellar-angle) {
+  .stellar-border::after {
+    background: conic-gradient(
+      from var(--stellar-angle),
+      transparent 0%,
+      transparent 65%,
+      oklch(from var(--primary) l c h / 0.1) 72%,
+      oklch(from var(--primary) l c h / 0.25) 78%,
+      oklch(from var(--primary) calc(l + 0.1) c h / 0.45) 84%,
+      oklch(from var(--primary) calc(l + 0.15) c h / 0.7) 89%,
+      oklch(from var(--primary) calc(l + 0.2) c h / 0.9) 93%,
+      oklch(from var(--primary) calc(l + 0.25) c h / 1) 96%,
+      oklch(from var(--primary) calc(l + 0.2) c h / 0.9) 97%,
+      oklch(from var(--primary) calc(l + 0.15) c h / 0.6) 98%,
+      oklch(from var(--primary) l c h / 0.25) 99%,
+      transparent 100%
+    );
+    animation: stellar-rotate 4s linear infinite;
+    transform: none;
+  }
 }
 
 .stellar-border:hover::after {
