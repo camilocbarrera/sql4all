@@ -20,6 +20,7 @@ export async function GET() {
       hint: ex.hint,
       successMessage: ex.successMessage,
       example: ex.example,
+      type: ex.type,
       validation: ex.validation,
       createdAt: ex.createdAt,
       updatedAt: ex.updatedAt,

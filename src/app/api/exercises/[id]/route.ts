@@ -33,6 +33,7 @@ export async function GET(
         hint: exercise.hint,
         successMessage: exercise.successMessage,
         example: exercise.example,
+        type: exercise.type,
         validation: exercise.validation,
         createdAt: exercise.createdAt,
         updatedAt: exercise.updatedAt,
