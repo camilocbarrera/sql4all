@@ -58,6 +58,7 @@ interface SqlEditorProps {
   exerciseTitle?: string
   nextExerciseId?: string
   isValidated?: boolean
+  isDDL?: boolean
 }
 
 const SQL_KEYWORDS = [
@@ -67,6 +68,80 @@ const SQL_KEYWORDS = [
   'VALUES', 'INTO', 'SET', 'NULL', 'NOT NULL', 'PRIMARY KEY', 'FOREIGN KEY',
   'COUNT', 'SUM', 'AVG', 'MIN', 'MAX', 'DISTINCT', 'AS', 'AND', 'OR', 'IN',
   'BETWEEN', 'LIKE', 'IS', 'ASC', 'DESC', 'ON', 'LIMIT',
+]
+
+const DDL_KEYWORDS = [
+  'CREATE TABLE', 'DROP TABLE', 'ALTER TABLE', 'CREATE INDEX', 'DROP INDEX',
+  'ADD COLUMN', 'DROP COLUMN', 'RENAME COLUMN', 'RENAME TO',
+  'ADD CONSTRAINT', 'DROP CONSTRAINT', 'MODIFY', 'CHANGE',
+  'SERIAL', 'BIGSERIAL', 'VARCHAR', 'INTEGER', 'INT', 'BIGINT', 'SMALLINT',
+  'TEXT', 'BOOLEAN', 'DATE', 'TIMESTAMP', 'DECIMAL', 'NUMERIC', 'REAL',
+  'DOUBLE PRECISION', 'CHAR', 'CHARACTER VARYING',
+  'UNIQUE', 'CHECK', 'DEFAULT', 'REFERENCES', 'CASCADE', 'RESTRICT',
+  'IF EXISTS', 'IF NOT EXISTS', 'CONSTRAINT',
+]
+
+const DDL_SNIPPETS = [
+  {
+    label: 'CREATE TABLE basic',
+    insertText: 'CREATE TABLE ${1:table_name} (\n\tid SERIAL PRIMARY KEY,\n\t${2:column_name} ${3:VARCHAR(100)}\n);',
+    detail: 'Create a basic table with primary key',
+  },
+  {
+    label: 'CREATE TABLE full',
+    insertText: 'CREATE TABLE ${1:table_name} (\n\tid SERIAL PRIMARY KEY,\n\t${2:column_name} ${3:VARCHAR(100)} ${4:NOT NULL},\n\t${5:column_name2} ${6:INTEGER},\n\tcreated_at TIMESTAMP DEFAULT NOW()\n);',
+    detail: 'Create a table with multiple columns',
+  },
+  {
+    label: 'ALTER TABLE ADD COLUMN',
+    insertText: 'ALTER TABLE ${1:table_name} ADD COLUMN ${2:column_name} ${3:VARCHAR(100)};',
+    detail: 'Add a new column to existing table',
+  },
+  {
+    label: 'ALTER TABLE DROP COLUMN',
+    insertText: 'ALTER TABLE ${1:table_name} DROP COLUMN ${2:column_name};',
+    detail: 'Remove a column from table',
+  },
+  {
+    label: 'ALTER TABLE ADD PRIMARY KEY',
+    insertText: 'ALTER TABLE ${1:table_name} ADD CONSTRAINT ${2:pk_name} PRIMARY KEY (${3:column_name});',
+    detail: 'Add primary key constraint',
+  },
+  {
+    label: 'ALTER TABLE ADD FOREIGN KEY',
+    insertText: 'ALTER TABLE ${1:table_name} ADD CONSTRAINT ${2:fk_name} FOREIGN KEY (${3:column_name}) REFERENCES ${4:ref_table}(${5:ref_column});',
+    detail: 'Add foreign key constraint',
+  },
+  {
+    label: 'ALTER TABLE ADD UNIQUE',
+    insertText: 'ALTER TABLE ${1:table_name} ADD CONSTRAINT ${2:uq_name} UNIQUE (${3:column_name});',
+    detail: 'Add unique constraint',
+  },
+  {
+    label: 'ALTER TABLE ADD CHECK',
+    insertText: 'ALTER TABLE ${1:table_name} ADD CONSTRAINT ${2:chk_name} CHECK (${3:condition});',
+    detail: 'Add check constraint',
+  },
+  {
+    label: 'ALTER TABLE RENAME COLUMN',
+    insertText: 'ALTER TABLE ${1:table_name} RENAME COLUMN ${2:old_name} TO ${3:new_name};',
+    detail: 'Rename a column',
+  },
+  {
+    label: 'CREATE INDEX',
+    insertText: 'CREATE INDEX ${1:idx_name} ON ${2:table_name} (${3:column_name});',
+    detail: 'Create an index',
+  },
+  {
+    label: 'CREATE UNIQUE INDEX',
+    insertText: 'CREATE UNIQUE INDEX ${1:idx_name} ON ${2:table_name} (${3:column_name});',
+    detail: 'Create a unique index',
+  },
+  {
+    label: 'DROP TABLE',
+    insertText: 'DROP TABLE IF EXISTS ${1:table_name};',
+    detail: 'Drop a table safely',
+  },
 ]
 
 const TABLES = [
@@ -85,6 +160,7 @@ export function SqlEditor({
   errorExample,
   exerciseId,
   isValidated = false,
+  isDDL = false,
 }: SqlEditorProps) {
   const { theme } = useTheme()
   const { user } = useUser()
@@ -150,8 +226,12 @@ export function SqlEditor({
           endColumn: word.endColumn,
         }
 
-        const suggestions = [
-          ...SQL_KEYWORDS.map((keyword) => ({
+        const allKeywords = isDDL 
+          ? [...SQL_KEYWORDS, ...DDL_KEYWORDS]
+          : SQL_KEYWORDS
+
+        const suggestions: Monaco.languages.CompletionItem[] = [
+          ...allKeywords.map((keyword) => ({
             label: keyword,
             kind: monaco.languages.CompletionItemKind.Keyword,
             insertText: keyword,
@@ -175,6 +255,21 @@ export function SqlEditor({
             })),
           ]),
         ]
+
+        // Add DDL snippets for DDL exercises
+        if (isDDL) {
+          suggestions.push(
+            ...DDL_SNIPPETS.map((snippet) => ({
+              label: snippet.label,
+              kind: monaco.languages.CompletionItemKind.Snippet,
+              insertText: snippet.insertText,
+              insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+              detail: snippet.detail,
+              documentation: 'Snippet DDL',
+              range,
+            }))
+          )
+        }
 
         return { suggestions }
       },

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Lightbulb, ArrowLeft, ArrowRight, CheckCircle2, Home, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react'
+import { Lightbulb, ArrowLeft, ArrowRight, CheckCircle2, Home, RotateCcw, ChevronDown, ChevronUp, Database } from 'lucide-react'
 import {
   Card,
   CardContent,
@@ -23,11 +23,14 @@ import { ResultsTable } from '@/components/shared/results-table'
 import { Celebration } from '@/components/shared/celebration'
 import { SqlEditor } from './sql-editor'
 import { SchemaHelper } from './schema-helper'
+import { SchemaStateViewer } from './schema-state-viewer'
 import { useLocalQuery } from '@/hooks/use-local-query'
 import { useSavedSolution } from '@/hooks/use-submissions'
-import { dbService } from '@/lib/db-service'
-import { validateQueryResult } from '@/lib/validation-service'
+import { dbService, type SchemaInfo } from '@/lib/db-service'
+import { validateQueryResult, validateDDLExercise, isDDLValidation, getDDLSetupSQL } from '@/lib/validation-service'
 import type { Exercise } from '@/lib/validations'
+import type { DDLConditions } from '@/types/exercises'
+import type { DDLValidationResult } from '@/lib/ddl-validator'
 
 interface QueryResult {
   rows: Record<string, unknown>[]
@@ -65,46 +68,143 @@ export function ExerciseView({
   const [isValidated, setIsValidated] = useState(false)
   const [isSaved, setIsSaved] = useState(false)
   const [isInfoExpanded, setIsInfoExpanded] = useState(false)
+  
+  // DDL-specific state
+  const [schemaInfo, setSchemaInfo] = useState<SchemaInfo | null>(null)
+  const [ddlValidationResult, setDdlValidationResult] = useState<DDLValidationResult | null>(null)
+  const [isSchemaLoading, setIsSchemaLoading] = useState(false)
+
+  const isDDLExercise = exercise.type === 'ddl' || isDDLValidation(exercise.validation)
 
   useEffect(() => {
-    dbService.initialize().catch(console.error)
-  }, [])
+    const initDb = async () => {
+      await dbService.initialize()
+      if (isDDLExercise) {
+        await initializeDDLEnvironment()
+      }
+    }
+    initDb().catch(console.error)
+  }, [isDDLExercise])
+
+  // Reset DDL environment when exercise changes
+  useEffect(() => {
+    if (isDDLExercise) {
+      initializeDDLEnvironment()
+    }
+    // Reset state when exercise changes
+    setResults(null)
+    setError(null)
+    setIsValidated(false)
+    setSchemaInfo(null)
+    setDdlValidationResult(null)
+  }, [exercise.id, isDDLExercise])
+
+  const initializeDDLEnvironment = async () => {
+    setIsSchemaLoading(true)
+    try {
+      const conditions = exercise.validation.conditions as DDLConditions
+      const setupSQL = getDDLSetupSQL(conditions)
+      await dbService.resetDDLSchema(setupSQL)
+      const info = await dbService.inspectSchema()
+      setSchemaInfo(info)
+    } catch (err) {
+      console.error('Error initializing DDL environment:', err)
+    } finally {
+      setIsSchemaLoading(false)
+    }
+  }
   
   const handleSaveSuccess = useCallback(() => {
     setIsSaved(true)
     clearQuery()
   }, [clearQuery])
 
+  const executeDMLQuery = async () => {
+    const result = await dbService.executeQuery(query)
+
+    if (result.error) {
+      setError(result.message || 'Error al ejecutar la consulta')
+      setErrorExample(result.example || null)
+      setErrorTimestamp(Date.now())
+      setResults({ rows: [], fields: [] })
+      return
+    }
+
+    const isValid = validateQueryResult(result, exercise.validation)
+
+    setResults({
+      ...result,
+      mensajeExito: isValid ? exercise.successMessage : undefined,
+    })
+
+    if (isValid) {
+      setIsValidated(true)
+      setShowCelebration(true)
+      setTimeout(() => setShowCelebration(false), 4000)
+    } else {
+      setError('La consulta se ejecutó, pero el resultado no es el esperado')
+      setErrorTimestamp(Date.now())
+    }
+  }
+
+  const executeDDLQuery = async () => {
+    // Execute the DDL query
+    const result = await dbService.executeDDLQuery(query)
+
+    if (result.error) {
+      setError(result.message || 'Error al ejecutar la consulta DDL')
+      setErrorExample(result.example || null)
+      setErrorTimestamp(Date.now())
+      setResults({ rows: [], fields: [] })
+      return
+    }
+
+    // Update schema info after DDL execution
+    const updatedSchema = await dbService.inspectSchema()
+    setSchemaInfo(updatedSchema)
+
+    // Validate DDL result
+    const conditions = exercise.validation.conditions as DDLConditions
+    const validationResult = await validateDDLExercise(conditions)
+    setDdlValidationResult(validationResult)
+
+    const isValid = validationResult.isValid
+
+    setResults({
+      rows: result.rows,
+      fields: result.fields,
+      mensajeExito: isValid ? exercise.successMessage : undefined,
+    })
+
+    if (isValid) {
+      setIsValidated(true)
+      setShowCelebration(true)
+      setTimeout(() => setShowCelebration(false), 4000)
+    } else {
+      const errors = validationResult.schemaValidation?.errors || []
+      const testErrors = validationResult.testQueryResults?.results
+        .filter(r => r.actual !== r.expected)
+        .map(r => `Query: ${r.query.substring(0, 50)}...`) || []
+      
+      const allErrors = [...errors, ...testErrors]
+      setError(allErrors.length > 0 
+        ? `Validación fallida: ${allErrors[0]}` 
+        : 'La estructura de la tabla no coincide con lo esperado')
+      setErrorTimestamp(Date.now())
+    }
+  }
+
   const executeQuery = async () => {
     setIsLoading(true)
     setError(null)
     setIsValidated(false)
+    setDdlValidationResult(null)
 
     try {
-      const result = await dbService.executeQuery(query)
-
-      if (result.error) {
-        setError(result.message || 'Error al ejecutar la consulta')
-        setErrorExample(result.example || null)
-        setErrorTimestamp(Date.now())
-        setResults({ rows: [], fields: [] })
-        return
-      }
-
-      const isValid = validateQueryResult(result, exercise.validation)
-
-      setResults({
-        ...result,
-        mensajeExito: isValid ? exercise.successMessage : undefined,
-      })
-
-      if (isValid) {
-        setIsValidated(true)
-        setShowCelebration(true)
-        setTimeout(() => setShowCelebration(false), 4000)
+      if (isDDLExercise) {
+        await executeDDLQuery()
       } else {
-        setError('La consulta se ejecutó, pero el resultado no es el esperado')
-        setErrorTimestamp(Date.now())
+        await executeDMLQuery()
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error desconocido'
@@ -115,13 +215,18 @@ export function ExerciseView({
     }
   }
 
-  const resetExercise = useCallback(() => {
+  const resetExercise = useCallback(async () => {
     clearQuery()
     setResults(null)
     setError(null)
     setIsValidated(false)
     setIsSaved(false)
-  }, [clearQuery])
+    setDdlValidationResult(null)
+    
+    if (isDDLExercise) {
+      await initializeDDLEnvironment()
+    }
+  }, [clearQuery, isDDLExercise])
 
   return (
     <div className="container mx-auto p-4 max-w-7xl">
@@ -139,7 +244,15 @@ export function ExerciseView({
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
-                  <CardTitle className="text-lg sm:text-xl line-clamp-2">{exercise.title}</CardTitle>
+                  <div className="flex items-center gap-2 mb-1">
+                    <CardTitle className="text-lg sm:text-xl line-clamp-2">{exercise.title}</CardTitle>
+                    {isDDLExercise && (
+                      <Badge variant="secondary" className="text-xs shrink-0">
+                        <Database className="w-3 h-3 mr-1" />
+                        DDL
+                      </Badge>
+                    )}
+                  </div>
                   <CardDescription className="line-clamp-3 mt-1">{exercise.description}</CardDescription>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
@@ -200,6 +313,17 @@ export function ExerciseView({
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
+
+                {/* Schema State Viewer for DDL exercises */}
+                {isDDLExercise && (
+                  <div className="pt-2">
+                    <SchemaStateViewer
+                      schemaInfo={schemaInfo}
+                      validationResult={ddlValidationResult}
+                      isLoading={isSchemaLoading}
+                    />
+                  </div>
+                )}
               </CardContent>
             </div>
           </Card>
@@ -221,7 +345,7 @@ export function ExerciseView({
                     {currentIndex !== undefined && totalExercises !== undefined ? (
                       <span>Ejercicio {currentIndex + 1} de {totalExercises}</span>
                     ) : (
-                      <span>Escribe tu consulta</span>
+                      <span>Escribe tu consulta {isDDLExercise ? 'DDL' : ''}</span>
                     )}
                   </CardDescription>
                 </div>
@@ -273,6 +397,7 @@ export function ExerciseView({
                     errorExample={errorExample}
                     exerciseId={exercise.id}
                     isValidated={isValidated}
+                    isDDL={isDDLExercise}
                   />
                 )}
               </ErrorBoundary>
@@ -334,7 +459,13 @@ export function ExerciseView({
                     )}
                   </CardHeader>
                   <CardContent>
-                    <ResultsTable results={results} />
+                    {isDDLExercise && results.rows.length === 0 && !results.mensajeExito ? (
+                      <div className="text-sm text-muted-foreground text-center py-4">
+                        Consulta DDL ejecutada. Revisa el estado del esquema en el panel izquierdo.
+                      </div>
+                    ) : (
+                      <ResultsTable results={results} />
+                    )}
                   </CardContent>
                 </Card>
               </motion.div>
@@ -358,4 +489,3 @@ export function ExerciseView({
     </div>
   )
 }
-
