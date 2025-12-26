@@ -1,10 +1,8 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowRight, Database } from 'lucide-react'
-import { Button } from '@/components/ui'
+import { Database } from 'lucide-react'
 import { SqlDemoAnimation } from './sql-demo-animation'
 import { CrafterStationLogo } from '@/components/logos/crafter-station'
 import { GithubLogo } from '@/components/logos/github'
@@ -14,24 +12,27 @@ export function LandingPage() {
   return (
     <div className="min-h-[calc(100vh-3.5rem)] flex flex-col">
       {/* Hero Section */}
-      <section className="flex-1 flex flex-col items-center justify-center px-4 py-12 md:py-20">
-        <motion.div
+      <section className="relative flex-1 flex flex-col items-center justify-center px-4 py-12 md:py-20 overflow-hidden">
+        {/* Subtle background fade */}
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
+        <div className="relative z-10 flex-1 flex flex-col items-center justify-center w-full">
+          <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-center max-w-3xl mx-auto mb-12"
+          className="text-center max-w-3xl mx-auto mb-3"
         >
           {/* Logo/Icon */}
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="mb-8 flex justify-center"
+            className="mb-4 flex justify-center"
           >
-            <div className="relative w-20 h-20 md:w-24 md:h-24">
-              <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-xl" />
-              <div className="relative flex items-center justify-center w-full h-full rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20">
-                <Database className="w-10 h-10 md:w-12 md:h-12 text-primary" />
+            <div className="relative w-14 h-14 md:w-16 md:h-16">
+              <div className="absolute inset-0 bg-primary/20 rounded-xl blur-lg" />
+              <div className="relative flex items-center justify-center w-full h-full rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20">
+                <Database className="w-7 h-7 md:w-8 md:h-8 text-primary" />
               </div>
             </div>
           </motion.div>
@@ -55,25 +56,6 @@ export function LandingPage() {
             Domina SQL paso a paso con ejercicios prácticos y retroalimentación inmediata.
             Desde conceptos básicos hasta consultas avanzadas.
           </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
-          >
-            <Button asChild size="lg" className="text-base px-8">
-              <Link href="/exercises">
-                Comenzar
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
-            <Button variant="outline" size="lg" asChild className="text-base">
-              <Link href="/docs">
-                Ver documentación
-              </Link>
-            </Button>
-          </motion.div>
         </motion.div>
 
         {/* Interactive Demo */}
@@ -85,6 +67,7 @@ export function LandingPage() {
         >
           <SqlDemoAnimation />
         </motion.div>
+        </div>
       </section>
 
       {/* Footer - Powered by */}
@@ -110,7 +93,7 @@ export function LandingPage() {
                   alt="PGlite"
                   width={80}
                   height={20}
-                  className="h-5 w-auto"
+                  className="h-5 w-auto dark:invert-0 invert"
                 />
               </a>
             </div>
