@@ -12,32 +12,24 @@ export function LandingPage() {
   return (
     <div className="min-h-[calc(100vh-3.5rem)] flex flex-col">
       {/* Hero Section */}
-      <section className="relative flex-1 flex flex-col items-center justify-center px-4 py-12 md:py-20 overflow-hidden">
+      <section className="relative flex-1 flex flex-col items-center justify-center px-4 py-12 md:py-20">
         {/* Background fade */}
         <div className="absolute inset-0 bg-gradient-to-b from-primary/15 via-primary/5 to-transparent pointer-events-none" />
         
         {/* Decorative blurred ellipses */}
         <div 
-          className="absolute pointer-events-none bg-primary rounded-full"
+          className="absolute pointer-events-none bg-primary rounded-full w-[200px] h-[200px] md:w-[367px] md:h-[367px] -right-[50px] -top-[80px] md:-right-[100px] md:-top-[168px]"
           style={{
-            width: 367,
-            height: 367,
-            right: -100,
-            top: -168,
             mixBlendMode: 'hard-light',
-            filter: 'blur(350px)',
+            filter: 'blur(120px)',
             opacity: 0.6,
           }}
         />
         <div 
-          className="absolute pointer-events-none bg-primary rounded-full"
+          className="absolute pointer-events-none bg-primary rounded-full w-[200px] h-[200px] md:w-[367px] md:h-[367px] -left-[80px] bottom-[10%] md:-left-[150px] md:bottom-[5%]"
           style={{
-            width: 367,
-            height: 367,
-            left: -150,
-            top: 808,
             mixBlendMode: 'hard-light',
-            filter: 'blur(350px)',
+            filter: 'blur(120px)',
             opacity: 0.4,
           }}
         />
@@ -84,7 +76,7 @@ export function LandingPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-4"
+            className="text-base md:text-xl text-muted-foreground max-w-2xl mx-auto mb-4"
           >
             Domina SQL paso a paso con ejercicios prácticos y retroalimentación inmediata.
             Desde conceptos básicos hasta consultas avanzadas.
