@@ -1,3 +1,4 @@
+export { AIHint } from './ai-hint'
 export { Celebration } from './celebration'
 export { ErrorBoundary } from './error-boundary'
 export { ErrorMessage } from './error-message'
