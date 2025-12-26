@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { CheckCircle2, Play, Loader2, CornerDownLeft } from 'lucide-react'
+import { CheckCircle2, Play, Loader2, CornerDownLeft, ArrowRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const DEMO_QUERY = `SELECT nombre, email
@@ -23,9 +24,11 @@ interface SqlDemoAnimationProps {
 type Phase = 'idle' | 'typing' | 'waiting' | 'executing' | 'results' | 'success'
 
 export function SqlDemoAnimation({ className }: SqlDemoAnimationProps) {
+  const router = useRouter()
   const [displayedQuery, setDisplayedQuery] = useState('')
   const [showResults, setShowResults] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [showRedirect, setShowRedirect] = useState(false)
   const [isTyping, setIsTyping] = useState(false)
   const [phase, setPhase] = useState<Phase>('idle')
   const [showKeyPress, setShowKeyPress] = useState(false)
@@ -44,7 +47,7 @@ export function SqlDemoAnimation({ className }: SqlDemoAnimationProps) {
     if (phase !== 'waiting') return
     
     clearAllTimeouts()
-    setAutoExecuteEnabled(false) // Disable auto-execute after manual interaction
+    setAutoExecuteEnabled(false)
     setShowKeyPress(true)
 
     timeoutRef.current = setTimeout(() => {
@@ -59,20 +62,24 @@ export function SqlDemoAnimation({ className }: SqlDemoAnimationProps) {
           setPhase('success')
           setShowSuccess(true)
 
+          // Show redirect message and navigate after 2 seconds
           timeoutRef.current = setTimeout(() => {
-            setAutoExecuteEnabled(true)
-            startAnimation()
-          }, 2500)
+            setShowRedirect(true)
+            timeoutRef.current = setTimeout(() => {
+              router.push('/exercises')
+            }, 1500)
+          }, 800)
         }, 600)
       }, 400)
     }, 100)
-  }, [phase, clearAllTimeouts])
+  }, [phase, clearAllTimeouts, router])
 
   const startAnimation = useCallback(() => {
     clearAllTimeouts()
     setDisplayedQuery('')
     setShowResults(false)
     setShowSuccess(false)
+    setShowRedirect(false)
     setIsTyping(true)
     setShowKeyPress(false)
     setPhase('typing')
@@ -144,7 +151,7 @@ export function SqlDemoAnimation({ className }: SqlDemoAnimationProps) {
             <div className="w-3 h-3 rounded-full bg-yellow-400/80" />
             <div className="w-3 h-3 rounded-full bg-green-400/80" />
           </div>
-          <span className="text-xs text-muted-foreground font-mono ml-2"></span>
+          <span className="text-xs text-muted-foreground ml-2">Obtener los nombres y emails de usuarios activos (máximo 3)</span>
         </div>
 
         {/* Editor Content */}
@@ -204,7 +211,7 @@ export function SqlDemoAnimation({ className }: SqlDemoAnimationProps) {
                 ) : (
                   <Play className="w-4 h-4" />
                 )}
-                {isExecuting ? 'Ejecutando...' : 'Ejecutar'}
+                {isExecuting ? 'Ejecutando...' : 'Comenzar ahora'}
               </motion.button>
             </div>
 
@@ -317,6 +324,33 @@ export function SqlDemoAnimation({ className }: SqlDemoAnimationProps) {
                     </tbody>
                   </table>
                 </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Redirect Section */}
+        <AnimatePresence>
+          {showRedirect && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="border-t border-border/50 bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5"
+            >
+              <div className="p-4">
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="flex items-center justify-center gap-3"
+                >
+                  <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                  <span className="text-sm text-muted-foreground">
+                    ¡Así de fácil! Llevándote a los ejercicios...
+                  </span>
+                  <ArrowRight className="w-4 h-4 text-primary" />
+                </motion.div>
               </div>
             </motion.div>
           )}
