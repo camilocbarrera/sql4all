@@ -13,8 +13,8 @@ export function LandingPage() {
     <div className="min-h-[calc(100vh-3.5rem)] flex flex-col">
       {/* Hero Section */}
       <section className="relative flex-1 flex flex-col items-center justify-center px-4 py-12 md:py-20 overflow-hidden">
-        {/* Subtle background fade */}
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
+        {/* Background fade */}
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/15 via-primary/5 to-transparent pointer-events-none" />
         
         {/* Decorative blurred ellipses */}
         <div 
