@@ -128,13 +128,16 @@ function parseDataToMap(data: (string | Date | HeatmapData)[]): Record<string, n
     let count = 1
     
     if (typeof item === 'string') {
-      dateStr = item.split('T')[0]
+      // Parse ISO string to Date and use local time for consistency with grid
+      const date = new Date(item)
+      dateStr = formatDateKey(date)
     } else if (item instanceof Date) {
       dateStr = formatDateKey(item)
     } else {
-      dateStr = typeof item.date === 'string' 
-        ? item.date.split('T')[0] 
-        : formatDateKey(item.date)
+      const date = typeof item.date === 'string' 
+        ? new Date(item.date)
+        : item.date
+      dateStr = formatDateKey(date)
       count = item.count ?? 1
     }
     
