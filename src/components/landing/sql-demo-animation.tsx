@@ -85,10 +85,16 @@ export function SqlDemoAnimation({ className }: SqlDemoAnimationProps) {
     setPhase('typing')
   }, [clearAllTimeouts])
 
-  // Keyboard shortcut handler
+  // Detect if user is on Mac for keyboard hints
+  const [isMac, setIsMac] = useState(false)
+  useEffect(() => {
+    setIsMac(navigator.platform.toUpperCase().includes('MAC'))
+  }, [])
+
+  // Keyboard shortcut handler - supports Ctrl+Enter (Windows/Linux) and Cmd+Enter (Mac)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Enter' && e.ctrlKey && phase === 'waiting') {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && phase === 'waiting') {
         e.preventDefault()
         executeQuery()
       }
@@ -123,7 +129,7 @@ export function SqlDemoAnimation({ className }: SqlDemoAnimationProps) {
           }, 1500)
         }
       }
-    }, 30)
+    }, 18)
 
     return () => {
       clearInterval(typeInterval)
@@ -197,14 +203,14 @@ export function SqlDemoAnimation({ className }: SqlDemoAnimationProps) {
             <div className="flex items-center gap-3">
               <motion.button
                 onClick={executeQuery}
-                animate={isExecuting ? { scale: [1, 0.95, 1] } : isWaiting ? { scale: [1, 1.03, 1] } : {}}
-                transition={{ duration: isWaiting ? 0.8 : 0.2, repeat: isWaiting ? Number.POSITIVE_INFINITY : 0 }}
+                animate={isExecuting ? { scale: [1, 0.95, 1] } : {}}
+                transition={{ duration: 0.2 }}
                 className={cn(
-                  'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all',
+                  'group flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all',
                   isExecuting
                     ? 'bg-primary/80 text-primary-foreground cursor-wait'
                     : isWaiting
-                    ? 'bg-primary text-primary-foreground ring-2 ring-primary/50 ring-offset-2 ring-offset-background cursor-pointer hover:bg-primary/90'
+                    ? 'bg-primary text-primary-foreground cursor-pointer hover:bg-primary/90 shadow-lg shadow-primary/25'
                     : 'bg-primary/50 text-primary-foreground/70 cursor-not-allowed'
                 )}
                 disabled={!canExecute}
@@ -215,6 +221,14 @@ export function SqlDemoAnimation({ className }: SqlDemoAnimationProps) {
                   <Play className="w-4 h-4" />
                 )}
                 {isExecuting ? 'Ejecutando...' : 'Comenzar ahora'}
+                {isWaiting && (
+                  <motion.span
+                    animate={{ x: [0, 3, 0] }}
+                    transition={{ duration: 1.2, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}
+                  >
+                    <ArrowRight className="w-4 h-4" />
+                  </motion.span>
+                )}
               </motion.button>
             </div>
 
@@ -242,7 +256,7 @@ export function SqlDemoAnimation({ className }: SqlDemoAnimationProps) {
                       'px-2 py-0.5 rounded text-xs font-mono transition-colors',
                       showKeyPress ? 'bg-primary-foreground/20' : 'bg-background'
                     )}>
-                      Ctrl
+                      {isMac ? '⌘' : 'Ctrl'}
                     </kbd>
                     <span>+</span>
                     <kbd className={cn(
@@ -261,7 +275,7 @@ export function SqlDemoAnimation({ className }: SqlDemoAnimationProps) {
                   exit={{ opacity: 0 }}
                   className="hidden sm:flex items-center gap-1.5 text-sm text-muted-foreground"
                 >
-                  <kbd className="px-2 py-1 bg-muted rounded text-xs">Ctrl</kbd>
+                  <kbd className="px-2 py-1 bg-muted rounded text-xs">{isMac ? '⌘' : 'Ctrl'}</kbd>
                   <span>+</span>
                   <kbd className="px-2 py-1 bg-muted rounded text-xs">Enter</kbd>
                   <span className="ml-1">para ejecutar</span>

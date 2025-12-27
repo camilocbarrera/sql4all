@@ -5,7 +5,7 @@ import { neon } from '@neondatabase/serverless'
 import { drizzle } from 'drizzle-orm/neon-http'
 import { submissions, exercises } from '../src/lib/db/schema'
 
-const USER_ID = 'user_37GBacdmdk3kFQoLRJIhWWhmrLL'
+const USER_ID = 'user_37N3N55IddhoQXNefDjKozEmAZ6'
 
 async function seedHeatmapData() {
   const databaseUrl = process.env.DATABASE_URL

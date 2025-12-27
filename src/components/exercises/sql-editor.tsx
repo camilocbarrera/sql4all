@@ -177,6 +177,11 @@ export function SqlEditor({
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null)
   const [isSaved, setIsSaved] = useState(false)
   const [showSignupPrompt, setShowSignupPrompt] = useState(false)
+  const [isMac, setIsMac] = useState(false)
+  
+  useEffect(() => {
+    setIsMac(navigator.platform.toUpperCase().includes('MAC'))
+  }, [])
   const createSubmission = useCreateSubmission()
   const { data: solvedExercises } = useSolvedExercises()
   
@@ -316,13 +321,13 @@ export function SqlEditor({
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ctrl+Enter to execute
-      if (e.key === 'Enter' && e.ctrlKey && !e.metaKey && !e.shiftKey) {
+      // Ctrl+Enter (Windows/Linux) or Cmd+Enter (Mac) to execute
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && !e.shiftKey) {
         e.preventDefault()
         onExecute()
       }
-      // Ctrl+Shift+F to format
-      if (e.key === 'f' && e.ctrlKey && e.shiftKey) {
+      // Ctrl+Shift+F or Cmd+Shift+F to format
+      if (e.key === 'f' && (e.ctrlKey || e.metaKey) && e.shiftKey) {
         e.preventDefault()
         formatSQL()
       }
@@ -435,7 +440,7 @@ export function SqlEditor({
           )}
         </div>
         <div className="hidden sm:block text-sm text-muted-foreground">
-          <kbd className="px-2 py-1 bg-muted rounded text-xs">Ctrl</kbd>
+          <kbd className="px-2 py-1 bg-muted rounded text-xs">{isMac ? '⌘' : 'Ctrl'}</kbd>
           {' + '}
           <kbd className="px-2 py-1 bg-muted rounded text-xs">Enter</kbd>
           {' para ejecutar'}

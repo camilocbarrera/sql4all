@@ -13,27 +13,11 @@ export function LandingPage() {
     <div className="min-h-[calc(100vh-3.5rem)] flex flex-col">
       {/* Hero Section */}
       <section className="relative flex-1 flex flex-col items-center justify-center px-4 py-12 md:py-20">
+        {/* Dotted grid background */}
+        <div className="dotted-grid" />
         {/* Background fade */}
         <div className="absolute inset-0 bg-gradient-to-b from-primary/15 via-primary/5 to-transparent pointer-events-none" />
         
-        {/* Ellipse 1 - Top Right */}
-        <div 
-          className="absolute pointer-events-none bg-primary rounded-full w-[180px] h-[367px] -right-[100px] -top-[168px]"
-          style={{
-            mixBlendMode: 'hard-light',
-            filter: 'blur(237px)',
-            opacity: 0.64,
-          }}
-        />
-        {/* Ellipse 2 - Bottom Left */}
-        <div 
-          className="absolute pointer-events-none bg-primary rounded-full w-[180px] h-[367px] -left-[150px] -bottom-[250px]"
-          style={{
-            mixBlendMode: 'hard-light',
-            filter: 'blur(236px)',
-            opacity: 0.64,
-          }}
-        />
         <div className="relative z-10 flex-1 flex flex-col items-center justify-center w-full">
           <motion.div
           initial={{ opacity: 0, y: 20 }}

@@ -251,6 +251,573 @@ export const exercisesData: ExerciseData[] = [
     },
   },
 
+  // New DML Exercises - Principiante
+  {
+    title: 'Uso de Alias (AS)',
+    difficulty: 'Principiante',
+    description: 'Selecciona el nombre y email de los usuarios, renombrando las columnas como "nombre_usuario" y "correo" respectivamente.',
+    details: `Aprenderás a:
+1. Usar AS para renombrar columnas en el resultado
+2. Mejorar la legibilidad de los resultados
+3. Crear nombres más descriptivos para tus datos`,
+    hint: 'Usa SELECT columna AS nuevo_nombre FROM tabla',
+    successMessage: '¡Muy bien! Los alias hacen tus consultas más legibles y profesionales.',
+    example: {
+      entrada: "Tabla 'usuarios'",
+      salida: 'Listado con columnas renombradas a nombre_usuario y correo',
+    },
+    validation: {
+      type: 'exact' as const,
+      conditions: {
+        columns: ['nombre_usuario', 'correo'],
+      },
+    },
+  },
+  {
+    title: 'Manejo de NULL',
+    difficulty: 'Principiante',
+    description: 'Selecciona todos los usuarios que NO tienen ciudad registrada (ciudad es NULL).',
+    details: `Este ejercicio te enseñará:
+1. Cómo funciona NULL en SQL
+2. Usar IS NULL para encontrar valores vacíos
+3. La diferencia entre NULL y cadena vacía`,
+    hint: 'Usa WHERE columna IS NULL (no uses = NULL)',
+    successMessage: '¡Excelente! Entender NULL es fundamental para manejar datos incompletos.',
+    example: {
+      entrada: "Tabla 'usuarios' con algunos valores NULL en ciudad",
+      salida: 'Usuarios sin ciudad registrada',
+    },
+    validation: {
+      type: 'partial' as const,
+      conditions: {
+        columns: ['id', 'nombre', 'email', 'fecha_registro', 'edad', 'ciudad', 'activo'],
+        hasNullCheck: true,
+        columnToCheck: 'ciudad',
+      },
+    },
+  },
+  {
+    title: 'Ordenamiento Descendente',
+    difficulty: 'Principiante',
+    description: 'Selecciona todos los usuarios ordenados por edad de mayor a menor.',
+    details: `Aprenderás a:
+1. Usar ORDER BY con DESC para orden descendente
+2. Entender la diferencia entre ASC y DESC
+3. Ordenar datos numéricos de mayor a menor`,
+    hint: 'Usa ORDER BY columna DESC',
+    successMessage: '¡Muy bien! ORDER BY DESC es útil para ver primero los valores más altos.',
+    example: {
+      entrada: "Tabla 'usuarios'",
+      salida: 'Usuarios ordenados de mayor a menor edad',
+    },
+    validation: {
+      type: 'partial' as const,
+      conditions: {
+        columns: ['id', 'nombre', 'email', 'fecha_registro', 'edad', 'ciudad', 'activo'],
+        orderBy: 'edad',
+        orderDirection: 'DESC',
+      },
+    },
+  },
+  {
+    title: 'Operadores Lógicos (AND/OR)',
+    difficulty: 'Principiante',
+    description: "Selecciona todos los usuarios que tienen más de 25 años Y viven en 'Madrid'.",
+    details: `Aprenderás a:
+1. Combinar múltiples condiciones con AND
+2. Entender la diferencia entre AND y OR
+3. Crear filtros más precisos`,
+    hint: 'Usa WHERE condicion1 AND condicion2',
+    successMessage: '¡Muy bien! Los operadores lógicos te permiten crear filtros muy específicos.',
+    example: {
+      entrada: "Tabla 'usuarios'",
+      salida: "Usuarios mayores de 25 años que viven en Madrid",
+    },
+    validation: {
+      type: 'partial' as const,
+      conditions: {
+        columns: ['id', 'nombre', 'email', 'fecha_registro', 'edad', 'ciudad', 'activo'],
+        hasAnd: true,
+      },
+    },
+  },
+  {
+    title: 'Operador NOT',
+    difficulty: 'Principiante',
+    description: "Selecciona todos los usuarios que NO están activos (activo = false).",
+    details: `Este ejercicio te enseñará:
+1. Usar NOT para negar condiciones
+2. Filtrar por valores booleanos
+3. Excluir registros específicos`,
+    hint: 'Usa WHERE NOT activo o WHERE activo = false',
+    successMessage: '¡Excelente! NOT es útil para excluir registros que cumplen ciertas condiciones.',
+    example: {
+      entrada: "Tabla 'usuarios' con columna 'activo'",
+      salida: 'Usuarios que no están activos',
+    },
+    validation: {
+      type: 'partial' as const,
+      conditions: {
+        columns: ['id', 'nombre', 'email', 'fecha_registro', 'edad', 'ciudad', 'activo'],
+        checkInactive: true,
+      },
+    },
+  },
+
+  // New DML Exercises - Intermedio
+  {
+    title: 'DISTINCT - Valores Únicos',
+    difficulty: 'Intermedio',
+    description: 'Selecciona todas las ciudades únicas (sin repetir) de la tabla usuarios.',
+    details: `Aprenderás a:
+1. Usar DISTINCT para eliminar duplicados
+2. Obtener valores únicos de una columna
+3. Identificar la variedad de datos en tu tabla`,
+    hint: 'Usa SELECT DISTINCT columna FROM tabla',
+    successMessage: '¡Perfecto! DISTINCT es muy útil para analizar la variedad de datos.',
+    example: {
+      entrada: "Tabla 'usuarios' con columna 'ciudad'",
+      salida: 'Lista de ciudades únicas sin repeticiones',
+    },
+    validation: {
+      type: 'partial' as const,
+      conditions: {
+        columns: ['ciudad'],
+        hasDistinct: true,
+      },
+    },
+  },
+  {
+    title: 'Operador IN',
+    difficulty: 'Intermedio',
+    description: "Selecciona todos los usuarios que viven en 'Madrid', 'Barcelona' o 'Valencia'.",
+    details: `Este ejercicio te enseñará:
+1. Usar IN para filtrar por múltiples valores
+2. Simplificar consultas con múltiples OR
+3. Mejorar la legibilidad de tus filtros`,
+    hint: "Usa WHERE columna IN ('valor1', 'valor2', 'valor3')",
+    successMessage: '¡Muy bien! IN es más limpio que múltiples condiciones OR.',
+    example: {
+      entrada: "Tabla 'usuarios'",
+      salida: 'Usuarios de Madrid, Barcelona o Valencia',
+    },
+    validation: {
+      type: 'partial' as const,
+      conditions: {
+        columns: ['id', 'nombre', 'email', 'fecha_registro', 'edad', 'ciudad', 'activo'],
+        hasIn: true,
+        inValues: ['Madrid', 'Barcelona', 'Valencia'],
+      },
+    },
+  },
+  {
+    title: 'BETWEEN - Rango de Valores',
+    difficulty: 'Intermedio',
+    description: 'Selecciona todos los usuarios con edad entre 25 y 35 años (inclusive).',
+    details: `Aprenderás a:
+1. Filtrar valores dentro de un rango con BETWEEN
+2. Entender que BETWEEN incluye los límites
+3. Simplificar condiciones de rango`,
+    hint: 'Usa WHERE columna BETWEEN valor1 AND valor2',
+    successMessage: '¡Excelente! BETWEEN es ideal para filtrar rangos de números o fechas.',
+    example: {
+      entrada: "Tabla 'usuarios' con columna 'edad'",
+      salida: 'Usuarios con edad entre 25 y 35',
+    },
+    validation: {
+      type: 'partial' as const,
+      conditions: {
+        columns: ['id', 'nombre', 'email', 'fecha_registro', 'edad', 'ciudad', 'activo'],
+        hasBetween: true,
+        betweenColumn: 'edad',
+        betweenMin: 25,
+        betweenMax: 35,
+      },
+    },
+  },
+  {
+    title: 'HAVING - Filtrar Agregaciones',
+    difficulty: 'Intermedio',
+    description: 'Cuenta los usuarios por ciudad y muestra solo las ciudades con más de 1 usuario.',
+    details: `Este ejercicio te enseñará:
+1. Usar HAVING para filtrar resultados agrupados
+2. La diferencia entre WHERE y HAVING
+3. Combinar GROUP BY con filtros de agregación`,
+    hint: 'Usa GROUP BY ciudad HAVING COUNT(*) > 1',
+    successMessage: '¡Perfecto! HAVING filtra después de agrupar, a diferencia de WHERE.',
+    example: {
+      entrada: "Tabla 'usuarios'",
+      salida: 'Ciudades con más de 1 usuario y su conteo',
+    },
+    validation: {
+      type: 'partial' as const,
+      conditions: {
+        columns: ['ciudad', 'count'],
+        hasGroupBy: true,
+        hasHaving: true,
+      },
+    },
+  },
+  {
+    title: 'LOWER y UPPER - Transformar Texto',
+    difficulty: 'Intermedio',
+    description: 'Selecciona el nombre en mayúsculas y el email en minúsculas de todos los usuarios.',
+    details: `Aprenderás a:
+1. Usar UPPER() para convertir texto a mayúsculas
+2. Usar LOWER() para convertir texto a minúsculas
+3. Transformar datos de texto en consultas`,
+    hint: 'Usa SELECT UPPER(nombre), LOWER(email) FROM tabla',
+    successMessage: '¡Perfecto! Las funciones de texto son muy útiles para normalizar datos.',
+    example: {
+      entrada: "Tabla 'usuarios'",
+      salida: 'Nombres en MAYÚSCULAS y emails en minúsculas',
+    },
+    validation: {
+      type: 'partial' as const,
+      conditions: {
+        hasUpper: true,
+        hasLower: true,
+      },
+    },
+  },
+  {
+    title: 'ROUND - Redondear Números',
+    difficulty: 'Intermedio',
+    description: 'Calcula el promedio de los montos de pedidos y redondéalo a 2 decimales.',
+    details: `Este ejercicio te enseñará:
+1. Usar ROUND() para redondear números
+2. Especificar la cantidad de decimales
+3. Combinar funciones de agregación con ROUND`,
+    hint: 'Usa SELECT ROUND(AVG(columna), 2) FROM tabla',
+    successMessage: '¡Muy bien! ROUND es esencial para presentar números de forma legible.',
+    example: {
+      entrada: "Tabla 'pedidos'",
+      salida: 'Promedio de montos redondeado a 2 decimales',
+    },
+    validation: {
+      type: 'exact' as const,
+      conditions: {
+        rows: 1,
+        hasRound: true,
+        hasAvg: true,
+      },
+    },
+  },
+  {
+    title: 'Promedio con AVG',
+    difficulty: 'Intermedio',
+    description: 'Calcula la edad promedio de todos los usuarios.',
+    details: `Aprenderás a:
+1. Usar la función de agregación AVG
+2. Calcular promedios de columnas numéricas
+3. Obtener estadísticas básicas de tus datos`,
+    hint: 'Usa SELECT AVG(columna) FROM tabla',
+    successMessage: '¡Muy bien! AVG es fundamental para análisis estadísticos básicos.',
+    example: {
+      entrada: "Tabla 'usuarios' con columna 'edad'",
+      salida: 'Un número decimal representando la edad promedio',
+    },
+    validation: {
+      type: 'exact' as const,
+      conditions: {
+        rows: 1,
+        hasAvg: true,
+      },
+    },
+  },
+  {
+    title: 'MIN y MAX',
+    difficulty: 'Intermedio',
+    description: 'Obtén la edad mínima y máxima de los usuarios en una sola consulta.',
+    details: `Este ejercicio te enseñará:
+1. Usar MIN para encontrar el valor más pequeño
+2. Usar MAX para encontrar el valor más grande
+3. Combinar múltiples funciones de agregación`,
+    hint: 'Usa SELECT MIN(columna), MAX(columna) FROM tabla',
+    successMessage: '¡Excelente! MIN y MAX son muy útiles para encontrar extremos en tus datos.',
+    example: {
+      entrada: "Tabla 'usuarios'",
+      salida: 'Dos valores: la edad mínima y la edad máxima',
+    },
+    validation: {
+      type: 'exact' as const,
+      conditions: {
+        rows: 1,
+        hasMin: true,
+        hasMax: true,
+      },
+    },
+  },
+  {
+    title: 'COALESCE - Valores por Defecto',
+    difficulty: 'Intermedio',
+    description: "Selecciona el nombre y ciudad de cada usuario, mostrando 'Sin ciudad' cuando la ciudad sea NULL.",
+    details: `Aprenderás a:
+1. Usar COALESCE para manejar valores NULL
+2. Proporcionar valores por defecto
+3. Mejorar la presentación de datos incompletos`,
+    hint: "Usa COALESCE(columna, 'valor_por_defecto')",
+    successMessage: '¡Perfecto! COALESCE es muy útil para manejar datos faltantes de forma elegante.',
+    example: {
+      entrada: "Tabla 'usuarios' con algunos NULL en ciudad",
+      salida: "Usuarios con 'Sin ciudad' en lugar de NULL",
+    },
+    validation: {
+      type: 'partial' as const,
+      conditions: {
+        columns: ['nombre', 'ciudad'],
+        hasCoalesce: true,
+      },
+    },
+  },
+  {
+    title: 'Concatenación de Texto',
+    difficulty: 'Intermedio',
+    description: "Crea una columna llamada 'info_usuario' que combine el nombre y email en formato: 'Nombre (email)'.",
+    details: `Este ejercicio te enseñará:
+1. Concatenar columnas de texto con ||
+2. Agregar texto literal entre columnas
+3. Crear campos calculados de texto`,
+    hint: "Usa columna1 || ' (' || columna2 || ')' AS info_usuario",
+    successMessage: '¡Muy bien! La concatenación es útil para crear campos personalizados.',
+    example: {
+      entrada: "Tabla 'usuarios' con nombre y email",
+      salida: "Columna con formato 'Juan García (juan@email.com)'",
+    },
+    validation: {
+      type: 'partial' as const,
+      conditions: {
+        columns: ['info_usuario'],
+        hasConcat: true,
+      },
+    },
+  },
+
+  // New DML Exercises - Avanzado
+  {
+    title: 'Múltiples JOINs',
+    difficulty: 'Avanzado',
+    description: 'Obtén el nombre del usuario, el monto de cada pedido y el nombre del producto. Une las tablas usuarios, pedidos y productos.',
+    details: `Este ejercicio avanzado te enseñará:
+1. Unir más de dos tablas en una consulta
+2. Seguir las relaciones entre múltiples tablas
+3. Construir consultas complejas paso a paso`,
+    hint: 'Encadena los JOINs: FROM usuarios JOIN pedidos ON ... JOIN productos ON ...',
+    successMessage: '¡Impresionante! Dominar múltiples JOINs te permite crear reportes muy completos.',
+    example: {
+      entrada: "Tablas 'usuarios', 'pedidos' y 'productos'",
+      salida: 'Listado con nombre de usuario, monto del pedido y nombre del producto',
+    },
+    validation: {
+      type: 'partial' as const,
+      conditions: {
+        columns: ['nombre', 'monto', 'producto'],
+        hasMultipleJoins: true,
+        minJoins: 2,
+      },
+    },
+  },
+  {
+    title: 'LEFT JOIN con NULL',
+    difficulty: 'Avanzado',
+    description: 'Encuentra todos los usuarios que NO han realizado ningún pedido usando LEFT JOIN.',
+    details: `Aprenderás a:
+1. Usar LEFT JOIN para incluir registros sin coincidencias
+2. Identificar registros huérfanos con IS NULL
+3. Patrones comunes de análisis de datos`,
+    hint: 'Usa LEFT JOIN y filtra WHERE pedidos.id IS NULL',
+    successMessage: '¡Excelente! Este patrón es muy útil para encontrar datos faltantes.',
+    example: {
+      entrada: "Tablas 'usuarios' y 'pedidos'",
+      salida: 'Usuarios sin ningún pedido registrado',
+    },
+    validation: {
+      type: 'partial' as const,
+      conditions: {
+        columns: ['nombre', 'email'],
+        hasLeftJoin: true,
+        hasNullCheck: true,
+      },
+    },
+  },
+  {
+    title: 'UNION - Combinar Resultados',
+    difficulty: 'Avanzado',
+    description: 'Combina en una sola lista los nombres de todos los usuarios y los nombres de todos los productos, en una columna llamada "nombre".',
+    details: `Este ejercicio te enseñará:
+1. Usar UNION para combinar resultados de múltiples consultas
+2. Entender que UNION elimina duplicados
+3. La diferencia entre UNION y UNION ALL`,
+    hint: 'SELECT nombre FROM tabla1 UNION SELECT nombre FROM tabla2',
+    successMessage: '¡Muy bien! UNION es poderoso para combinar datos de diferentes fuentes.',
+    example: {
+      entrada: "Tablas 'usuarios' y 'productos'",
+      salida: 'Lista combinada de nombres de usuarios y productos',
+    },
+    validation: {
+      type: 'partial' as const,
+      conditions: {
+        columns: ['nombre'],
+        hasUnion: true,
+      },
+    },
+  },
+  {
+    title: 'CASE WHEN - Expresiones Condicionales',
+    difficulty: 'Avanzado',
+    description: "Selecciona el nombre de cada usuario y una columna 'categoria_edad' que muestre 'Joven' si edad < 30, 'Adulto' si edad entre 30 y 50, y 'Senior' si edad > 50.",
+    details: `Aprenderás a:
+1. Crear columnas calculadas con CASE WHEN
+2. Implementar lógica condicional en SQL
+3. Categorizar datos dinámicamente`,
+    hint: "Usa CASE WHEN condicion THEN 'valor' WHEN ... ELSE 'valor' END AS columna",
+    successMessage: '¡Impresionante! CASE WHEN te permite crear análisis muy sofisticados.',
+    example: {
+      entrada: "Tabla 'usuarios' con columna 'edad'",
+      salida: 'Usuarios con su categoría de edad calculada',
+    },
+    validation: {
+      type: 'partial' as const,
+      conditions: {
+        columns: ['nombre', 'categoria_edad'],
+        hasCaseWhen: true,
+      },
+    },
+  },
+  {
+    title: 'Self JOIN - Auto-unión',
+    difficulty: 'Avanzado',
+    description: 'Encuentra pares de usuarios que viven en la misma ciudad (cada par debe aparecer una sola vez).',
+    details: `Aprenderás a:
+1. Unir una tabla consigo misma (Self JOIN)
+2. Usar alias para diferenciar las instancias
+3. Evitar duplicados en los resultados`,
+    hint: 'Usa FROM usuarios u1 JOIN usuarios u2 ON u1.ciudad = u2.ciudad WHERE u1.id < u2.id',
+    successMessage: '¡Impresionante! Self JOIN es útil para comparar registros dentro de la misma tabla.',
+    example: {
+      entrada: "Tabla 'usuarios'",
+      salida: 'Pares de usuarios que comparten ciudad',
+    },
+    validation: {
+      type: 'partial' as const,
+      conditions: {
+        hasSelfJoin: true,
+      },
+    },
+  },
+  {
+    title: 'NOT IN con Subconsulta',
+    difficulty: 'Avanzado',
+    description: 'Selecciona todos los usuarios que NO han realizado ningún pedido usando NOT IN.',
+    details: `Este ejercicio te enseñará:
+1. Usar NOT IN con una subconsulta
+2. Excluir registros basándose en otra tabla
+3. Comparar NOT IN vs LEFT JOIN con NULL`,
+    hint: 'Usa WHERE id NOT IN (SELECT usuario_id FROM pedidos)',
+    successMessage: '¡Excelente! NOT IN es otra forma de encontrar registros sin coincidencias.',
+    example: {
+      entrada: "Tablas 'usuarios' y 'pedidos'",
+      salida: 'Usuarios sin pedidos',
+    },
+    validation: {
+      type: 'partial' as const,
+      conditions: {
+        columns: ['id', 'nombre', 'email', 'fecha_registro', 'edad', 'ciudad', 'activo'],
+        hasNotIn: true,
+        hasSubquery: true,
+      },
+    },
+  },
+  {
+    title: 'EXISTS - Verificar Existencia',
+    difficulty: 'Avanzado',
+    description: 'Selecciona los usuarios que tienen al menos un pedido usando EXISTS.',
+    details: `Aprenderás a:
+1. Usar EXISTS para verificar si existen registros relacionados
+2. Entender cuándo usar EXISTS vs JOIN
+3. Crear subconsultas correlacionadas simples`,
+    hint: 'Usa WHERE EXISTS (SELECT 1 FROM pedidos WHERE pedidos.usuario_id = usuarios.id)',
+    successMessage: '¡Excelente! EXISTS es muy eficiente para verificar la existencia de registros.',
+    example: {
+      entrada: "Tablas 'usuarios' y 'pedidos'",
+      salida: 'Solo usuarios que han realizado al menos un pedido',
+    },
+    validation: {
+      type: 'partial' as const,
+      conditions: {
+        columns: ['id', 'nombre', 'email', 'fecha_registro', 'edad', 'ciudad', 'activo'],
+        hasExists: true,
+      },
+    },
+  },
+  {
+    title: 'Subconsulta Correlacionada',
+    difficulty: 'Avanzado',
+    description: 'Para cada usuario, muestra su nombre y el monto total de sus pedidos usando una subconsulta en el SELECT.',
+    details: `Este ejercicio avanzado te enseñará:
+1. Crear subconsultas correlacionadas en SELECT
+2. Calcular valores por cada fila del resultado
+3. Entender la diferencia con JOINs y GROUP BY`,
+    hint: 'Usa SELECT nombre, (SELECT SUM(monto) FROM pedidos WHERE usuario_id = usuarios.id) FROM usuarios',
+    successMessage: '¡Impresionante! Las subconsultas correlacionadas son poderosas para cálculos por fila.',
+    example: {
+      entrada: "Tablas 'usuarios' y 'pedidos'",
+      salida: 'Cada usuario con el total de sus pedidos',
+    },
+    validation: {
+      type: 'partial' as const,
+      conditions: {
+        columns: ['nombre', 'total'],
+        hasCorrelatedSubquery: true,
+      },
+    },
+  },
+  {
+    title: 'ROW_NUMBER - Funciones de Ventana',
+    difficulty: 'Avanzado',
+    description: 'Asigna un número de fila a cada usuario ordenado por fecha de registro, mostrando nombre, fecha_registro y el número de fila.',
+    details: `Aprenderás a:
+1. Usar funciones de ventana (window functions)
+2. Numerar filas con ROW_NUMBER()
+3. Usar OVER() para definir el orden`,
+    hint: 'Usa ROW_NUMBER() OVER (ORDER BY fecha_registro) AS numero_fila',
+    successMessage: '¡Muy bien! Las funciones de ventana son herramientas muy poderosas en SQL avanzado.',
+    example: {
+      entrada: "Tabla 'usuarios'",
+      salida: 'Usuarios con su número de fila según orden de registro',
+    },
+    validation: {
+      type: 'partial' as const,
+      conditions: {
+        columns: ['nombre', 'fecha_registro', 'numero_fila'],
+        hasRowNumber: true,
+      },
+    },
+  },
+  {
+    title: 'Pedido Máximo por Usuario',
+    difficulty: 'Avanzado',
+    description: 'Muestra el nombre de cada usuario junto con el monto de su pedido más alto.',
+    details: `Este ejercicio práctico combina:
+1. JOINs con subconsultas
+2. Funciones de agregación en subconsultas
+3. Correlación entre consulta principal y subconsulta`,
+    hint: 'Usa una subconsulta con MAX(monto) correlacionada por usuario_id',
+    successMessage: '¡Excelente! Has dominado la combinación de múltiples técnicas avanzadas de SQL.',
+    example: {
+      entrada: "Tablas 'usuarios' y 'pedidos'",
+      salida: 'Nombre de usuario y su pedido de mayor monto',
+    },
+    validation: {
+      type: 'partial' as const,
+      conditions: {
+        columns: ['nombre', 'max_monto'],
+        hasMax: true,
+        hasJoin: true,
+      },
+    },
+  },
+
   // DDL Exercises - Principiante
   {
     title: 'CREATE TABLE - Tabla Básica',
