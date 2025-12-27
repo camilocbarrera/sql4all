@@ -1,28 +1,15 @@
 'use client'
 
-import {
-  SignInButton,
-  SignUpButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from '@clerk/nextjs'
+import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
 import { Button } from '@/components/ui'
 
 export function UserProfile() {
   return (
     <>
       <SignedOut>
-        <div className="flex items-center gap-2">
-          <SignInButton mode="modal">
-            <Button variant="ghost" size="sm">
-              Iniciar sesión
-            </Button>
-          </SignInButton>
-          <SignUpButton mode="modal">
-            <Button size="sm">Registrarse</Button>
-          </SignUpButton>
-        </div>
+        <SignInButton mode="modal">
+          <Button size="sm">Comenzar</Button>
+        </SignInButton>
       </SignedOut>
       <SignedIn>
         <UserButton
