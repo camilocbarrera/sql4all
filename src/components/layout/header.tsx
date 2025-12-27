@@ -20,6 +20,8 @@ import { StreakBadge } from '@/components/shared/streak-badge'
 import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { CrafterStationLogo } from '@/components/logos/crafter-station'
 import { GithubLogo } from '@/components/logos/github'
+import { MoralejaDesignLogo } from '@/components/logos/moraleja-design'
+import { KeboLogo } from '@/components/logos/kebo'
 
 export function Header() {
   const { user, isLoaded: isClerkLoaded } = useUser()
@@ -124,7 +126,27 @@ export function Header() {
               className="flex items-center hover:opacity-80 transition-opacity"
               aria-label="Crafter Station"
             >
-              <CrafterStationLogo className="h-5 w-auto" />
+              <CrafterStationLogo className="h-5 w-auto scale-[0.8]" />
+            </a>
+            <div className="h-4 w-px bg-border" />
+            <a
+              href="https://www.moraleja.co"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center hover:opacity-80 transition-opacity"
+              aria-label="Moraleja Design"
+            >
+              <MoralejaDesignLogo className="h-5 w-auto" />
+            </a>
+            <div className="h-4 w-px bg-border" />
+            <a
+              href="https://kebo.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center hover:opacity-80 transition-opacity"
+              aria-label="Kebo"
+            >
+              <KeboLogo className="h-5 w-auto" />
             </a>
             <div className="h-4 w-px bg-border" />
             <a
@@ -148,6 +170,22 @@ export function Header() {
             <StreakBadge />
             <ScoreBadge />
           </div>
+
+          <a
+            href="https://github.com/camilocbarrera/sql4all"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="md:hidden flex items-center gap-1.5 px-2 py-1.5 rounded-md bg-muted/50 hover:bg-muted transition-colors"
+            aria-label="GitHub"
+          >
+            <GithubLogo className="h-4 w-auto" variant="invertocat" />
+            {githubStars !== null && (
+              <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
+                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                {githubStars}
+              </span>
+            )}
+          </a>
           
           <ThemeToggle />
 
@@ -235,8 +273,28 @@ export function Header() {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <CrafterStationLogo className="h-4 w-auto mr-2" />
+                        <CrafterStationLogo className="h-4 w-auto mr-2 scale-[0.8]" />
                         Crafter Station
+                      </a>
+                    </Button>
+                    <Button variant="ghost" className="justify-start" asChild>
+                      <a
+                        href="https://www.moraleja.co"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <MoralejaDesignLogo className="h-4 w-auto mr-2" />
+                        Moraleja Design
+                      </a>
+                    </Button>
+                    <Button variant="ghost" className="justify-start" asChild>
+                      <a
+                        href="https://kebo.app"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <KeboLogo className="h-4 w-auto mr-2" />
+                        Kebo
                       </a>
                     </Button>
                     <Button variant="ghost" className="justify-between w-full" asChild>
@@ -244,13 +302,14 @@ export function Header() {
                         href="https://github.com/camilocbarrera/sql4all"
                         target="_blank"
                         rel="noopener noreferrer"
+                        className="flex items-center justify-between w-full"
                       >
                         <span className="flex items-center">
                           <GithubLogo className="h-4 w-auto mr-2" variant="invertocat" />
                           GitHub
                         </span>
                         {githubStars !== null && (
-                          <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <span className="flex items-center gap-1 text-sm font-medium text-muted-foreground">
                             <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
                             {githubStars}
                           </span>

@@ -6,6 +6,8 @@ import { Database } from 'lucide-react'
 import { SqlDemoAnimation } from './sql-demo-animation'
 import { CrafterStationLogo } from '@/components/logos/crafter-station'
 import { GithubLogo } from '@/components/logos/github'
+import { MoralejaDesignLogo } from '@/components/logos/moraleja-design'
+import { KeboLogo } from '@/components/logos/kebo'
 
 export function LandingPage() {
 
@@ -127,7 +129,27 @@ export function LandingPage() {
                 className="flex items-center gap-2 hover:opacity-80 transition-opacity"
                 aria-label="Crafter Station"
               >
-                <CrafterStationLogo className="h-5 w-auto" />
+                <CrafterStationLogo className="h-5 w-auto scale-[0.8]" />
+              </a>
+              <div className="h-4 w-px bg-border" />
+              <a
+                href="https://www.moraleja.co"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                aria-label="Moraleja Design"
+              >
+                <MoralejaDesignLogo className="h-5 w-auto" />
+              </a>
+              <div className="h-4 w-px bg-border" />
+              <a
+                href="https://kebo.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                aria-label="Kebo"
+              >
+                <KeboLogo className="h-5 w-auto" />
               </a>
               <div className="h-4 w-px bg-border" />
               <a
