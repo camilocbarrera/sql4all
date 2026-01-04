@@ -1,4 +1,8 @@
-import { QueryClient, defaultShouldDehydrateQuery, isServer } from '@tanstack/react-query'
+import {
+  defaultShouldDehydrateQuery,
+  isServer,
+  QueryClient,
+} from "@tanstack/react-query";
 
 function makeQueryClient() {
   return new QueryClient({
@@ -10,33 +14,30 @@ function makeQueryClient() {
       dehydrate: {
         shouldDehydrateQuery: (query) =>
           defaultShouldDehydrateQuery(query) ||
-          query.state.status === 'pending',
+          query.state.status === "pending",
       },
     },
-  })
+  });
 }
 
-let browserQueryClient: QueryClient | undefined = undefined
+let browserQueryClient: QueryClient | undefined;
 
 export function getQueryClient() {
   if (isServer) {
-    return makeQueryClient()
+    return makeQueryClient();
   }
   if (!browserQueryClient) {
-    browserQueryClient = makeQueryClient()
+    browserQueryClient = makeQueryClient();
   }
-  return browserQueryClient
+  return browserQueryClient;
 }
 
 // Query keys
 export const queryKeys = {
-  exercises: ['exercises'] as const,
-  exercise: (id: string) => ['exercise', id] as const,
-  userScore: (userId: string) => ['userScore', userId] as const,
-  userStreak: (userId: string) => ['userStreak', userId] as const,
-  weekProgress: (userId: string) => ['weekProgress', userId] as const,
-  solvedExercises: (userId: string) => ['solvedExercises', userId] as const,
-}
-
-
-
+  exercises: ["exercises"] as const,
+  exercise: (id: string) => ["exercise", id] as const,
+  userScore: (userId: string) => ["userScore", userId] as const,
+  userStreak: (userId: string) => ["userStreak", userId] as const,
+  weekProgress: (userId: string) => ["weekProgress", userId] as const,
+  solvedExercises: (userId: string) => ["solvedExercises", userId] as const,
+};

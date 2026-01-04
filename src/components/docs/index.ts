@@ -1,3 +1,2 @@
-export { SchemaViewer } from './schema-viewer'
-export { SqlReference } from './sql-reference'
-
+export { SchemaViewer } from "./schema-viewer";
+export { SqlReference } from "./sql-reference";

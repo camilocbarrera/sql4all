@@ -1,2 +1,1 @@
-export { LeaderboardTable } from './leaderboard-table'
-
+export { LeaderboardTable } from "./leaderboard-table";

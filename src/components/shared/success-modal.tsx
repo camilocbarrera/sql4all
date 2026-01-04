@@ -1,21 +1,21 @@
-'use client'
+"use client";
 
-import { useRouter } from 'next/navigation'
-import { PartyPopper, ArrowRight, Home } from 'lucide-react'
+import { ArrowRight, Home, PartyPopper } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  Button,
-} from '@/components/ui'
+} from "@/components/ui";
 
 interface SuccessModalProps {
-  isOpen: boolean
-  onClose: () => void
-  exerciseTitle: string
-  nextExerciseId?: string
+  isOpen: boolean;
+  onClose: () => void;
+  exerciseTitle: string;
+  nextExerciseId?: string;
 }
 
 export function SuccessModal({
@@ -24,19 +24,19 @@ export function SuccessModal({
   exerciseTitle,
   nextExerciseId,
 }: SuccessModalProps) {
-  const router = useRouter()
+  const router = useRouter();
 
   const handleNextExercise = () => {
     if (nextExerciseId) {
-      router.push(`/exercises/${nextExerciseId}`)
-      onClose()
+      router.push(`/exercises/${nextExerciseId}`);
+      onClose();
     }
-  }
+  };
 
   const handleGoHome = () => {
-    router.push('/')
-    onClose()
-  }
+    router.push("/");
+    onClose();
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -45,9 +45,7 @@ export function SuccessModal({
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
             <PartyPopper className="h-6 w-6 text-green-600 dark:text-green-400" />
           </div>
-          <DialogTitle className="text-center">
-            ¡Progreso Guardado!
-          </DialogTitle>
+          <DialogTitle className="text-center">¡Progreso Guardado!</DialogTitle>
           <DialogDescription className="text-center">
             Has completado exitosamente &quot;{exerciseTitle}&quot;
           </DialogDescription>
@@ -66,8 +64,5 @@ export function SuccessModal({
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-
-
-

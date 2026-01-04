@@ -1,7 +1,7 @@
-import satori from "satori";
 import { Resvg } from "@resvg/resvg-js";
 import { writeFileSync } from "fs";
 import { join } from "path";
+import satori from "satori";
 
 const WIDTH = 1200;
 const HEIGHT = 630;
@@ -19,13 +19,13 @@ const colors = {
 async function generateOG() {
   // Fetch Inter font (regular weight)
   const interRes = await fetch(
-    "https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff"
+    "https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff",
   );
   const interData = await interRes.arrayBuffer();
 
   // Fetch Inter font (semibold weight)
   const interSemiboldRes = await fetch(
-    "https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuGKYAZ9hjp-Ek-_EeA.woff"
+    "https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuGKYAZ9hjp-Ek-_EeA.woff",
   );
   const interSemiboldData = await interSemiboldRes.arrayBuffer();
 
@@ -192,7 +192,7 @@ async function generateOG() {
           style: "normal",
         },
       ],
-    }
+    },
   );
 
   const resvg = new Resvg(svg, {
@@ -281,7 +281,7 @@ async function generateFavicon() {
       width: size,
       height: size,
       fonts: [],
-    }
+    },
   );
 
   const resvg = new Resvg(svg, {

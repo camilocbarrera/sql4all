@@ -1,26 +1,26 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
-import { exercises } from '@/lib/db/schema'
-import { eq, and } from 'drizzle-orm'
+import { and, eq } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { exercises } from "@/lib/db/schema";
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const { id } = await params
+  const { id } = await params;
 
   try {
     const [exercise] = await db
       .select()
       .from(exercises)
       .where(and(eq(exercises.id, id), eq(exercises.isDeleted, false)))
-      .limit(1)
+      .limit(1);
 
     if (!exercise) {
       return NextResponse.json(
-        { error: 'Exercise not found' },
-        { status: 404 }
-      )
+        { error: "Exercise not found" },
+        { status: 404 },
+      );
     }
 
     return NextResponse.json({
@@ -38,14 +38,12 @@ export async function GET(
         createdAt: exercise.createdAt,
         updatedAt: exercise.updatedAt,
       },
-    })
+    });
   } catch (error) {
-    console.error('Error fetching exercise:', error)
+    console.error("Error fetching exercise:", error);
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
-
-

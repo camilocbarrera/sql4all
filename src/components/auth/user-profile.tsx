@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
-import { Button } from '@/components/ui'
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import { Button } from "@/components/ui";
 
 export function UserProfile() {
   return (
@@ -15,14 +15,11 @@ export function UserProfile() {
         <UserButton
           appearance={{
             elements: {
-              avatarBox: 'h-8 w-8',
+              avatarBox: "h-8 w-8",
             },
           }}
         />
       </SignedIn>
     </>
-  )
+  );
 }
-
-
-

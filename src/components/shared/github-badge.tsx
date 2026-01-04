@@ -1,30 +1,30 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useRef } from 'react'
-import { motion } from 'framer-motion'
+import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 
 export function GithubBadge() {
-  const [githubStars, setGithubStars] = useState<number | null>(null)
-  const [shouldAnimate, setShouldAnimate] = useState(false)
-  const starRef = useRef<SVGSVGElement>(null)
+  const [githubStars, setGithubStars] = useState<number | null>(null);
+  const [shouldAnimate, setShouldAnimate] = useState(false);
+  const starRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
     const fetchGithubStars = async () => {
       try {
         const response = await fetch(
-          'https://api.github.com/repos/camilocbarrera/sql4all'
-        )
+          "https://api.github.com/repos/camilocbarrera/sql4all",
+        );
         if (response.ok) {
-          const data = await response.json()
-          setGithubStars(data.stargazers_count)
-          setTimeout(() => setShouldAnimate(true), 100)
+          const data = await response.json();
+          setGithubStars(data.stargazers_count);
+          setTimeout(() => setShouldAnimate(true), 100);
         }
       } catch (error) {
-        console.warn('Failed to fetch GitHub stars:', error)
+        console.warn("Failed to fetch GitHub stars:", error);
       }
-    }
-    fetchGithubStars()
-  }, [])
+    };
+    fetchGithubStars();
+  }, []);
 
   return (
     <>
@@ -33,11 +33,13 @@ export function GithubBadge() {
         target="_blank"
         rel="noopener noreferrer"
         className="github-badge fixed top-[80px] right-4 md:top-[72px] md:right-6 z-50 flex items-center gap-2.5 px-4 py-2 md:px-5 md:py-2.5 bg-black/40 dark:bg-white/10 backdrop-blur-sm border border-white/10 dark:border-white/20 rounded-md opacity-60 hover:opacity-100 transition-opacity duration-300 group"
-        style={{ pointerEvents: 'auto' }}
+        style={{ pointerEvents: "auto" }}
         initial={{ x: 0, opacity: 0.6 }}
-        animate={shouldAnimate ? { x: -20, opacity: 0.6 } : { x: 0, opacity: 0.6 }}
+        animate={
+          shouldAnimate ? { x: -20, opacity: 0.6 } : { x: 0, opacity: 0.6 }
+        }
         transition={{
-          type: 'spring',
+          type: "spring",
           stiffness: 100,
           damping: 15,
         }}
@@ -65,7 +67,7 @@ export function GithubBadge() {
             initial={{ x: 20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{
-              type: 'spring',
+              type: "spring",
               stiffness: 120,
               damping: 15,
               delay: 0.2,
@@ -85,11 +87,17 @@ export function GithubBadge() {
                 strokeLinejoin="round"
                 className="star-icon text-yellow-400 relative"
                 style={{
-                  filter: 'drop-shadow(0 0 0.5px rgba(251, 191, 36, 0.2))',
+                  filter: "drop-shadow(0 0 0.5px rgba(251, 191, 36, 0.2))",
                 }}
               >
                 <defs>
-                  <linearGradient id="starGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <linearGradient
+                    id="starGradient"
+                    x1="0%"
+                    y1="0%"
+                    x2="100%"
+                    y2="100%"
+                  >
                     <stop offset="0%" stopColor="rgba(251, 191, 36, 0.8)" />
                     <stop offset="50%" stopColor="rgba(251, 191, 36, 1)" />
                     <stop offset="100%" stopColor="rgba(251, 191, 36, 0.8)" />
@@ -106,6 +114,5 @@ export function GithubBadge() {
         )}
       </motion.a>
     </>
-  )
+  );
 }
-

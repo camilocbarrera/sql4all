@@ -1,8 +1,8 @@
-import { createGroq } from '@ai-sdk/groq'
-import { streamText } from 'ai'
-import { z } from 'zod'
+import { createGroq } from "@ai-sdk/groq";
+import { streamText } from "ai";
+import { z } from "zod";
 
-const groq = createGroq()
+const groq = createGroq();
 
 const hintRequestSchema = z.object({
   exercise: z.object({
@@ -10,13 +10,13 @@ const hintRequestSchema = z.object({
     description: z.string(),
     details: z.string(),
     hint: z.string(),
-    type: z.enum(['dml', 'ddl']).optional(),
+    type: z.enum(["dml", "ddl"]).optional(),
   }),
   userQuery: z.string(),
   error: z.string(),
   schema: z.string().optional(),
   previousHint: z.string().optional(),
-})
+});
 
 const SYSTEM_PROMPT = `You are a SQL tutor helping students learn SQL through practice. Your role is to guide, not solve.
 
@@ -31,21 +31,22 @@ Guidelines:
 - Be encouraging and supportive
 - Respond in Spanish since the platform is in Spanish
 
-Remember: The goal is learning, not just getting the right answer.`
+Remember: The goal is learning, not just getting the right answer.`;
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json()
-    const { exercise, userQuery, error, schema, previousHint } = hintRequestSchema.parse(body)
+    const body = await req.json();
+    const { exercise, userQuery, error, schema, previousHint } =
+      hintRequestSchema.parse(body);
 
-    const isFollowUp = !!previousHint
+    const isFollowUp = !!previousHint;
 
     const prompt = isFollowUp
       ? `
 Exercise: ${exercise.title}
 Description: ${exercise.description}
 Details: ${exercise.details}
-Exercise type: ${exercise.type || 'dml'}
+Exercise type: ${exercise.type || "dml"}
 
 User's SQL query:
 \`\`\`sql
@@ -54,7 +55,7 @@ ${userQuery}
 
 Error message: ${error}
 
-${schema ? `Available schema:\n${schema}` : ''}
+${schema ? `Available schema:\n${schema}` : ""}
 
 Previous hint given:
 "${previousHint}"
@@ -68,7 +69,7 @@ The student didn't understand the previous hint and needs a clearer explanation.
 Exercise: ${exercise.title}
 Description: ${exercise.description}
 Details: ${exercise.details}
-Exercise type: ${exercise.type || 'dml'}
+Exercise type: ${exercise.type || "dml"}
 
 User's SQL query:
 \`\`\`sql
@@ -77,12 +78,12 @@ ${userQuery}
 
 Error message: ${error}
 
-${schema ? `Available schema:\n${schema}` : ''}
+${schema ? `Available schema:\n${schema}` : ""}
 
-Provide a brief, educational hint to help the student understand their mistake without giving away the answer.`
+Provide a brief, educational hint to help the student understand their mistake without giving away the answer.`;
 
     const result = streamText({
-      model: groq('openai/gpt-oss-20b'),
+      model: groq("openai/gpt-oss-20b"),
       system: SYSTEM_PROMPT,
       prompt,
       providerOptions: {
@@ -91,15 +92,14 @@ Provide a brief, educational hint to help the student understand their mistake w
           temperature: 0.7,
         },
       },
-    })
+    });
 
-    return result.toTextStreamResponse()
+    return result.toTextStreamResponse();
   } catch (err) {
-    console.error('AI hint error:', err)
-    return new Response(
-      JSON.stringify({ error: 'Failed to generate hint' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    )
+    console.error("AI hint error:", err);
+    return new Response(JSON.stringify({ error: "Failed to generate hint" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }
-

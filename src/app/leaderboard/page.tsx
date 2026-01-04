@@ -1,17 +1,17 @@
-'use client'
+"use client";
 
-import { motion } from 'framer-motion'
-import { useUser } from '@clerk/nextjs'
-import { Trophy, RefreshCw } from 'lucide-react'
-import Link from 'next/link'
-import { useLeaderboard } from '@/hooks/use-leaderboard'
-import { LeaderboardTable } from '@/components/leaderboard'
-import { Button, Card, CardContent, Skeleton } from '@/components/ui'
-import { formatDistanceToNow } from '@/lib/utils'
+import { useUser } from "@clerk/nextjs";
+import { motion } from "framer-motion";
+import { RefreshCw, Trophy } from "lucide-react";
+import Link from "next/link";
+import { LeaderboardTable } from "@/components/leaderboard";
+import { Button, Card, CardContent, Skeleton } from "@/components/ui";
+import { useLeaderboard } from "@/hooks/use-leaderboard";
+import { formatDistanceToNow } from "@/lib/utils";
 
 export default function LeaderboardPage() {
-  const { user } = useUser()
-  const { data, isLoading, refetch, isFetching } = useLeaderboard()
+  const { user } = useUser();
+  const { data, isLoading, refetch, isFetching } = useLeaderboard();
 
   return (
     <div className="min-h-[calc(100vh-3.5rem)]">
@@ -45,7 +45,9 @@ export default function LeaderboardPage() {
               disabled={isFetching}
               className="h-8 w-8"
             >
-              <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
+              <RefreshCw
+                className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`}
+              />
             </Button>
           </div>
 
@@ -59,8 +61,8 @@ export default function LeaderboardPage() {
                   ))}
                 </div>
               ) : (
-                <LeaderboardTable 
-                  entries={data?.leaderboard || []} 
+                <LeaderboardTable
+                  entries={data?.leaderboard || []}
                   currentUserId={user?.id}
                 />
               )}
@@ -70,8 +72,8 @@ export default function LeaderboardPage() {
           {/* Footer */}
           <div className="flex items-center justify-between text-xs text-muted-foreground/50">
             <span>{data?.leaderboard?.length || 0} participantes</span>
-            <Link 
-              href="/exercises" 
+            <Link
+              href="/exercises"
               className="text-primary/70 hover:text-primary transition-colors"
             >
               Practicar →
@@ -80,6 +82,5 @@ export default function LeaderboardPage() {
         </motion.div>
       </div>
     </div>
-  )
+  );
 }
-

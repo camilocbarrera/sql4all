@@ -1,30 +1,33 @@
-'use client'
+"use client";
 
-import { useMemo } from 'react'
+import { useMemo } from "react";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui'
-import { cn } from '@/lib/utils'
+} from "@/components/ui";
+import { cn } from "@/lib/utils";
 
 interface WeekDay {
-  day: string
-  completed: boolean
+  day: string;
+  completed: boolean;
 }
 
 interface ActivityHeatmapProps {
-  weekProgress: WeekDay[]
-  streak: number
+  weekProgress: WeekDay[];
+  streak: number;
 }
 
-export function ActivityHeatmap({ weekProgress, streak }: ActivityHeatmapProps) {
+export function ActivityHeatmap({
+  weekProgress,
+  streak,
+}: ActivityHeatmapProps) {
   const completedDays = useMemo(
     () => weekProgress.filter((d) => d.completed).length,
-    [weekProgress]
-  )
+    [weekProgress],
+  );
 
   return (
     <Card className="border-border/40">
@@ -39,22 +42,19 @@ export function ActivityHeatmap({ weekProgress, streak }: ActivityHeatmapProps) 
       <CardContent>
         <div className="grid grid-cols-7 gap-2">
           {weekProgress.map((day) => (
-            <div
-              key={day.day}
-              className="flex flex-col items-center gap-1"
-            >
+            <div key={day.day} className="flex flex-col items-center gap-1">
               <span className="text-[10px] text-muted-foreground/70">
                 {day.day}
               </span>
               <div
                 className={cn(
-                  'w-7 h-7 rounded flex items-center justify-center text-xs transition-colors',
+                  "w-7 h-7 rounded flex items-center justify-center text-xs transition-colors",
                   day.completed
-                    ? 'bg-primary/20 text-primary'
-                    : 'bg-muted/50 text-muted-foreground/30'
+                    ? "bg-primary/20 text-primary"
+                    : "bg-muted/50 text-muted-foreground/30",
                 )}
               >
-                {day.completed ? '✓' : '·'}
+                {day.completed ? "✓" : "·"}
               </div>
             </div>
           ))}
@@ -68,6 +68,5 @@ export function ActivityHeatmap({ weekProgress, streak }: ActivityHeatmapProps) 
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
-

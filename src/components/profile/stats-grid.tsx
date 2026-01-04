@@ -1,29 +1,35 @@
-'use client'
+"use client";
 
-import { Trophy, Flame, Target, CheckCircle2 } from 'lucide-react'
-import { Card, CardContent } from '@/components/ui'
+import { CheckCircle2, Flame, Target, Trophy } from "lucide-react";
+import { Card, CardContent } from "@/components/ui";
 
 interface StatsGridProps {
-  score: number
-  streak: number
-  totalSolved: number
-  totalExercises: number
+  score: number;
+  streak: number;
+  totalSolved: number;
+  totalExercises: number;
 }
 
-export function StatsGrid({ score, streak, totalSolved, totalExercises }: StatsGridProps) {
-  const completionRate = totalExercises > 0 ? Math.round((totalSolved / totalExercises) * 100) : 0
+export function StatsGrid({
+  score,
+  streak,
+  totalSolved,
+  totalExercises,
+}: StatsGridProps) {
+  const completionRate =
+    totalExercises > 0 ? Math.round((totalSolved / totalExercises) * 100) : 0;
 
   const stats = [
-    { label: 'Puntos', value: score, icon: Trophy },
-    { label: 'Racha', value: `${streak}d`, icon: Flame },
-    { label: 'Resueltos', value: totalSolved, icon: CheckCircle2 },
-    { label: 'Progreso', value: `${completionRate}%`, icon: Target },
-  ]
+    { label: "Puntos", value: score, icon: Trophy },
+    { label: "Racha", value: `${streak}d`, icon: Flame },
+    { label: "Resueltos", value: totalSolved, icon: CheckCircle2 },
+    { label: "Progreso", value: `${completionRate}%`, icon: Target },
+  ];
 
   return (
     <div className="grid grid-cols-4 gap-3">
       {stats.map((stat) => {
-        const Icon = stat.icon
+        const Icon = stat.icon;
         return (
           <Card key={stat.label} className="border-border/40">
             <CardContent className="p-3 text-center">
@@ -32,9 +38,8 @@ export function StatsGrid({ score, streak, totalSolved, totalExercises }: StatsG
               <p className="text-[10px] text-muted-foreground">{stat.label}</p>
             </CardContent>
           </Card>
-        )
+        );
       })}
     </div>
-  )
+  );
 }
-

@@ -1,9 +1,17 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { BookOpen, Menu, User, Star, Database, Trophy } from 'lucide-react'
-import Link from 'next/link'
-import { useUser } from '@clerk/nextjs'
+import { useUser } from "@clerk/nextjs";
+import { BookOpen, Database, Menu, Star, Trophy, User } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { UserProfile } from "@/components/auth/user-profile";
+import { CrafterStationLogo } from "@/components/logos/crafter-station";
+import { GithubLogo } from "@/components/logos/github";
+import { KeboLogo } from "@/components/logos/kebo";
+import { MoralejaDesignLogo } from "@/components/logos/moraleja-design";
+import { ScoreBadge } from "@/components/shared/score-badge";
+import { StreakBadge } from "@/components/shared/streak-badge";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 import {
   Button,
   Separator,
@@ -12,49 +20,41 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from '@/components/ui'
-import { UserProfile } from '@/components/auth/user-profile'
-import { useProfileSync } from '@/hooks/use-profile-sync'
-import { ScoreBadge } from '@/components/shared/score-badge'
-import { StreakBadge } from '@/components/shared/streak-badge'
-import { ThemeToggle } from '@/components/shared/theme-toggle'
-import { CrafterStationLogo } from '@/components/logos/crafter-station'
-import { GithubLogo } from '@/components/logos/github'
-import { MoralejaDesignLogo } from '@/components/logos/moraleja-design'
-import { KeboLogo } from '@/components/logos/kebo'
+} from "@/components/ui";
+import { useProfileSync } from "@/hooks/use-profile-sync";
 
 export function Header() {
-  const { user, isLoaded: isClerkLoaded } = useUser()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [githubStars, setGithubStars] = useState<number | null>(null)
-  const [isMounted, setIsMounted] = useState(false)
+  const { user, isLoaded: isClerkLoaded } = useUser();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [githubStars, setGithubStars] = useState<number | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   // Sync profile to database on login
-  useProfileSync()
+  useProfileSync();
 
   useEffect(() => {
-    setIsMounted(true)
-  }, [])
-  
+    setIsMounted(true);
+  }, []);
+
   // Only show user-specific UI after Clerk has loaded
-  const showUserUI = isClerkLoaded && !!user
+  const showUserUI = isClerkLoaded && !!user;
 
   useEffect(() => {
     const fetchGithubStars = async () => {
       try {
         const response = await fetch(
-          'https://api.github.com/repos/camilocbarrera/sql4all'
-        )
+          "https://api.github.com/repos/camilocbarrera/sql4all",
+        );
         if (response.ok) {
-          const data = await response.json()
-          setGithubStars(data.stargazers_count)
+          const data = await response.json();
+          setGithubStars(data.stargazers_count);
         }
       } catch (error) {
-        console.warn('Failed to fetch GitHub stars:', error)
+        console.warn("Failed to fetch GitHub stars:", error);
       }
-    }
-    fetchGithubStars()
-  }, [])
+    };
+    fetchGithubStars();
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -186,7 +186,7 @@ export function Header() {
               </span>
             )}
           </a>
-          
+
           <ThemeToggle />
 
           <div className="hidden sm:block">
@@ -213,7 +213,7 @@ export function Header() {
                       <ScoreBadge />
                     </div>
                   )}
-                  
+
                   <nav className="flex flex-col gap-2">
                     <Button
                       variant="ghost"
@@ -266,7 +266,9 @@ export function Header() {
                   <Separator />
 
                   <div className="flex flex-col gap-2">
-                    <p className="text-xs text-muted-foreground px-2">Enlaces</p>
+                    <p className="text-xs text-muted-foreground px-2">
+                      Enlaces
+                    </p>
                     <Button variant="ghost" className="justify-start" asChild>
                       <a
                         href="https://www.crafterstation.com"
@@ -297,7 +299,11 @@ export function Header() {
                         Kebo
                       </a>
                     </Button>
-                    <Button variant="ghost" className="justify-between w-full" asChild>
+                    <Button
+                      variant="ghost"
+                      className="justify-between w-full"
+                      asChild
+                    >
                       <a
                         href="https://github.com/camilocbarrera/sql4all"
                         target="_blank"
@@ -305,7 +311,10 @@ export function Header() {
                         className="flex items-center justify-between w-full"
                       >
                         <span className="flex items-center">
-                          <GithubLogo className="h-4 w-auto mr-2" variant="invertocat" />
+                          <GithubLogo
+                            className="h-4 w-auto mr-2"
+                            variant="invertocat"
+                          />
                           GitHub
                         </span>
                         {githubStars !== null && (
@@ -335,6 +344,5 @@ export function Header() {
         </div>
       </div>
     </header>
-  )
+  );
 }
-

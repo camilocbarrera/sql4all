@@ -1,87 +1,96 @@
-'use client'
+"use client";
 
-import { useState, useCallback, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles, X, Loader2, RefreshCw } from 'lucide-react'
-import Markdown from 'react-markdown'
-import { Button } from '@/components/ui'
+import { AnimatePresence, motion } from "framer-motion";
+import { Loader2, RefreshCw, Sparkles, X } from "lucide-react";
+import { useCallback, useRef, useState } from "react";
+import Markdown from "react-markdown";
+import { Button } from "@/components/ui";
 
 interface ExerciseContext {
-  title: string
-  description: string
-  details: string
-  hint: string
-  type?: 'dml' | 'ddl'
+  title: string;
+  description: string;
+  details: string;
+  hint: string;
+  type?: "dml" | "ddl";
 }
 
 interface AIHintProps {
-  exercise: ExerciseContext
-  userQuery: string
-  error: string
-  schema?: string
+  exercise: ExerciseContext;
+  userQuery: string;
+  error: string;
+  schema?: string;
 }
 
 export function AIHint({ exercise, userQuery, error, schema }: AIHintProps) {
-  const [isVisible, setIsVisible] = useState(false)
-  const [completion, setCompletion] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [hintCount, setHintCount] = useState(0)
-  const abortControllerRef = useRef<AbortController | null>(null)
+  const [isVisible, setIsVisible] = useState(false);
+  const [completion, setCompletion] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [hintCount, setHintCount] = useState(0);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  const fetchHint = useCallback(async (previousHint?: string) => {
-    setIsLoading(true)
-    setCompletion('')
+  const fetchHint = useCallback(
+    async (previousHint?: string) => {
+      setIsLoading(true);
+      setCompletion("");
 
-    abortControllerRef.current = new AbortController()
+      abortControllerRef.current = new AbortController();
 
-    try {
-      const response = await fetch('/api/ai/hint', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ exercise, userQuery, error, schema, previousHint }),
-        signal: abortControllerRef.current.signal,
-      })
+      try {
+        const response = await fetch("/api/ai/hint", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            exercise,
+            userQuery,
+            error,
+            schema,
+            previousHint,
+          }),
+          signal: abortControllerRef.current.signal,
+        });
 
-      if (!response.ok) throw new Error('Failed to fetch hint')
-      if (!response.body) throw new Error('No response body')
+        if (!response.ok) throw new Error("Failed to fetch hint");
+        if (!response.body) throw new Error("No response body");
 
-      const reader = response.body.getReader()
-      const decoder = new TextDecoder()
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
 
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        const chunk = decoder.decode(value, { stream: true })
-        setCompletion(prev => prev + chunk)
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          setCompletion((prev) => prev + chunk);
+        }
+        setHintCount((prev) => prev + 1);
+      } catch (err) {
+        if ((err as Error).name !== "AbortError") {
+          console.error("AI hint error:", err);
+          setCompletion("Error al generar la pista. Intenta de nuevo.");
+        }
+      } finally {
+        setIsLoading(false);
       }
-      setHintCount(prev => prev + 1)
-    } catch (err) {
-      if ((err as Error).name !== 'AbortError') {
-        console.error('AI hint error:', err)
-        setCompletion('Error al generar la pista. Intenta de nuevo.')
-      }
-    } finally {
-      setIsLoading(false)
-    }
-  }, [exercise, userQuery, error, schema])
+    },
+    [exercise, userQuery, error, schema],
+  );
 
   const requestHint = useCallback(async () => {
     if (completion && !isLoading) {
-      setIsVisible(true)
-      return
+      setIsVisible(true);
+      return;
     }
-    setIsVisible(true)
-    await fetchHint()
-  }, [completion, isLoading, fetchHint])
+    setIsVisible(true);
+    await fetchHint();
+  }, [completion, isLoading, fetchHint]);
 
   const requestBetterHint = useCallback(async () => {
-    if (isLoading) return
-    await fetchHint(completion)
-  }, [isLoading, completion, fetchHint])
+    if (isLoading) return;
+    await fetchHint(completion);
+  }, [isLoading, completion, fetchHint]);
 
   const dismiss = useCallback(() => {
-    setIsVisible(false)
-  }, [])
+    setIsVisible(false);
+  }, []);
 
   if (!isVisible) {
     return (
@@ -95,14 +104,14 @@ export function AIHint({ exercise, userQuery, error, schema }: AIHintProps) {
         <Sparkles className="h-3.5 w-3.5 text-amber-500 group-hover:text-amber-400" />
         <span>Obtener pista con IA</span>
       </motion.button>
-    )
+    );
   }
 
   return (
     <AnimatePresence mode="wait">
       <motion.div
         initial={{ opacity: 0, height: 0 }}
-        animate={{ opacity: 1, height: 'auto' }}
+        animate={{ opacity: 1, height: "auto" }}
         exit={{ opacity: 0, height: 0 }}
         transition={{ duration: 0.2 }}
         className="mt-3"
@@ -132,7 +141,7 @@ export function AIHint({ exercise, userQuery, error, schema }: AIHintProps) {
               ) : (
                 <>
                   <div className="text-sm text-foreground/90 leading-relaxed prose prose-sm dark:prose-invert prose-p:my-1 prose-code:bg-amber-500/20 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-amber-700 dark:prose-code:text-amber-300 prose-code:before:content-none prose-code:after:content-none max-w-none">
-                    <Markdown>{completion || 'Generando pista...'}</Markdown>
+                    <Markdown>{completion || "Generando pista..."}</Markdown>
                   </div>
                   {completion && !isLoading && hintCount < 3 && (
                     <button
@@ -157,6 +166,5 @@ export function AIHint({ exercise, userQuery, error, schema }: AIHintProps) {
         </div>
       </motion.div>
     </AnimatePresence>
-  )
+  );
 }
-

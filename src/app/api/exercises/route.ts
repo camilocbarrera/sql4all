@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server'
-import { db } from '@/lib/db'
-import { exercises } from '@/lib/db/schema'
-import { eq } from 'drizzle-orm'
+import { eq } from "drizzle-orm";
+import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { exercises } from "@/lib/db/schema";
 
 export async function GET() {
   try {
@@ -9,7 +9,7 @@ export async function GET() {
       .select()
       .from(exercises)
       .where(eq(exercises.isDeleted, false))
-      .orderBy(exercises.createdAt)
+      .orderBy(exercises.createdAt);
 
     const formattedExercises = data.map((ex) => ({
       id: ex.id,
@@ -24,14 +24,14 @@ export async function GET() {
       validation: ex.validation,
       createdAt: ex.createdAt,
       updatedAt: ex.updatedAt,
-    }))
+    }));
 
-    return NextResponse.json({ exercises: formattedExercises })
+    return NextResponse.json({ exercises: formattedExercises });
   } catch (error) {
-    console.error('Error fetching exercises:', error)
+    console.error("Error fetching exercises:", error);
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

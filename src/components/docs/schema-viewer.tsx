@@ -1,99 +1,150 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { 
-  Table2, 
-  ChevronDown, 
-  Key, 
-  Link2,
-  Hash,
-  Type,
-  Calendar,
-  ToggleLeft,
-  DollarSign
-} from 'lucide-react'
+import { AnimatePresence, motion } from "framer-motion";
 import {
+  Calendar,
+  ChevronDown,
+  DollarSign,
+  Hash,
+  Key,
+  Link2,
+  Table2,
+  ToggleLeft,
+  Type,
+} from "lucide-react";
+import { useState } from "react";
+import {
+  Badge,
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-  Badge,
-} from '@/components/ui'
+} from "@/components/ui";
 
 interface Column {
-  name: string
-  type: string
-  isPrimary?: boolean
-  isForeign?: boolean
-  foreignRef?: string
-  nullable?: boolean
-  description: string
+  name: string;
+  type: string;
+  isPrimary?: boolean;
+  isForeign?: boolean;
+  foreignRef?: string;
+  nullable?: boolean;
+  description: string;
 }
 
 interface TableSchema {
-  name: string
-  description: string
-  columns: Column[]
+  name: string;
+  description: string;
+  columns: Column[];
 }
 
 const schema: TableSchema[] = [
   {
-    name: 'usuarios',
-    description: 'Almacena información de los usuarios registrados en el sistema',
+    name: "usuarios",
+    description:
+      "Almacena información de los usuarios registrados en el sistema",
     columns: [
-      { name: 'id', type: 'SERIAL', isPrimary: true, description: 'Identificador único auto-incremental' },
-      { name: 'nombre', type: 'VARCHAR(100)', description: 'Nombre completo del usuario' },
-      { name: 'email', type: 'VARCHAR(100)', description: 'Correo electrónico del usuario' },
-      { name: 'fecha_registro', type: 'DATE', description: 'Fecha en que se registró el usuario' },
-      { name: 'edad', type: 'INTEGER', nullable: true, description: 'Edad del usuario en años' },
-      { name: 'ciudad', type: 'VARCHAR(100)', nullable: true, description: 'Ciudad de residencia' },
-      { name: 'activo', type: 'BOOLEAN', description: 'Estado de la cuenta (activa/inactiva)' },
+      {
+        name: "id",
+        type: "SERIAL",
+        isPrimary: true,
+        description: "Identificador único auto-incremental",
+      },
+      {
+        name: "nombre",
+        type: "VARCHAR(100)",
+        description: "Nombre completo del usuario",
+      },
+      {
+        name: "email",
+        type: "VARCHAR(100)",
+        description: "Correo electrónico del usuario",
+      },
+      {
+        name: "fecha_registro",
+        type: "DATE",
+        description: "Fecha en que se registró el usuario",
+      },
+      {
+        name: "edad",
+        type: "INTEGER",
+        nullable: true,
+        description: "Edad del usuario en años",
+      },
+      {
+        name: "ciudad",
+        type: "VARCHAR(100)",
+        nullable: true,
+        description: "Ciudad de residencia",
+      },
+      {
+        name: "activo",
+        type: "BOOLEAN",
+        description: "Estado de la cuenta (activa/inactiva)",
+      },
     ],
   },
   {
-    name: 'pedidos',
-    description: 'Registra los pedidos realizados por los usuarios',
+    name: "pedidos",
+    description: "Registra los pedidos realizados por los usuarios",
     columns: [
-      { name: 'id', type: 'SERIAL', isPrimary: true, description: 'Identificador único del pedido' },
-      { name: 'usuario_id', type: 'INTEGER', isForeign: true, foreignRef: 'usuarios(id)', description: 'ID del usuario que realizó el pedido' },
-      { name: 'monto', type: 'DECIMAL(10,2)', description: 'Monto total del pedido' },
-      { name: 'fecha', type: 'DATE', description: 'Fecha en que se realizó el pedido' },
+      {
+        name: "id",
+        type: "SERIAL",
+        isPrimary: true,
+        description: "Identificador único del pedido",
+      },
+      {
+        name: "usuario_id",
+        type: "INTEGER",
+        isForeign: true,
+        foreignRef: "usuarios(id)",
+        description: "ID del usuario que realizó el pedido",
+      },
+      {
+        name: "monto",
+        type: "DECIMAL(10,2)",
+        description: "Monto total del pedido",
+      },
+      {
+        name: "fecha",
+        type: "DATE",
+        description: "Fecha en que se realizó el pedido",
+      },
     ],
   },
-]
+];
 
 const typeIcons: Record<string, typeof Hash> = {
-  'SERIAL': Hash,
-  'INTEGER': Hash,
-  'VARCHAR': Type,
-  'DATE': Calendar,
-  'BOOLEAN': ToggleLeft,
-  'DECIMAL': DollarSign,
-}
+  SERIAL: Hash,
+  INTEGER: Hash,
+  VARCHAR: Type,
+  DATE: Calendar,
+  BOOLEAN: ToggleLeft,
+  DECIMAL: DollarSign,
+};
 
 function getTypeIcon(type: string) {
-  const baseType = type.split('(')[0]
-  return typeIcons[baseType] || Type
+  const baseType = type.split("(")[0];
+  return typeIcons[baseType] || Type;
 }
 
 export function SchemaViewer() {
   const [expandedTables, setExpandedTables] = useState<Set<string>>(
-    new Set(schema.map(t => t.name))
-  )
+    new Set(schema.map((t) => t.name)),
+  );
 
   const toggleTable = (tableName: string) => {
     setExpandedTables((prev) => {
-      const next = new Set(prev)
+      const next = new Set(prev);
       if (next.has(tableName)) {
-        next.delete(tableName)
+        next.delete(tableName);
       } else {
-        next.add(tableName)
+        next.add(tableName);
       }
-      return next
-    })
-  }
+      return next;
+    });
+  };
 
   return (
     <div className="space-y-8">
@@ -139,8 +190,8 @@ export function SchemaViewer() {
       {/* Table Details */}
       <div className="space-y-4">
         {schema.map((table) => {
-          const isExpanded = expandedTables.has(table.name)
-          
+          const isExpanded = expandedTables.has(table.name);
+
           return (
             <Card key={table.name}>
               <CardHeader
@@ -163,12 +214,12 @@ export function SchemaViewer() {
                   </motion.div>
                 </div>
               </CardHeader>
-              
+
               <AnimatePresence>
                 {isExpanded && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
+                    animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.2 }}
                   >
@@ -177,22 +228,34 @@ export function SchemaViewer() {
                         <table className="w-full text-sm">
                           <thead className="bg-muted/50">
                             <tr>
-                              <th className="text-left p-3 font-medium">Columna</th>
-                              <th className="text-left p-3 font-medium">Tipo</th>
-                              <th className="text-left p-3 font-medium hidden sm:table-cell">Descripción</th>
+                              <th className="text-left p-3 font-medium">
+                                Columna
+                              </th>
+                              <th className="text-left p-3 font-medium">
+                                Tipo
+                              </th>
+                              <th className="text-left p-3 font-medium hidden sm:table-cell">
+                                Descripción
+                              </th>
                             </tr>
                           </thead>
                           <tbody>
                             {table.columns.map((column, idx) => {
-                              const TypeIcon = getTypeIcon(column.type)
+                              const TypeIcon = getTypeIcon(column.type);
                               return (
-                                <tr 
+                                <tr
                                   key={column.name}
-                                  className={idx % 2 === 0 ? 'bg-background' : 'bg-muted/20'}
+                                  className={
+                                    idx % 2 === 0
+                                      ? "bg-background"
+                                      : "bg-muted/20"
+                                  }
                                 >
                                   <td className="p-3">
                                     <div className="flex items-center gap-2">
-                                      <code className="font-mono text-sm">{column.name}</code>
+                                      <code className="font-mono text-sm">
+                                        {column.name}
+                                      </code>
                                       {column.isPrimary && (
                                         <span title="Primary Key">
                                           <Key className="h-3.5 w-3.5 text-yellow-500" />
@@ -208,11 +271,16 @@ export function SchemaViewer() {
                                   <td className="p-3">
                                     <div className="flex items-center gap-2">
                                       <TypeIcon className="h-3.5 w-3.5 text-muted-foreground" />
-                                      <Badge variant="outline" className="font-mono text-xs">
+                                      <Badge
+                                        variant="outline"
+                                        className="font-mono text-xs"
+                                      >
                                         {column.type}
                                       </Badge>
                                       {column.nullable && (
-                                        <span className="text-xs text-muted-foreground">NULL</span>
+                                        <span className="text-xs text-muted-foreground">
+                                          NULL
+                                        </span>
                                       )}
                                     </div>
                                   </td>
@@ -225,7 +293,7 @@ export function SchemaViewer() {
                                     )}
                                   </td>
                                 </tr>
-                              )
+                              );
                             })}
                           </tbody>
                         </table>
@@ -235,7 +303,7 @@ export function SchemaViewer() {
                 )}
               </AnimatePresence>
             </Card>
-          )
+          );
         })}
       </div>
 
@@ -261,11 +329,36 @@ export function SchemaViewer() {
                   </tr>
                 </thead>
                 <tbody className="font-mono text-xs">
-                  <tr><td className="p-2">1</td><td className="p-2">Ana García</td><td className="p-2">Madrid</td><td className="p-2">true</td></tr>
-                  <tr className="bg-muted/20"><td className="p-2">2</td><td className="p-2">Carlos López</td><td className="p-2">Barcelona</td><td className="p-2">true</td></tr>
-                  <tr><td className="p-2">3</td><td className="p-2">María Rodríguez</td><td className="p-2">Valencia</td><td className="p-2">false</td></tr>
-                  <tr className="bg-muted/20"><td className="p-2">4</td><td className="p-2">Juan Martínez</td><td className="p-2">Sevilla</td><td className="p-2">true</td></tr>
-                  <tr><td className="p-2">5</td><td className="p-2">Laura Sánchez</td><td className="p-2">Bilbao</td><td className="p-2">true</td></tr>
+                  <tr>
+                    <td className="p-2">1</td>
+                    <td className="p-2">Ana García</td>
+                    <td className="p-2">Madrid</td>
+                    <td className="p-2">true</td>
+                  </tr>
+                  <tr className="bg-muted/20">
+                    <td className="p-2">2</td>
+                    <td className="p-2">Carlos López</td>
+                    <td className="p-2">Barcelona</td>
+                    <td className="p-2">true</td>
+                  </tr>
+                  <tr>
+                    <td className="p-2">3</td>
+                    <td className="p-2">María Rodríguez</td>
+                    <td className="p-2">Valencia</td>
+                    <td className="p-2">false</td>
+                  </tr>
+                  <tr className="bg-muted/20">
+                    <td className="p-2">4</td>
+                    <td className="p-2">Juan Martínez</td>
+                    <td className="p-2">Sevilla</td>
+                    <td className="p-2">true</td>
+                  </tr>
+                  <tr>
+                    <td className="p-2">5</td>
+                    <td className="p-2">Laura Sánchez</td>
+                    <td className="p-2">Bilbao</td>
+                    <td className="p-2">true</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -273,6 +366,5 @@ export function SchemaViewer() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
-
