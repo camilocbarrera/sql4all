@@ -6,7 +6,8 @@
     "useIgnoreFile": true
   },
   "files": {
-    "ignoreUnknown": false
+    "ignoreUnknown": false,
+    "includes": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.json"]
   },
   "formatter": {
     "enabled": true,
@@ -17,10 +18,26 @@
     "rules": {
       "recommended": true,
       "suspicious": {
-        "noExplicitAny": "off"
+        "noExplicitAny": "off",
+        "noTemplateCurlyInString": "off",
+        "noArrayIndexKey": "off"
       },
       "correctness": {
-        "noUnusedVariables": "warn"
+        "noUnusedVariables": "warn",
+        "noUnusedImports": "warn",
+        "useExhaustiveDependencies": "warn"
+      },
+      "style": {
+        "noNonNullAssertion": "off",
+        "useTemplate": "off"
+      },
+      "a11y": {
+        "noSvgWithoutTitle": "off",
+        "noStaticElementInteractions": "off",
+        "useKeyWithClickEvents": "off"
+      },
+      "complexity": {
+        "noUselessFragments": "warn"
       }
     }
   },

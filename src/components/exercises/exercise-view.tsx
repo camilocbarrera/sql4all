@@ -84,7 +84,7 @@ export function ExerciseView({
   const [errorTimestamp, setErrorTimestamp] = useState<number>(0);
   const [errorExample, setErrorExample] = useState<string | null>(null);
   const [isValidated, setIsValidated] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
+  const [_isSaved, setIsSaved] = useState(false);
   const [isInfoExpanded, setIsInfoExpanded] = useState(false);
 
   // DDL-specific state

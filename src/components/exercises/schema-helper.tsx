@@ -95,6 +95,7 @@ export function SchemaHelper() {
                 {schema.map((table) => (
                   <div key={table.name} className="border-b last:border-b-0">
                     <button
+                      type="button"
                       onClick={() =>
                         setExpandedTable(
                           expandedTable === table.name ? null : table.name,

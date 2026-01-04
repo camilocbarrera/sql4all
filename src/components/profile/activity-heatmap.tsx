@@ -1,13 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
 interface WeekDay {

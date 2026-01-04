@@ -60,7 +60,7 @@ class DatabaseService {
       return this.initPromise;
     }
 
-    this.initPromise = new Promise(async (resolve, reject) => {
+    this.initPromise = (async () => {
       try {
         this.db = new PGlite();
 
@@ -133,13 +133,12 @@ class DatabaseService {
             (10, 5, 325.25, '2023-12-20');
         `);
 
-        resolve(this.db);
+        return this.db;
       } catch (error) {
-        reject(error);
-      } finally {
         this.initPromise = null;
+        throw error;
       }
-    });
+    })();
 
     return this.initPromise;
   }
