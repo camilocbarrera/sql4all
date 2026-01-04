@@ -1,66 +1,76 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { Filter } from 'lucide-react'
-import { useUser } from '@clerk/nextjs'
-import { useSolvedExercises } from '@/hooks/use-submissions'
-import { Button, Badge } from '@/components/ui'
-import { ExerciseCard } from './exercise-card'
-import { cn } from '@/lib/utils'
-import type { Exercise } from '@/lib/validations'
+import { useUser } from "@clerk/nextjs";
+import { motion } from "framer-motion";
+import { Filter } from "lucide-react";
+import { useState } from "react";
+import { Badge, Button } from "@/components/ui";
+import { useSolvedExercises } from "@/hooks/use-submissions";
+import { cn } from "@/lib/utils";
+import type { Exercise } from "@/lib/validations";
+import { ExerciseCard } from "./exercise-card";
 
-type Difficulty = 'Principiante' | 'Intermedio' | 'Avanzado'
+type Difficulty = "Principiante" | "Intermedio" | "Avanzado";
 
-const difficultyOrder: Difficulty[] = ['Principiante', 'Intermedio', 'Avanzado']
+const difficultyOrder: Difficulty[] = [
+  "Principiante",
+  "Intermedio",
+  "Avanzado",
+];
 
 const difficultyIcons: Record<Difficulty, string> = {
-  Principiante: '🌱',
-  Intermedio: '🚀',
-  Avanzado: '⚡',
-}
+  Principiante: "🌱",
+  Intermedio: "🚀",
+  Avanzado: "⚡",
+};
 
 interface ExerciseGridProps {
-  exercises: Exercise[]
+  exercises: Exercise[];
 }
 
 export function ExerciseGrid({ exercises }: ExerciseGridProps) {
-  const { user, isLoaded: isClerkLoaded } = useUser()
-  const { data: solvedExercises, isLoading, isFetching, isFetched, status } = useSolvedExercises()
-  const [showOnlyUnsolved, setShowOnlyUnsolved] = useState(false)
-  
+  const { user, isLoaded: isClerkLoaded } = useUser();
+  const {
+    data: solvedExercises,
+    isLoading,
+    isFetching,
+    isFetched,
+    status,
+  } = useSolvedExercises();
+  const [showOnlyUnsolved, setShowOnlyUnsolved] = useState(false);
+
   // Debug logging
-  console.log('[ExerciseGrid] render:', { 
+  console.log("[ExerciseGrid] render:", {
     isClerkLoaded,
     hasUser: !!user,
     status,
-    isLoading, 
+    isLoading,
     isFetching,
     isFetched,
-    solvedCount: solvedExercises?.size ?? 'undefined',
-    solvedIds: solvedExercises ? Array.from(solvedExercises) : 'undefined'
-  })
-  
+    solvedCount: solvedExercises?.size ?? "undefined",
+    solvedIds: solvedExercises ? Array.from(solvedExercises) : "undefined",
+  });
+
   // Use empty set as fallback when data is not yet loaded
-  const solvedSet = solvedExercises ?? new Set<string>()
-  
+  const solvedSet = solvedExercises ?? new Set<string>();
+
   // Only show user-specific UI after Clerk has loaded
-  const showUserUI = isClerkLoaded && !!user
+  const showUserUI = isClerkLoaded && !!user;
 
   const filteredExercises = showOnlyUnsolved
     ? exercises.filter((ex) => !solvedSet.has(ex.id))
-    : exercises
+    : exercises;
 
   const groupedExercises = filteredExercises.reduce<Record<string, Exercise[]>>(
     (acc, exercise) => {
       if (!acc[exercise.difficulty]) {
-        acc[exercise.difficulty] = []
+        acc[exercise.difficulty] = [];
       }
-      acc[exercise.difficulty].push(exercise)
-      return acc
+      acc[exercise.difficulty].push(exercise);
+      return acc;
     },
-    {}
-  )
+    {},
+  );
 
   return (
     <div className="space-y-6">
@@ -71,12 +81,12 @@ export function ExerciseGrid({ exercises }: ExerciseGridProps) {
             size="sm"
             onClick={() => setShowOnlyUnsolved(!showOnlyUnsolved)}
             className={cn(
-              'gap-2',
-              showOnlyUnsolved && 'bg-primary/10 border-primary/50'
+              "gap-2",
+              showOnlyUnsolved && "bg-primary/10 border-primary/50",
             )}
           >
             <Filter className="h-4 w-4" />
-            {showOnlyUnsolved ? 'Sin resolver' : 'Todos'}
+            {showOnlyUnsolved ? "Sin resolver" : "Todos"}
           </Button>
         </div>
       )}
@@ -108,11 +118,8 @@ export function ExerciseGrid({ exercises }: ExerciseGridProps) {
                 ))}
               </div>
             </motion.section>
-          )
+          ),
       )}
     </div>
-  )
+  );
 }
-
-
-

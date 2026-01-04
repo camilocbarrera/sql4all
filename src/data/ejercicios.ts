@@ -37,7 +37,7 @@
 //     titulo: "Filtrado con WHERE",
 //     dificultad: "Intermedio",
 //     descripcion: "Selecciona usuarios que se registraron después del '2023-05-10'.",
-//     detalles: `Este ejercicio te enseñará a usar la cláusula WHERE para filtrar resultados. 
+//     detalles: `Este ejercicio te enseñará a usar la cláusula WHERE para filtrar resultados.
 //     Deberás seleccionar usuarios basándote en su fecha de registro.`,
 //     ejemplo: {
 //       entrada: "La tabla 'usuarios' con columnas: id, nombre, email, fecha_registro",
@@ -65,7 +65,7 @@
 //     titulo: "Joins Avanzados",
 //     dificultad: "Avanzado",
 //     descripcion: "Realiza un JOIN entre las tablas 'usuarios' y 'pedidos' para obtener el total de pedidos por usuario. Ordena los resultados por nombre de usuario.",
-//     detalles: `En este ejercicio avanzado, practicarás cómo unir dos tablas y realizar cálculos agregados. 
+//     detalles: `En este ejercicio avanzado, practicarás cómo unir dos tablas y realizar cálculos agregados.
 //     Deberás combinar la información de usuarios con sus pedidos y calcular el total de pedidos para cada usuario.`,
 //     ejemplo: {
 //       entrada: `Tablas:
@@ -100,7 +100,7 @@
 
 //           // Verificar que cada fila coincida con los resultados esperados
 //           return result.rows.every(row => {
-//             return expectedResults.some(expected => 
+//             return expectedResults.some(expected =>
 //               expected.nombre === row.nombre &&
 //               expected.email === row.email &&
 //               Number(row.total_pedidos) === expected.total_pedidos

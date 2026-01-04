@@ -1,40 +1,40 @@
-'use client'
+"use client";
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { useUser } from '@clerk/nextjs'
-import { motion } from 'framer-motion'
-import { ArrowLeft } from 'lucide-react'
-import Link from 'next/link'
+import { useUser } from "@clerk/nextjs";
+import { motion } from "framer-motion";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import {
-  useUserScore,
-  useUserStreak,
-  useSolvedExercises,
-} from '@/hooks/use-submissions'
-import { useUserHistory, useHeatmapData } from '@/hooks/use-profile'
-import { Button, Skeleton } from '@/components/ui'
-import {
-  UserAvatar,
-  LevelBadge,
-  StatsGrid,
   ExerciseHistory,
   GitHubHeatmap,
-} from '@/components/profile'
+  LevelBadge,
+  StatsGrid,
+  UserAvatar,
+} from "@/components/profile";
+import { Button, Skeleton } from "@/components/ui";
+import { useHeatmapData, useUserHistory } from "@/hooks/use-profile";
+import {
+  useSolvedExercises,
+  useUserScore,
+  useUserStreak,
+} from "@/hooks/use-submissions";
 
 export default function ProfilePage() {
-  const router = useRouter()
-  const { user, isLoaded } = useUser()
-  const { data: score, isLoading: scoreLoading } = useUserScore()
-  const { data: streak, isLoading: streakLoading } = useUserStreak()
-  const { data: solvedExercises } = useSolvedExercises()
-  const { data: history, isLoading: historyLoading } = useUserHistory()
-  const { data: heatmapDates, isLoading: heatmapLoading } = useHeatmapData()
+  const router = useRouter();
+  const { user, isLoaded } = useUser();
+  const { data: score, isLoading: scoreLoading } = useUserScore();
+  const { data: streak, isLoading: streakLoading } = useUserStreak();
+  const { data: solvedExercises } = useSolvedExercises();
+  const { data: history, isLoading: historyLoading } = useUserHistory();
+  const { data: heatmapDates, isLoading: heatmapLoading } = useHeatmapData();
 
   useEffect(() => {
     if (isLoaded && !user) {
-      router.push('/')
+      router.push("/");
     }
-  }, [isLoaded, user, router])
+  }, [isLoaded, user, router]);
 
   if (!isLoaded || !user) {
     return (
@@ -43,26 +43,26 @@ export default function ProfilePage() {
           <Skeleton className="h-32 w-full" />
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[...Array(4)].map((_, i) => (
-              <Skeleton key={i} className="h-24 w-full" />
+              <Skeleton key={`header-skeleton-${i}`} className="h-24 w-full" />
             ))}
           </div>
           <Skeleton className="h-48 w-full" />
         </div>
       </div>
-    )
+    );
   }
 
-  const isLoading = scoreLoading || streakLoading
+  const isLoading = scoreLoading || streakLoading;
 
-  const historyItems = Array.isArray(history) 
+  const historyItems = Array.isArray(history)
     ? history.map((item) => ({
         ...item,
         solvedAt: new Date(item.solvedAt),
       }))
-    : []
+    : [];
 
   // Get total exercises from a fetch (we'll use a rough estimate for now)
-  const totalExercises = 15 // TODO: fetch from API
+  const totalExercises = 15; // TODO: fetch from API
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-5xl">
@@ -91,7 +91,7 @@ export default function ProfilePage() {
           />
           <div>
             <h1 className="text-lg font-semibold">
-              {user.fullName || user.username || 'Usuario'}
+              {user.fullName || user.username || "Usuario"}
             </h1>
             <p className="text-xs text-muted-foreground">
               {user.primaryEmailAddress?.emailAddress}
@@ -115,7 +115,7 @@ export default function ProfilePage() {
         {isLoading ? (
           <div className="grid grid-cols-4 gap-3">
             {[...Array(4)].map((_, i) => (
-              <Skeleton key={i} className="h-20 w-full" />
+              <Skeleton key={`stats-skeleton-${i}`} className="h-20 w-full" />
             ))}
           </div>
         ) : (
@@ -131,13 +131,12 @@ export default function ProfilePage() {
         {historyLoading ? (
           <Skeleton className="h-64 w-full" />
         ) : (
-          <ExerciseHistory 
-            history={historyItems} 
+          <ExerciseHistory
+            history={historyItems}
             hasSolvedExercises={solvedExercises && solvedExercises.size > 0}
           />
         )}
       </motion.div>
     </div>
-  )
+  );
 }
-

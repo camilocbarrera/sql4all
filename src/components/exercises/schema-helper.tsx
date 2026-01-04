@@ -1,50 +1,50 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Database, ChevronDown, ChevronUp, X, Key, Table2 } from 'lucide-react'
-import { Button, Badge } from '@/components/ui'
-import { cn } from '@/lib/utils'
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronDown, ChevronUp, Database, Key, Table2, X } from "lucide-react";
+import { useState } from "react";
+import { Badge, Button } from "@/components/ui";
+import { cn } from "@/lib/utils";
 
 interface Column {
-  name: string
-  type: string
-  isPrimary?: boolean
-  isForeign?: boolean
+  name: string;
+  type: string;
+  isPrimary?: boolean;
+  isForeign?: boolean;
 }
 
 interface TableSchema {
-  name: string
-  columns: Column[]
+  name: string;
+  columns: Column[];
 }
 
 const schema: TableSchema[] = [
   {
-    name: 'usuarios',
+    name: "usuarios",
     columns: [
-      { name: 'id', type: 'SERIAL', isPrimary: true },
-      { name: 'nombre', type: 'VARCHAR' },
-      { name: 'email', type: 'VARCHAR' },
-      { name: 'fecha_registro', type: 'DATE' },
-      { name: 'edad', type: 'INTEGER' },
-      { name: 'ciudad', type: 'VARCHAR' },
-      { name: 'activo', type: 'BOOLEAN' },
+      { name: "id", type: "SERIAL", isPrimary: true },
+      { name: "nombre", type: "VARCHAR" },
+      { name: "email", type: "VARCHAR" },
+      { name: "fecha_registro", type: "DATE" },
+      { name: "edad", type: "INTEGER" },
+      { name: "ciudad", type: "VARCHAR" },
+      { name: "activo", type: "BOOLEAN" },
     ],
   },
   {
-    name: 'pedidos',
+    name: "pedidos",
     columns: [
-      { name: 'id', type: 'SERIAL', isPrimary: true },
-      { name: 'usuario_id', type: 'INTEGER', isForeign: true },
-      { name: 'monto', type: 'DECIMAL' },
-      { name: 'fecha', type: 'DATE' },
+      { name: "id", type: "SERIAL", isPrimary: true },
+      { name: "usuario_id", type: "INTEGER", isForeign: true },
+      { name: "monto", type: "DECIMAL" },
+      { name: "fecha", type: "DATE" },
     ],
   },
-]
+];
 
 export function SchemaHelper() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [expandedTable, setExpandedTable] = useState<string | null>(null)
+  const [isOpen, setIsOpen] = useState(false);
+  const [expandedTable, setExpandedTable] = useState<string | null>(null);
 
   return (
     <>
@@ -53,14 +53,14 @@ export function SchemaHelper() {
         className="fixed bottom-4 right-4 z-40 sm:bottom-6 sm:right-6"
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
-        transition={{ delay: 0.5, type: 'spring' }}
+        transition={{ delay: 0.5, type: "spring" }}
       >
         <Button
           onClick={() => setIsOpen(!isOpen)}
           size="lg"
           className={cn(
-            'rounded-full shadow-lg h-12 w-12 sm:h-14 sm:w-14 p-0',
-            isOpen && 'bg-primary/90'
+            "rounded-full shadow-lg h-12 w-12 sm:h-14 sm:w-14 p-0",
+            isOpen && "bg-primary/90",
           )}
         >
           {isOpen ? (
@@ -85,7 +85,9 @@ export function SchemaHelper() {
               <div className="p-3 border-b bg-muted/50">
                 <div className="flex items-center gap-2">
                   <Database className="h-4 w-4 text-primary" />
-                  <span className="font-semibold text-sm">Esquema de Datos</span>
+                  <span className="font-semibold text-sm">
+                    Esquema de Datos
+                  </span>
                 </div>
               </div>
 
@@ -93,16 +95,19 @@ export function SchemaHelper() {
                 {schema.map((table) => (
                   <div key={table.name} className="border-b last:border-b-0">
                     <button
+                      type="button"
                       onClick={() =>
                         setExpandedTable(
-                          expandedTable === table.name ? null : table.name
+                          expandedTable === table.name ? null : table.name,
                         )
                       }
                       className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors"
                     >
                       <div className="flex items-center gap-2">
                         <Table2 className="h-4 w-4 text-primary" />
-                        <code className="text-sm font-medium">{table.name}</code>
+                        <code className="text-sm font-medium">
+                          {table.name}
+                        </code>
                       </div>
                       {expandedTable === table.name ? (
                         <ChevronUp className="h-4 w-4 text-muted-foreground" />
@@ -115,7 +120,7 @@ export function SchemaHelper() {
                       {expandedTable === table.name && (
                         <motion.div
                           initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
+                          animate={{ height: "auto", opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
                           transition={{ duration: 0.15 }}
                           className="overflow-hidden"
@@ -158,6 +163,5 @@ export function SchemaHelper() {
         )}
       </AnimatePresence>
     </>
-  )
+  );
 }
-

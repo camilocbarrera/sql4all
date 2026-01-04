@@ -1,5 +1,2 @@
-export { UserProfile } from './user-profile'
-export { ProfileSync } from './profile-sync'
-
-
-
+export { ProfileSync } from "./profile-sync";
+export { UserProfile } from "./user-profile";

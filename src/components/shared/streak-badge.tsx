@@ -1,34 +1,40 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Flame } from 'lucide-react'
-import { useUser } from '@clerk/nextjs'
-import { useUserStreak } from '@/hooks/use-submissions'
-import { Badge, Skeleton } from '@/components/ui'
+import { useUser } from "@clerk/nextjs";
+import { AnimatePresence, motion } from "framer-motion";
+import { Flame } from "lucide-react";
+import Link from "next/link";
+import { Badge, Skeleton } from "@/components/ui";
+import { useUserStreak } from "@/hooks/use-submissions";
 
 export function StreakBadge() {
-  const { user, isLoaded: isClerkLoaded } = useUser()
-  const { data: streak, isLoading: streakLoading, isFetched } = useUserStreak()
+  const { user, isLoaded: isClerkLoaded } = useUser();
+  const { data: streak, isLoading: streakLoading, isFetched } = useUserStreak();
 
-  console.log('[StreakBadge] State:', { isClerkLoaded, hasUser: !!user, streak, isLoading: streakLoading, isFetched })
+  console.log("[StreakBadge] State:", {
+    isClerkLoaded,
+    hasUser: !!user,
+    streak,
+    isLoading: streakLoading,
+    isFetched,
+  });
 
   // Wait for Clerk to load before deciding to hide
   if (!isClerkLoaded) {
-    return <Skeleton className="h-7 w-20 rounded-full" />
+    return <Skeleton className="h-7 w-20 rounded-full" />;
   }
 
-  if (!user) return null
+  if (!user) return null;
 
   if (streakLoading || streak === undefined) {
-    return <Skeleton className="h-7 w-20 rounded-full" />
+    return <Skeleton className="h-7 w-20 rounded-full" />;
   }
 
   return (
     <Link href="/profile">
       <motion.div whileHover={{ scale: 1.05 }}>
-        <Badge 
-          variant="secondary" 
+        <Badge
+          variant="secondary"
           className="gap-2 px-3 py-1.5 cursor-pointer hover:bg-secondary/80 transition-colors"
         >
           <AnimatePresence mode="wait">
@@ -46,6 +52,5 @@ export function StreakBadge() {
         </Badge>
       </motion.div>
     </Link>
-  )
+  );
 }
-

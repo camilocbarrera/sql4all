@@ -1,68 +1,68 @@
-import { PGlite } from '@electric-sql/pglite'
-import { handleSQLError } from './sql-error-handler'
+import { PGlite } from "@electric-sql/pglite";
+import { handleSQLError } from "./sql-error-handler";
 
 export interface QueryResult {
-  error: boolean
-  message?: string
-  example?: string
-  rows: Record<string, unknown>[]
-  fields: { name: string }[]
+  error: boolean;
+  message?: string;
+  example?: string;
+  rows: Record<string, unknown>[];
+  fields: { name: string }[];
 }
 
 export interface ColumnInfo {
-  name: string
-  type: string
-  nullable: boolean
-  defaultValue: string | null
+  name: string;
+  type: string;
+  nullable: boolean;
+  defaultValue: string | null;
 }
 
 export interface ConstraintInfo {
-  name: string
-  type: 'PRIMARY KEY' | 'FOREIGN KEY' | 'UNIQUE' | 'CHECK' | 'NOT NULL'
-  columns: string[]
-  definition?: string
+  name: string;
+  type: "PRIMARY KEY" | "FOREIGN KEY" | "UNIQUE" | "CHECK" | "NOT NULL";
+  columns: string[];
+  definition?: string;
 }
 
 export interface IndexInfo {
-  name: string
-  columns: string[]
-  isUnique: boolean
+  name: string;
+  columns: string[];
+  isUnique: boolean;
 }
 
 export interface TableInfo {
-  name: string
-  columns: ColumnInfo[]
-  constraints: ConstraintInfo[]
-  indexes: IndexInfo[]
+  name: string;
+  columns: ColumnInfo[];
+  constraints: ConstraintInfo[];
+  indexes: IndexInfo[];
 }
 
 export interface SchemaInfo {
-  tables: TableInfo[]
+  tables: TableInfo[];
 }
 
-const DDL_SCHEMA = 'practice_ddl'
+const DDL_SCHEMA = "practice_ddl";
 
 class DatabaseService {
-  private db: PGlite | null = null
-  private initPromise: Promise<PGlite> | null = null
-  private ddlSchemaInitialized = false
-  private ddlResetInProgress = false
-  private ddlResetPromise: Promise<void> | null = null
+  private db: PGlite | null = null;
+  private initPromise: Promise<PGlite> | null = null;
+  private ddlSchemaInitialized = false;
+  private ddlResetInProgress = false;
+  private ddlResetPromise: Promise<void> | null = null;
 
   async initialize() {
-    if (typeof window === 'undefined') {
-      throw new Error('Database can only be initialized in the browser')
+    if (typeof window === "undefined") {
+      throw new Error("Database can only be initialized in the browser");
     }
 
-    if (this.db) return this.db
+    if (this.db) return this.db;
 
     if (this.initPromise) {
-      return this.initPromise
+      return this.initPromise;
     }
 
-    this.initPromise = new Promise(async (resolve, reject) => {
+    this.initPromise = (async () => {
       try {
-        this.db = new PGlite()
+        this.db = new PGlite();
 
         await this.db.exec(`
           CREATE TABLE IF NOT EXISTS usuarios (
@@ -75,14 +75,23 @@ class DatabaseService {
             activo BOOLEAN
           );
 
+          CREATE TABLE IF NOT EXISTS productos (
+            id SERIAL PRIMARY KEY,
+            nombre VARCHAR(100),
+            precio DECIMAL(10,2),
+            categoria VARCHAR(50)
+          );
+
           CREATE TABLE IF NOT EXISTS pedidos (
             id SERIAL PRIMARY KEY,
             usuario_id INTEGER REFERENCES usuarios(id),
+            producto_id INTEGER REFERENCES productos(id),
             monto DECIMAL(10,2),
             fecha DATE
           );
 
           TRUNCATE TABLE pedidos RESTART IDENTITY;
+          TRUNCATE TABLE productos RESTART IDENTITY CASCADE;
           TRUNCATE TABLE usuarios RESTART IDENTITY CASCADE;
 
           INSERT INTO usuarios (nombre, email, fecha_registro, edad, ciudad, activo) VALUES
@@ -97,101 +106,110 @@ class DatabaseService {
             ('Carmen Ruiz', 'carmen.ruiz@email.com', '2023-09-14', 27, 'Granada', false),
             ('Miguel Flores', 'miguel.flores@email.com', '2023-10-25', 36, 'Murcia', true);
 
-          INSERT INTO pedidos (usuario_id, monto, fecha) VALUES
-            (1, 150.50, '2023-02-01'),
-            (1, 200.75, '2023-03-15'),
-            (2, 350.00, '2023-02-28'),
-            (3, 125.25, '2023-04-10'),
-            (4, 475.00, '2023-05-05'),
-            (4, 225.50, '2023-06-20'),
-            (5, 180.75, '2023-07-12'),
-            (6, 300.00, '2023-08-18'),
-            (7, 425.25, '2023-09-22'),
-            (7, 150.00, '2023-10-05'),
-            (8, 275.50, '2023-11-15'),
-            (9, 190.75, '2023-12-01'),
-            (10, 400.00, '2023-12-10'),
-            (10, 325.25, '2023-12-20');
-        `)
+          INSERT INTO productos (nombre, precio, categoria) VALUES
+            ('Laptop Pro', 1299.99, 'Electrónica'),
+            ('Smartphone X', 899.50, 'Electrónica'),
+            ('Auriculares Wireless', 149.99, 'Electrónica'),
+            ('Camiseta Premium', 45.00, 'Ropa'),
+            ('Zapatillas Running', 120.00, 'Ropa'),
+            ('Libro SQL Avanzado', 35.50, 'Libros'),
+            ('Teclado Mecánico', 89.99, 'Electrónica'),
+            ('Mochila Viaje', 75.00, 'Accesorios');
 
-        resolve(this.db)
+          INSERT INTO pedidos (usuario_id, producto_id, monto, fecha) VALUES
+            (1, 1, 150.50, '2023-02-01'),
+            (1, 3, 200.75, '2023-03-15'),
+            (2, 2, 350.00, '2023-02-28'),
+            (3, 4, 125.25, '2023-04-10'),
+            (4, 1, 475.00, '2023-05-05'),
+            (4, 5, 225.50, '2023-06-20'),
+            (5, 6, 180.75, '2023-07-12'),
+            (6, 7, 300.00, '2023-08-18'),
+            (7, 2, 425.25, '2023-09-22'),
+            (7, 8, 150.00, '2023-10-05'),
+            (8, 3, 275.50, '2023-11-15'),
+            (9, 4, 190.75, '2023-12-01'),
+            (10, 1, 400.00, '2023-12-10'),
+            (10, 5, 325.25, '2023-12-20');
+        `);
+
+        return this.db;
       } catch (error) {
-        reject(error)
-      } finally {
-        this.initPromise = null
+        this.initPromise = null;
+        throw error;
       }
-    })
+    })();
 
-    return this.initPromise
+    return this.initPromise;
   }
 
   async initializeDDLSchema(): Promise<void> {
     if (!this.db) {
-      await this.initialize()
+      await this.initialize();
     }
 
-    if (this.ddlSchemaInitialized) return
+    if (this.ddlSchemaInitialized) return;
 
     try {
       await this.db!.exec(`
         CREATE SCHEMA IF NOT EXISTS ${DDL_SCHEMA};
         SET search_path TO ${DDL_SCHEMA}, public;
-      `)
-      this.ddlSchemaInitialized = true
+      `);
+      this.ddlSchemaInitialized = true;
     } catch (error) {
-      console.error('Error initializing DDL schema:', error)
-      throw error
+      console.error("Error initializing DDL schema:", error);
+      throw error;
     }
   }
 
   async resetDDLSchema(setupSQL?: string): Promise<void> {
     // If a reset is already in progress, wait for it to complete
     if (this.ddlResetInProgress && this.ddlResetPromise) {
-      console.log('[DDL] Reset already in progress, waiting...')
-      await this.ddlResetPromise
-      return
+      console.log("[DDL] Reset already in progress, waiting...");
+      await this.ddlResetPromise;
+      return;
     }
 
-    this.ddlResetInProgress = true
-    
+    this.ddlResetInProgress = true;
+
     this.ddlResetPromise = (async () => {
       if (!this.db) {
-        await this.initialize()
+        await this.initialize();
       }
 
       try {
-        console.log('[DDL] Starting schema reset...')
-        
+        console.log("[DDL] Starting schema reset...");
+
         // Drop and recreate schema
         await this.db!.exec(`
           DROP SCHEMA IF EXISTS ${DDL_SCHEMA} CASCADE;
           CREATE SCHEMA ${DDL_SCHEMA};
           SET search_path TO ${DDL_SCHEMA}, public;
-        `)
-        
-        console.log('[DDL] Schema reset complete, running setup SQL...')
+        `);
+
+        console.log("[DDL] Schema reset complete, running setup SQL...");
 
         if (setupSQL) {
-          await this.db!.exec(setupSQL)
-          console.log('[DDL] Setup SQL executed successfully')
+          await this.db!.exec(setupSQL);
+          console.log("[DDL] Setup SQL executed successfully");
         }
 
-        this.ddlSchemaInitialized = true
+        this.ddlSchemaInitialized = true;
       } catch (error) {
-        console.error('[DDL] Error resetting DDL schema:', error)
-        throw error
+        console.error("[DDL] Error resetting DDL schema:", error);
+        throw error;
       } finally {
-        this.ddlResetInProgress = false
-        this.ddlResetPromise = null
+        this.ddlResetInProgress = false;
+        this.ddlResetPromise = null;
       }
-    })()
+    })();
 
-    await this.ddlResetPromise
+    await this.ddlResetPromise;
   }
 
   async inspectSchema(): Promise<SchemaInfo> {
     if (!this.db) {
-      await this.initialize()
+      await this.initialize();
     }
 
     try {
@@ -200,12 +218,12 @@ class DatabaseService {
         FROM information_schema.tables 
         WHERE table_schema = '${DDL_SCHEMA}'
         ORDER BY table_name
-      `)
+      `);
 
-      const tables: TableInfo[] = []
+      const tables: TableInfo[] = [];
 
       for (const row of tablesResult.rows as { table_name: string }[]) {
-        const tableName = row.table_name
+        const tableName = row.table_name;
 
         const columnsResult = await this.db!.query(`
           SELECT 
@@ -216,19 +234,21 @@ class DatabaseService {
           FROM information_schema.columns
           WHERE table_schema = '${DDL_SCHEMA}' AND table_name = '${tableName}'
           ORDER BY ordinal_position
-        `)
+        `);
 
-        const columns: ColumnInfo[] = (columnsResult.rows as {
-          column_name: string
-          data_type: string
-          is_nullable: string
-          column_default: string | null
-        }[]).map(col => ({
+        const columns: ColumnInfo[] = (
+          columnsResult.rows as {
+            column_name: string;
+            data_type: string;
+            is_nullable: string;
+            column_default: string | null;
+          }[]
+        ).map((col) => ({
           name: col.column_name,
           type: col.data_type,
-          nullable: col.is_nullable === 'YES',
+          nullable: col.is_nullable === "YES",
           defaultValue: col.column_default,
-        }))
+        }));
 
         const constraintsResult = await this.db!.query(`
           SELECT 
@@ -242,23 +262,23 @@ class DatabaseService {
           WHERE tc.table_schema = '${DDL_SCHEMA}' 
             AND tc.table_name = '${tableName}'
           ORDER BY tc.constraint_name, kcu.ordinal_position
-        `)
+        `);
 
-        const constraintMap = new Map<string, ConstraintInfo>()
+        const constraintMap = new Map<string, ConstraintInfo>();
         for (const row of constraintsResult.rows as {
-          constraint_name: string
-          constraint_type: string
-          column_name: string
+          constraint_name: string;
+          constraint_type: string;
+          column_name: string;
         }[]) {
-          const existing = constraintMap.get(row.constraint_name)
+          const existing = constraintMap.get(row.constraint_name);
           if (existing) {
-            existing.columns.push(row.column_name)
+            existing.columns.push(row.column_name);
           } else {
             constraintMap.set(row.constraint_name, {
               name: row.constraint_name,
-              type: row.constraint_type as ConstraintInfo['type'],
+              type: row.constraint_type as ConstraintInfo["type"],
               columns: [row.column_name],
-            })
+            });
           }
         }
 
@@ -272,19 +292,19 @@ class DatabaseService {
           WHERE tc.table_schema = '${DDL_SCHEMA}' 
             AND tc.table_name = '${tableName}'
             AND tc.constraint_type = 'CHECK'
-        `)
+        `);
 
         for (const row of checkConstraintsResult.rows as {
-          constraint_name: string
-          check_clause: string
+          constraint_name: string;
+          check_clause: string;
         }[]) {
-          const existing = constraintMap.get(row.constraint_name)
+          const existing = constraintMap.get(row.constraint_name);
           if (existing) {
-            existing.definition = row.check_clause
+            existing.definition = row.check_clause;
           }
         }
 
-        const constraints = Array.from(constraintMap.values())
+        const constraints = Array.from(constraintMap.values());
 
         const indexesResult = await this.db!.query(`
           SELECT 
@@ -301,78 +321,85 @@ class DatabaseService {
             AND NOT ix.indisprimary
           GROUP BY i.relname, ix.indisunique
           ORDER BY i.relname
-        `)
+        `);
 
-        const indexes: IndexInfo[] = (indexesResult.rows as {
-          index_name: string
-          columns: string[]
-          is_unique: boolean
-        }[]).map(idx => ({
+        const indexes: IndexInfo[] = (
+          indexesResult.rows as {
+            index_name: string;
+            columns: string[];
+            is_unique: boolean;
+          }[]
+        ).map((idx) => ({
           name: idx.index_name,
           columns: idx.columns,
           isUnique: idx.is_unique,
-        }))
+        }));
 
         tables.push({
           name: tableName,
           columns,
           constraints,
           indexes,
-        })
+        });
       }
 
-      return { tables }
+      return { tables };
     } catch (error) {
-      console.error('Error inspecting schema:', error)
-      return { tables: [] }
+      console.error("Error inspecting schema:", error);
+      return { tables: [] };
     }
   }
 
   async executeDDLQuery(query: string): Promise<QueryResult> {
-    if (typeof window === 'undefined') {
-      throw new Error('Queries can only be executed in the browser')
+    if (typeof window === "undefined") {
+      throw new Error("Queries can only be executed in the browser");
     }
 
     if (!this.db) {
       return {
         error: true,
-        message: 'Base de datos no inicializada',
+        message: "Base de datos no inicializada",
         rows: [],
         fields: [],
-      }
+      };
     }
 
     try {
       if (!query.trim()) {
         return {
           error: true,
-          message: 'La consulta SQL no puede estar vacía',
-          example: 'CREATE TABLE productos (id SERIAL PRIMARY KEY, nombre VARCHAR(100))',
+          message: "La consulta SQL no puede estar vacía",
+          example:
+            "CREATE TABLE productos (id SERIAL PRIMARY KEY, nombre VARCHAR(100))",
           rows: [],
           fields: [],
-        }
+        };
       }
 
-      await this.db.exec(`SET search_path TO ${DDL_SCHEMA}, public;`)
+      await this.db.exec(`SET search_path TO ${DDL_SCHEMA}, public;`);
 
       try {
-        const result = await this.db.query(query)
+        const result = await this.db.query(query);
         return {
           error: false,
           rows: result.rows as Record<string, unknown>[],
           fields: result.fields as { name: string }[],
-        }
+        };
       } catch (sqlError: unknown) {
-        console.error('DDL Error:', sqlError)
+        console.error("DDL Error:", sqlError);
 
-        const errorObj = sqlError as { message?: string; stack?: string; code?: string }
-        const errorMessage = errorObj?.message || 'Error desconocido'
+        const errorObj = sqlError as {
+          message?: string;
+          stack?: string;
+          code?: string;
+        };
+        const errorMessage = errorObj?.message || "Error desconocido";
 
         const formattedError = handleSQLError({
           message: errorMessage,
           stack: errorObj?.stack,
           code: errorObj?.code,
-        })
+        });
 
         return {
           error: true,
@@ -380,77 +407,86 @@ class DatabaseService {
           example: formattedError.example,
           rows: [],
           fields: [],
-        }
+        };
       }
     } catch {
       return {
         error: true,
-        message: 'Error inesperado al ejecutar la consulta DDL',
-        example: 'Intenta verificar la sintaxis de tu consulta',
+        message: "Error inesperado al ejecutar la consulta DDL",
+        example: "Intenta verificar la sintaxis de tu consulta",
         rows: [],
         fields: [],
-      }
+      };
     }
   }
 
-  async executeTestQuery(query: string): Promise<{ success: boolean; error?: string }> {
+  async executeTestQuery(
+    query: string,
+  ): Promise<{ success: boolean; error?: string }> {
     if (!this.db) {
-      return { success: false, error: 'Base de datos no inicializada' }
+      return { success: false, error: "Base de datos no inicializada" };
     }
 
     try {
-      await this.db.exec(`SET search_path TO ${DDL_SCHEMA}, public;`)
-      await this.db.query(query)
-      return { success: true }
+      await this.db.exec(`SET search_path TO ${DDL_SCHEMA}, public;`);
+      await this.db.query(query);
+      return { success: true };
     } catch (error) {
-      const errorObj = error as { message?: string }
-      return { success: false, error: errorObj?.message || 'Error desconocido' }
+      const errorObj = error as { message?: string };
+      return {
+        success: false,
+        error: errorObj?.message || "Error desconocido",
+      };
     }
   }
 
   async executeQuery(query: string): Promise<QueryResult> {
-    if (typeof window === 'undefined') {
-      throw new Error('Queries can only be executed in the browser')
+    if (typeof window === "undefined") {
+      throw new Error("Queries can only be executed in the browser");
     }
 
     if (!this.db) {
       return {
         error: true,
-        message: 'Base de datos no inicializada',
+        message: "Base de datos no inicializada",
         rows: [],
         fields: [],
-      }
+      };
     }
 
     try {
       if (!query.trim()) {
         return {
           error: true,
-          message: 'La consulta SQL no puede estar vacía',
-          example: 'SELECT * FROM usuarios',
+          message: "La consulta SQL no puede estar vacía",
+          example: "SELECT * FROM usuarios",
           rows: [],
           fields: [],
-        }
+        };
       }
 
       try {
-        const result = await this.db.query(query)
+        const result = await this.db.query(query);
         return {
           error: false,
           rows: result.rows as Record<string, unknown>[],
           fields: result.fields as { name: string }[],
-        }
+        };
       } catch (sqlError: unknown) {
-        console.error('SQL Error:', sqlError)
+        console.error("SQL Error:", sqlError);
 
-        const errorObj = sqlError as { message?: string; stack?: string; code?: string }
-        const errorMessage = errorObj?.message || 'Error desconocido'
+        const errorObj = sqlError as {
+          message?: string;
+          stack?: string;
+          code?: string;
+        };
+        const errorMessage = errorObj?.message || "Error desconocido";
 
         const formattedError = handleSQLError({
           message: errorMessage,
           stack: errorObj?.stack,
           code: errorObj?.code,
-        })
+        });
 
         return {
           error: true,
@@ -458,18 +494,18 @@ class DatabaseService {
           example: formattedError.example,
           rows: [],
           fields: [],
-        }
+        };
       }
     } catch {
       return {
         error: true,
-        message: 'Error inesperado al ejecutar la consulta',
-        example: 'Intenta verificar la sintaxis de tu consulta',
+        message: "Error inesperado al ejecutar la consulta",
+        example: "Intenta verificar la sintaxis de tu consulta",
         rows: [],
         fields: [],
-      }
+      };
     }
   }
 }
 
-export const dbService = new DatabaseService()
+export const dbService = new DatabaseService();

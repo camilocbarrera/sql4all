@@ -1,27 +1,33 @@
-'use client'
+"use client";
 
-import { motion, AnimatePresence } from 'framer-motion'
-import { AlertCircle, Lightbulb } from 'lucide-react'
-import { Card, CardContent } from '@/components/ui'
-import { AIHint } from './ai-hint'
+import { AnimatePresence, motion } from "framer-motion";
+import { AlertCircle, Lightbulb } from "lucide-react";
+import { Card, CardContent } from "@/components/ui";
+import { AIHint } from "./ai-hint";
 
 interface ExerciseContext {
-  title: string
-  description: string
-  details: string
-  hint: string
-  type?: 'dml' | 'ddl'
+  title: string;
+  description: string;
+  details: string;
+  hint: string;
+  type?: "dml" | "ddl";
 }
 
 interface ErrorMessageProps {
-  message: string
-  example?: string | null
-  timestamp?: number
-  exercise?: ExerciseContext
-  userQuery?: string
+  message: string;
+  example?: string | null;
+  timestamp?: number;
+  exercise?: ExerciseContext;
+  userQuery?: string;
 }
 
-export function ErrorMessage({ message, example, timestamp, exercise, userQuery }: ErrorMessageProps) {
+export function ErrorMessage({
+  message,
+  example,
+  timestamp,
+  exercise,
+  userQuery,
+}: ErrorMessageProps) {
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -36,7 +42,9 @@ export function ErrorMessage({ message, example, timestamp, exercise, userQuery 
             <div className="flex items-start gap-3">
               <AlertCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
               <div className="space-y-2 flex-1">
-                <p className="text-sm font-medium text-destructive">{message}</p>
+                <p className="text-sm font-medium text-destructive">
+                  {message}
+                </p>
                 {example && (
                   <div className="flex items-start gap-2 mt-3 p-3 rounded-lg bg-muted/50">
                     <Lightbulb className="h-4 w-4 text-yellow-500 shrink-0 mt-0.5" />
@@ -63,8 +71,5 @@ export function ErrorMessage({ message, example, timestamp, exercise, userQuery 
         </Card>
       </motion.div>
     </AnimatePresence>
-  )
+  );
 }
-
-
-

@@ -1,286 +1,315 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useCallback, useRef } from 'react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Lightbulb, ArrowLeft, ArrowRight, CheckCircle2, Home, RotateCcw, ChevronDown, ChevronUp, Database } from 'lucide-react'
+import { AnimatePresence, motion } from "framer-motion";
 import {
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Database,
+  Home,
+  Lightbulb,
+  RotateCcw,
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Celebration } from "@/components/shared/celebration";
+import { ErrorBoundary } from "@/components/shared/error-boundary";
+import { ResultsTable } from "@/components/shared/results-table";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+  Badge,
+  Button,
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-  Button,
-  Badge,
-} from '@/components/ui'
-import { ErrorBoundary } from '@/components/shared/error-boundary'
-import { ResultsTable } from '@/components/shared/results-table'
-import { Celebration } from '@/components/shared/celebration'
-import { SqlEditor } from './sql-editor'
-import { SchemaHelper } from './schema-helper'
-import { SchemaStateViewer } from './schema-state-viewer'
-import { useLocalQuery } from '@/hooks/use-local-query'
-import { useSavedSolution } from '@/hooks/use-submissions'
-import { dbService, type SchemaInfo } from '@/lib/db-service'
-import { validateQueryResult, validateDDLExercise, isDDLValidation, getDDLSetupSQL } from '@/lib/validation-service'
-import type { Exercise } from '@/lib/validations'
-import type { DDLConditions } from '@/types/exercises'
-import type { DDLValidationResult } from '@/lib/ddl-validator'
+} from "@/components/ui";
+import { useLocalQuery } from "@/hooks/use-local-query";
+import { useSavedSolution } from "@/hooks/use-submissions";
+import { dbService, type SchemaInfo } from "@/lib/db-service";
+import type { DDLValidationResult } from "@/lib/ddl-validator";
+import {
+  getDDLSetupSQL,
+  isDDLValidation,
+  validateDDLExercise,
+  validateQueryResult,
+} from "@/lib/validation-service";
+import type { Exercise } from "@/lib/validations";
+import type { DDLConditions } from "@/types/exercises";
+import { SchemaHelper } from "./schema-helper";
+import { SchemaStateViewer } from "./schema-state-viewer";
+import { SqlEditor } from "./sql-editor";
 
 interface QueryResult {
-  rows: Record<string, unknown>[]
-  fields: { name: string }[]
-  mensajeExito?: string
-  error?: boolean
-  message?: string | null
-  example?: string | null
+  rows: Record<string, unknown>[];
+  fields: { name: string }[];
+  mensajeExito?: string;
+  error?: boolean;
+  message?: string | null;
+  example?: string | null;
 }
 
 interface ExerciseViewProps {
-  exercise: Exercise
-  nextExerciseId?: string
-  prevExerciseId?: string
-  currentIndex?: number
-  totalExercises?: number
+  exercise: Exercise;
+  nextExerciseId?: string;
+  prevExerciseId?: string;
+  currentIndex?: number;
+  totalExercises?: number;
 }
 
-export function ExerciseView({ 
-  exercise, 
-  nextExerciseId, 
+export function ExerciseView({
+  exercise,
+  nextExerciseId,
   prevExerciseId,
   currentIndex,
-  totalExercises 
+  totalExercises,
 }: ExerciseViewProps) {
-  const router = useRouter()
-  const { data: savedSolution } = useSavedSolution(exercise.id)
-  const { query, setQuery, clearQuery, isHydrated } = useLocalQuery(exercise.id, { savedSolution })
-  const [results, setResults] = useState<QueryResult | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [showCelebration, setShowCelebration] = useState(false)
-  const [errorTimestamp, setErrorTimestamp] = useState<number>(0)
-  const [errorExample, setErrorExample] = useState<string | null>(null)
-  const [isValidated, setIsValidated] = useState(false)
-  const [isSaved, setIsSaved] = useState(false)
-  const [isInfoExpanded, setIsInfoExpanded] = useState(false)
-  
-  // DDL-specific state
-  const [schemaInfo, setSchemaInfo] = useState<SchemaInfo | null>(null)
-  const [ddlValidationResult, setDdlValidationResult] = useState<DDLValidationResult | null>(null)
-  const [isSchemaLoading, setIsSchemaLoading] = useState(false)
+  const router = useRouter();
+  const { data: savedSolution } = useSavedSolution(exercise.id);
+  const { query, setQuery, clearQuery, isHydrated } = useLocalQuery(
+    exercise.id,
+    { savedSolution },
+  );
+  const [results, setResults] = useState<QueryResult | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [errorTimestamp, setErrorTimestamp] = useState<number>(0);
+  const [errorExample, setErrorExample] = useState<string | null>(null);
+  const [isValidated, setIsValidated] = useState(false);
+  const [_isSaved, setIsSaved] = useState(false);
+  const [isInfoExpanded, setIsInfoExpanded] = useState(false);
 
-  const isDDLExercise = exercise.type === 'ddl' || isDDLValidation(exercise.validation)
-  
+  // DDL-specific state
+  const [schemaInfo, setSchemaInfo] = useState<SchemaInfo | null>(null);
+  const [ddlValidationResult, setDdlValidationResult] =
+    useState<DDLValidationResult | null>(null);
+  const [isSchemaLoading, setIsSchemaLoading] = useState(false);
+
+  const isDDLExercise =
+    exercise.type === "ddl" || isDDLValidation(exercise.validation);
+
   // Ref to prevent concurrent DDL initialization
-  const ddlInitRef = useRef<{ exerciseId: string; inProgress: boolean } | null>(null)
-  
+  const ddlInitRef = useRef<{ exerciseId: string; inProgress: boolean } | null>(
+    null,
+  );
+
   // Track mount state for hydration-safe rendering of Radix components
-  const [isMounted, setIsMounted] = useState(false)
-  
+  const [isMounted, setIsMounted] = useState(false);
+
   useEffect(() => {
-    setIsMounted(true)
-  }, [])
+    setIsMounted(true);
+  }, []);
 
   // Single effect to handle DB initialization and DDL environment setup
   useEffect(() => {
-    let cancelled = false
-    
+    let cancelled = false;
+
     const initializeExercise = async () => {
       // Reset state when exercise changes
-      setResults(null)
-      setError(null)
-      setIsValidated(false)
-      setSchemaInfo(null)
-      setDdlValidationResult(null)
-      
-      await dbService.initialize()
-      
-      if (!isDDLExercise || cancelled) return
-      
+      setResults(null);
+      setError(null);
+      setIsValidated(false);
+      setSchemaInfo(null);
+      setDdlValidationResult(null);
+
+      await dbService.initialize();
+
+      if (!isDDLExercise || cancelled) return;
+
       // Prevent concurrent initialization for the same exercise
-      if (ddlInitRef.current?.exerciseId === exercise.id && ddlInitRef.current?.inProgress) {
-        return
+      if (
+        ddlInitRef.current?.exerciseId === exercise.id &&
+        ddlInitRef.current?.inProgress
+      ) {
+        return;
       }
-      
-      ddlInitRef.current = { exerciseId: exercise.id, inProgress: true }
-      setIsSchemaLoading(true)
-      
+
+      ddlInitRef.current = { exerciseId: exercise.id, inProgress: true };
+      setIsSchemaLoading(true);
+
       try {
-        const conditions = exercise.validation.conditions as DDLConditions
-        const setupSQL = getDDLSetupSQL(conditions)
-        await dbService.resetDDLSchema(setupSQL)
-        
-        if (cancelled) return
-        
-        const info = await dbService.inspectSchema()
+        const conditions = exercise.validation.conditions as DDLConditions;
+        const setupSQL = getDDLSetupSQL(conditions);
+        await dbService.resetDDLSchema(setupSQL);
+
+        if (cancelled) return;
+
+        const info = await dbService.inspectSchema();
         if (!cancelled) {
-          setSchemaInfo(info)
+          setSchemaInfo(info);
         }
       } catch (err) {
-        console.error('Error initializing DDL environment:', err)
+        console.error("Error initializing DDL environment:", err);
       } finally {
         if (ddlInitRef.current?.exerciseId === exercise.id) {
-          ddlInitRef.current.inProgress = false
+          ddlInitRef.current.inProgress = false;
         }
         if (!cancelled) {
-          setIsSchemaLoading(false)
+          setIsSchemaLoading(false);
         }
       }
-    }
-    
-    initializeExercise().catch(console.error)
-    
+    };
+
+    initializeExercise().catch(console.error);
+
     return () => {
-      cancelled = true
-    }
-  }, [exercise.id, exercise.validation, isDDLExercise])
+      cancelled = true;
+    };
+  }, [exercise.id, exercise.validation, isDDLExercise]);
 
   const initializeDDLEnvironment = async () => {
-    if (ddlInitRef.current?.inProgress) return
-    
-    ddlInitRef.current = { exerciseId: exercise.id, inProgress: true }
-    setIsSchemaLoading(true)
-    
+    if (ddlInitRef.current?.inProgress) return;
+
+    ddlInitRef.current = { exerciseId: exercise.id, inProgress: true };
+    setIsSchemaLoading(true);
+
     try {
-      const conditions = exercise.validation.conditions as DDLConditions
-      const setupSQL = getDDLSetupSQL(conditions)
-      await dbService.resetDDLSchema(setupSQL)
-      const info = await dbService.inspectSchema()
-      setSchemaInfo(info)
+      const conditions = exercise.validation.conditions as DDLConditions;
+      const setupSQL = getDDLSetupSQL(conditions);
+      await dbService.resetDDLSchema(setupSQL);
+      const info = await dbService.inspectSchema();
+      setSchemaInfo(info);
     } catch (err) {
-      console.error('Error initializing DDL environment:', err)
+      console.error("Error initializing DDL environment:", err);
     } finally {
       if (ddlInitRef.current?.exerciseId === exercise.id) {
-        ddlInitRef.current.inProgress = false
+        ddlInitRef.current.inProgress = false;
       }
-      setIsSchemaLoading(false)
+      setIsSchemaLoading(false);
     }
-  }
-  
+  };
+
   const handleSaveSuccess = useCallback(() => {
-    setIsSaved(true)
+    setIsSaved(true);
     // Note: We don't clear the query here to keep it visible in the editor
     // The solution is saved to the server and will be loaded on refresh
-  }, [])
+  }, []);
 
   const executeDMLQuery = async () => {
-    const result = await dbService.executeQuery(query)
+    const result = await dbService.executeQuery(query);
 
     if (result.error) {
-      setError(result.message || 'Error al ejecutar la consulta')
-      setErrorExample(result.example || null)
-      setErrorTimestamp(Date.now())
-      setResults({ rows: [], fields: [] })
-      return
+      setError(result.message || "Error al ejecutar la consulta");
+      setErrorExample(result.example || null);
+      setErrorTimestamp(Date.now());
+      setResults({ rows: [], fields: [] });
+      return;
     }
 
-    const isValid = validateQueryResult(result, exercise.validation)
+    const isValid = validateQueryResult(result, exercise.validation);
 
     setResults({
       ...result,
       mensajeExito: isValid ? exercise.successMessage : undefined,
-    })
+    });
 
     if (isValid) {
-      setIsValidated(true)
-      setShowCelebration(true)
-      setTimeout(() => setShowCelebration(false), 4000)
+      setIsValidated(true);
+      setShowCelebration(true);
+      setTimeout(() => setShowCelebration(false), 4000);
     } else {
-      setError('La consulta se ejecutó, pero el resultado no es el esperado')
-      setErrorTimestamp(Date.now())
+      setError("La consulta se ejecutó, pero el resultado no es el esperado");
+      setErrorTimestamp(Date.now());
     }
-  }
+  };
 
   const executeDDLQuery = async () => {
-    const conditions = exercise.validation.conditions as DDLConditions
-    
+    const conditions = exercise.validation.conditions as DDLConditions;
+
     // Reset DDL schema before each execution to ensure clean state
-    const setupSQL = getDDLSetupSQL(conditions)
-    await dbService.resetDDLSchema(setupSQL)
-    
+    const setupSQL = getDDLSetupSQL(conditions);
+    await dbService.resetDDLSchema(setupSQL);
+
     // Execute the DDL query
-    const result = await dbService.executeDDLQuery(query)
+    const result = await dbService.executeDDLQuery(query);
 
     if (result.error) {
-      setError(result.message || 'Error al ejecutar la consulta DDL')
-      setErrorExample(result.example || null)
-      setErrorTimestamp(Date.now())
-      setResults({ rows: [], fields: [] })
-      return
+      setError(result.message || "Error al ejecutar la consulta DDL");
+      setErrorExample(result.example || null);
+      setErrorTimestamp(Date.now());
+      setResults({ rows: [], fields: [] });
+      return;
     }
 
     // Update schema info after DDL execution
-    const updatedSchema = await dbService.inspectSchema()
-    setSchemaInfo(updatedSchema)
+    const updatedSchema = await dbService.inspectSchema();
+    setSchemaInfo(updatedSchema);
 
     // Validate DDL result
-    const validationResult = await validateDDLExercise(conditions)
-    setDdlValidationResult(validationResult)
+    const validationResult = await validateDDLExercise(conditions);
+    setDdlValidationResult(validationResult);
 
-    const isValid = validationResult.isValid
+    const isValid = validationResult.isValid;
 
     setResults({
       rows: result.rows,
       fields: result.fields,
       mensajeExito: isValid ? exercise.successMessage : undefined,
-    })
+    });
 
     if (isValid) {
-      setIsValidated(true)
-      setShowCelebration(true)
-      setTimeout(() => setShowCelebration(false), 4000)
+      setIsValidated(true);
+      setShowCelebration(true);
+      setTimeout(() => setShowCelebration(false), 4000);
     } else {
-      const errors = validationResult.schemaValidation?.errors || []
-      const testErrors = validationResult.testQueryResults?.results
-        .filter(r => r.actual !== r.expected)
-        .map(r => `Query: ${r.query.substring(0, 50)}...`) || []
-      
-      const allErrors = [...errors, ...testErrors]
-      setError(allErrors.length > 0 
-        ? `Validación fallida: ${allErrors[0]}` 
-        : 'La estructura de la tabla no coincide con lo esperado')
-      setErrorTimestamp(Date.now())
+      const errors = validationResult.schemaValidation?.errors || [];
+      const testErrors =
+        validationResult.testQueryResults?.results
+          .filter((r) => r.actual !== r.expected)
+          .map((r) => `Query: ${r.query.substring(0, 50)}...`) || [];
+
+      const allErrors = [...errors, ...testErrors];
+      setError(
+        allErrors.length > 0
+          ? `Validación fallida: ${allErrors[0]}`
+          : "La estructura de la tabla no coincide con lo esperado",
+      );
+      setErrorTimestamp(Date.now());
     }
-  }
+  };
 
   const executeQuery = async () => {
-    setIsLoading(true)
-    setError(null)
-    setIsValidated(false)
-    setDdlValidationResult(null)
+    setIsLoading(true);
+    setError(null);
+    setIsValidated(false);
+    setDdlValidationResult(null);
 
     try {
       if (isDDLExercise) {
-        await executeDDLQuery()
+        await executeDDLQuery();
       } else {
-        await executeDMLQuery()
+        await executeDMLQuery();
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Error desconocido'
-      setError(errorMessage)
-      setErrorTimestamp(Date.now())
+      const errorMessage =
+        err instanceof Error ? err.message : "Error desconocido";
+      setError(errorMessage);
+      setErrorTimestamp(Date.now());
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const resetExercise = useCallback(async () => {
-    clearQuery()
-    setResults(null)
-    setError(null)
-    setIsValidated(false)
-    setIsSaved(false)
-    setDdlValidationResult(null)
-    
+    clearQuery();
+    setResults(null);
+    setError(null);
+    setIsValidated(false);
+    setIsSaved(false);
+    setDdlValidationResult(null);
+
     if (isDDLExercise) {
-      await initializeDDLEnvironment()
+      await initializeDDLEnvironment();
     }
-  }, [clearQuery, isDDLExercise])
+  }, [clearQuery, isDDLExercise]);
 
   return (
     <div className="container mx-auto p-4 max-w-7xl">
@@ -292,14 +321,16 @@ export function ExerciseView({
           className="w-full lg:w-1/3"
         >
           <Card className="lg:sticky lg:top-20">
-            <CardHeader 
+            <CardHeader
               className="cursor-pointer lg:cursor-default"
               onClick={() => setIsInfoExpanded(!isInfoExpanded)}
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <CardTitle className="text-lg sm:text-xl line-clamp-2">{exercise.title}</CardTitle>
+                    <CardTitle className="text-lg sm:text-xl line-clamp-2">
+                      {exercise.title}
+                    </CardTitle>
                     {isDDLExercise && (
                       <Badge variant="secondary" className="text-xs shrink-0">
                         <Database className="w-3 h-3 mr-1" />
@@ -307,17 +338,21 @@ export function ExerciseView({
                       </Badge>
                     )}
                   </div>
-                  <CardDescription className="mt-1">{exercise.description}</CardDescription>
+                  <CardDescription className="mt-1">
+                    {exercise.description}
+                  </CardDescription>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <Badge variant="outline" className="text-xs">{exercise.difficulty}</Badge>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
+                  <Badge variant="outline" className="text-xs">
+                    {exercise.difficulty}
+                  </Badge>
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     className="h-8 w-8 lg:hidden"
                     onClick={(e) => {
-                      e.stopPropagation()
-                      setIsInfoExpanded(!isInfoExpanded)
+                      e.stopPropagation();
+                      setIsInfoExpanded(!isInfoExpanded);
                     }}
                   >
                     {isInfoExpanded ? (
@@ -329,9 +364,9 @@ export function ExerciseView({
                 </div>
               </div>
             </CardHeader>
-            
+
             {/* Content - Always visible on desktop, collapsible on mobile */}
-            <div className={`${isInfoExpanded ? 'block' : 'hidden'} lg:block`}>
+            <div className={`${isInfoExpanded ? "block" : "hidden"} lg:block`}>
               <CardContent className="space-y-4 sm:space-y-6 pt-0">
                 <div>
                   <h3 className="font-semibold mb-2 text-sm">Detalles</h3>
@@ -407,20 +442,21 @@ export function ExerciseView({
                 <div>
                   <CardTitle className="text-lg">Editor SQL</CardTitle>
                   <CardDescription>
-                    {currentIndex !== undefined && totalExercises !== undefined ? (
-                      <span>Ejercicio {currentIndex + 1} de {totalExercises}</span>
+                    {currentIndex !== undefined &&
+                    totalExercises !== undefined ? (
+                      <span>
+                        Ejercicio {currentIndex + 1} de {totalExercises}
+                      </span>
                     ) : (
-                      <span>Escribe tu consulta {isDDLExercise ? 'DDL' : ''}</span>
+                      <span>
+                        Escribe tu consulta {isDDLExercise ? "DDL" : ""}
+                      </span>
                     )}
                   </CardDescription>
                 </div>
                 <div className="flex items-center gap-2">
                   {prevExerciseId && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      asChild
-                    >
+                    <Button variant="ghost" size="sm" asChild>
                       <Link href={`/exercises/${prevExerciseId}`}>
                         <ArrowLeft className="h-4 w-4" />
                       </Link>
@@ -429,17 +465,13 @@ export function ExerciseView({
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => router.push('/')}
+                    onClick={() => router.push("/")}
                   >
                     <Home className="h-4 w-4 sm:mr-2" />
                     <span className="hidden sm:inline">Ejercicios</span>
                   </Button>
                   {nextExerciseId && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      asChild
-                    >
+                    <Button variant="ghost" size="sm" asChild>
                       <Link href={`/exercises/${nextExerciseId}`}>
                         <ArrowRight className="h-4 w-4" />
                       </Link>
@@ -505,7 +537,7 @@ export function ExerciseView({
                             {results.mensajeExito}
                           </p>
                         </div>
-                        
+
                         {/* Inline Success Actions */}
                         <div className="flex flex-wrap gap-3">
                           {nextExerciseId && (
@@ -531,9 +563,12 @@ export function ExerciseView({
                     )}
                   </CardHeader>
                   <CardContent>
-                    {isDDLExercise && results.rows.length === 0 && !results.mensajeExito ? (
+                    {isDDLExercise &&
+                    results.rows.length === 0 &&
+                    !results.mensajeExito ? (
                       <div className="text-sm text-muted-foreground text-center py-4">
-                        Consulta DDL ejecutada. Revisa el estado del esquema en el panel izquierdo.
+                        Consulta DDL ejecutada. Revisa el estado del esquema en
+                        el panel izquierdo.
                       </div>
                     ) : (
                       <ResultsTable results={results} />
@@ -556,8 +591,8 @@ export function ExerciseView({
       </div>
 
       {showCelebration && <Celebration />}
-      
+
       <SchemaHelper />
     </div>
-  )
+  );
 }

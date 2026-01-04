@@ -1,15 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
-import { profiles } from '@/lib/db/schema'
-import { eq } from 'drizzle-orm'
+import { eq } from "drizzle-orm";
+import { type NextRequest, NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { profiles } from "@/lib/db/schema";
 
 // GET a specific user's public profile
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<{ userId: string }> }
+  { params }: { params: Promise<{ userId: string }> },
 ) {
   try {
-    const { userId } = await params
+    const { userId } = await params;
 
     const [profile] = await db
       .select({
@@ -20,16 +20,18 @@ export async function GET(
       })
       .from(profiles)
       .where(eq(profiles.id, userId))
-      .limit(1)
+      .limit(1);
 
     if (!profile) {
-      return NextResponse.json({ profile: null })
+      return NextResponse.json({ profile: null });
     }
 
-    return NextResponse.json({ profile })
+    return NextResponse.json({ profile });
   } catch (error) {
-    console.error('Error fetching profile:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error("Error fetching profile:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
   }
 }
-

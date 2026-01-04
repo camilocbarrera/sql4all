@@ -1,9 +1,8 @@
-'use client'
+"use client";
 
-import { useProfileSync } from '@/hooks/use-profile-sync'
+import { useProfileSync } from "@/hooks/use-profile-sync";
 
 export function ProfileSync() {
-  useProfileSync()
-  return null
+  useProfileSync();
+  return null;
 }
-

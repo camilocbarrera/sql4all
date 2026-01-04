@@ -1,30 +1,36 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { CheckCircle2, Clock, ArrowRight, History } from 'lucide-react'
-import { formatDistanceToNow } from '@/lib/utils'
-import { Badge, Button } from '@/components/ui'
+import { ArrowRight, CheckCircle2, Clock, History } from "lucide-react";
+import Link from "next/link";
+import { Badge, Button } from "@/components/ui";
+import { formatDistanceToNow } from "@/lib/utils";
 
 interface HistoryItem {
-  exerciseId: string
-  exerciseTitle: string
-  difficulty: string
-  solvedAt: Date
-  score: number
+  exerciseId: string;
+  exerciseTitle: string;
+  difficulty: string;
+  solvedAt: Date;
+  score: number;
 }
 
 interface ExerciseHistoryProps {
-  history: HistoryItem[]
-  hasSolvedExercises?: boolean
+  history: HistoryItem[];
+  hasSolvedExercises?: boolean;
 }
 
 const difficultyColors: Record<string, string> = {
-  Principiante: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400',
-  Intermedio: 'bg-amber-500/10 text-amber-600 border-amber-500/20 dark:text-amber-400',
-  Avanzado: 'bg-rose-500/10 text-rose-600 border-rose-500/20 dark:text-rose-400',
-}
+  Principiante:
+    "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400",
+  Intermedio:
+    "bg-amber-500/10 text-amber-600 border-amber-500/20 dark:text-amber-400",
+  Avanzado:
+    "bg-rose-500/10 text-rose-600 border-rose-500/20 dark:text-rose-400",
+};
 
-export function ExerciseHistory({ history, hasSolvedExercises }: ExerciseHistoryProps) {
+export function ExerciseHistory({
+  history,
+  hasSolvedExercises,
+}: ExerciseHistoryProps) {
   if (!history || history.length === 0) {
     if (hasSolvedExercises) {
       return (
@@ -37,10 +43,12 @@ export function ExerciseHistory({ history, hasSolvedExercises }: ExerciseHistory
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-amber-500/10 mb-3">
               <Clock className="h-6 w-6 text-amber-500" />
             </div>
-            <p className="text-muted-foreground text-sm">Cargando historial...</p>
+            <p className="text-muted-foreground text-sm">
+              Cargando historial...
+            </p>
           </div>
         </div>
-      )
+      );
     }
     return (
       <div className="rounded-lg border border-border/40 bg-card/30 p-6">
@@ -63,7 +71,7 @@ export function ExerciseHistory({ history, hasSolvedExercises }: ExerciseHistory
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -75,7 +83,7 @@ export function ExerciseHistory({ history, hasSolvedExercises }: ExerciseHistory
           <span className="text-sm font-medium">Historial</span>
         </div>
         <span className="text-xs text-muted-foreground">
-          {history.length} completado{history.length !== 1 ? 's' : ''}
+          {history.length} completado{history.length !== 1 ? "s" : ""}
         </span>
       </div>
 
@@ -99,7 +107,7 @@ export function ExerciseHistory({ history, hasSolvedExercises }: ExerciseHistory
                 <div className="flex items-center gap-2 mt-0.5">
                   <Badge
                     variant="outline"
-                    className={`text-[9px] px-1.5 py-0 h-4 ${difficultyColors[item.difficulty] || ''}`}
+                    className={`text-[9px] px-1.5 py-0 h-4 ${difficultyColors[item.difficulty] || ""}`}
                   >
                     {item.difficulty.slice(0, 3)}
                   </Badge>
@@ -118,6 +126,5 @@ export function ExerciseHistory({ history, hasSolvedExercises }: ExerciseHistory
         ))}
       </div>
     </div>
-  )
+  );
 }
-

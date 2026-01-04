@@ -1,7 +1,13 @@
-'use client'
+"use client";
 
-import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
-import { Button } from '@/components/ui/button'
+import {
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  SignUpButton,
+  UserButton,
+} from "@clerk/nextjs";
+import { Button } from "@/components/ui/button";
 
 export function Profile() {
   return (
@@ -14,21 +20,19 @@ export function Profile() {
             </Button>
           </SignInButton>
           <SignUpButton mode="modal">
-            <Button size="sm">
-              Registrarse
-            </Button>
+            <Button size="sm">Registrarse</Button>
           </SignUpButton>
         </div>
       </SignedOut>
       <SignedIn>
-        <UserButton 
+        <UserButton
           appearance={{
             elements: {
-              avatarBox: 'w-8 h-8'
-            }
+              avatarBox: "w-8 h-8",
+            },
           }}
         />
       </SignedIn>
     </>
-  )
+  );
 }

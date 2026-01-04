@@ -1,10 +1,10 @@
-import { getExercises } from '@/lib/exercises-service'
-import { ExerciseGrid } from '@/components/exercises'
+import { ExerciseGrid } from "@/components/exercises";
+import { getExercises } from "@/lib/exercises-service";
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic";
 
 export default async function ExercisesPage() {
-  const exercises = await getExercises()
+  const exercises = await getExercises();
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-7xl">
@@ -21,6 +21,5 @@ export default async function ExercisesPage() {
 
       <ExerciseGrid exercises={exercises} />
     </div>
-  )
+  );
 }
-

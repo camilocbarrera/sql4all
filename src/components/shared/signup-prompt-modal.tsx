@@ -1,21 +1,21 @@
-'use client'
+"use client";
 
-import { SignUpButton, SignInButton } from '@clerk/nextjs'
-import { Save, ArrowRight } from 'lucide-react'
+import { SignInButton, SignUpButton } from "@clerk/nextjs";
+import { ArrowRight, Save } from "lucide-react";
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
-  Button,
-} from '@/components/ui'
+} from "@/components/ui";
 
 interface SignupPromptModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onSkip: () => void
+  isOpen: boolean;
+  onClose: () => void;
+  onSkip: () => void;
 }
 
 export function SignupPromptModal({
@@ -34,7 +34,8 @@ export function SignupPromptModal({
             Guarda tu progreso
           </DialogTitle>
           <DialogDescription className="text-center">
-            Has completado tu primer ejercicio. Crea una cuenta para guardar tu progreso y continuar donde lo dejaste.
+            Has completado tu primer ejercicio. Crea una cuenta para guardar tu
+            progreso y continuar donde lo dejaste.
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-3 pt-4">
@@ -51,9 +52,9 @@ export function SignupPromptModal({
           </SignInButton>
         </div>
         <DialogFooter className="sm:justify-center pt-2">
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={onSkip}
             className="text-muted-foreground"
           >
@@ -62,8 +63,5 @@ export function SignupPromptModal({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-
-
-

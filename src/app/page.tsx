@@ -1,13 +1,13 @@
-import { redirect } from 'next/navigation'
-import { auth } from '@clerk/nextjs/server'
-import { LandingPage } from '@/components/landing'
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
+import { LandingPage } from "@/components/landing";
 
 export default async function HomePage() {
-  const { userId } = await auth()
+  const { userId } = await auth();
 
   if (userId) {
-    redirect('/exercises')
+    redirect("/exercises");
   }
 
-  return <LandingPage />
+  return <LandingPage />;
 }
