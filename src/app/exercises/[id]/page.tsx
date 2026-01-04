@@ -20,8 +20,13 @@ export async function generateMetadata({ params }: PageProps) {
 }
 
 export async function generateStaticParams() {
-  const exercises = await getExercises();
-  return exercises.map((exercise) => ({ id: exercise.id }));
+  try {
+    const exercises = await getExercises();
+    return exercises.map((exercise) => ({ id: exercise.id }));
+  } catch {
+    // Return empty array if database is unavailable (e.g., during CI build)
+    return [];
+  }
 }
 
 export default async function ExercisePage({ params }: PageProps) {
