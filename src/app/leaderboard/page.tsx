@@ -57,7 +57,7 @@ export default function LeaderboardPage() {
               {isLoading ? (
                 <div className="space-y-2">
                   {[...Array(8)].map((_, i) => (
-                    <Skeleton key={i} className="h-12 w-full rounded-lg" />
+                    <Skeleton key={`leaderboard-skeleton-${i}`} className="h-12 w-full rounded-lg" />
                   ))}
                 </div>
               ) : (

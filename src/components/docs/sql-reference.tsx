@@ -293,9 +293,9 @@ export function SqlReference({ searchQuery = "" }: SqlReferenceProps) {
                   <div>
                     <h4 className="text-sm font-medium mb-2">Ejemplos</h4>
                     <div className="space-y-3">
-                      {command.examples.map((example, idx) => (
+                      {command.examples.map((example) => (
                         <div
-                          key={idx}
+                          key={example.code}
                           className="rounded-lg border overflow-hidden"
                         >
                           <pre className="p-3 bg-muted/50 font-mono text-sm overflow-x-auto whitespace-pre-wrap">

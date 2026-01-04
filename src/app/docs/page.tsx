@@ -70,6 +70,7 @@ export default function DocsPage() {
               const Icon = section.icon;
               return (
                 <button
+                  type="button"
                   key={section.id}
                   onClick={() => setActiveSection(section.id)}
                   className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${

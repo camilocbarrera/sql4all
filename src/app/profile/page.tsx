@@ -43,7 +43,7 @@ export default function ProfilePage() {
           <Skeleton className="h-32 w-full" />
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {[...Array(4)].map((_, i) => (
-              <Skeleton key={i} className="h-24 w-full" />
+              <Skeleton key={`header-skeleton-${i}`} className="h-24 w-full" />
             ))}
           </div>
           <Skeleton className="h-48 w-full" />
@@ -115,7 +115,7 @@ export default function ProfilePage() {
         {isLoading ? (
           <div className="grid grid-cols-4 gap-3">
             {[...Array(4)].map((_, i) => (
-              <Skeleton key={i} className="h-20 w-full" />
+              <Skeleton key={`stats-skeleton-${i}`} className="h-20 w-full" />
             ))}
           </div>
         ) : (
