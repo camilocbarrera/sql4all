@@ -273,6 +273,9 @@ export function SqlEditor({
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
   const [isMac, setIsMac] = useState(false);
 
+  const onExecuteRef = useRef(onExecute);
+  const formatSQLRef = useRef<() => void>(() => {});
+
   useEffect(() => {
     setIsMac(navigator.platform.toUpperCase().includes("MAC"));
   }, []);
@@ -359,6 +362,19 @@ export function SqlEditor({
   ) => {
     editorRef.current = editor;
 
+    // Ctrl+Enter to execute
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+      onExecuteRef.current();
+    });
+
+    // Ctrl+Shift+F to format
+    editor.addCommand(
+      monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyF,
+      () => {
+        formatSQLRef.current();
+      }
+    );
+
     monaco.languages.registerCompletionItemProvider("sql", {
       provideCompletionItems: (model, position) => {
         const word = model.getWordUntilPosition(position);
@@ -437,22 +453,12 @@ export function SqlEditor({
   }, [value, onChange]);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Ctrl+Enter (Windows/Linux) or Cmd+Enter (Mac) to execute
-      if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && !e.shiftKey) {
-        e.preventDefault();
-        onExecute();
-      }
-      // Ctrl+Shift+F or Cmd+Shift+F to format
-      if (e.key === "f" && (e.ctrlKey || e.metaKey) && e.shiftKey) {
-        e.preventDefault();
-        formatSQL();
-      }
-    };
+    onExecuteRef.current = onExecute;
+  }, [onExecute]);
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onExecute, formatSQL]);
+  useEffect(() => {
+    formatSQLRef.current = formatSQL;
+  }, [formatSQL]);
 
   const showSavedState = isSaved || wasAlreadySolved;
 
