@@ -486,7 +486,7 @@ export function SqlEditor({
         />
         <Card
           className={cn(
-            "relative overflow-hidden transition-colors duration-300",
+            "relative transition-colors duration-300",
             isValidated
               ? "border-emerald-500/30"
               : hasError
@@ -496,7 +496,7 @@ export function SqlEditor({
         >
           <CardContent className="p-0">
             {/* Responsive editor height: smaller on mobile, larger on desktop */}
-            <div className="h-[150px] sm:h-[200px] lg:h-[250px]">
+            <div className="h-[150px] sm:h-[200px] lg:h-[250px] overflow-visible">
               <Editor
                 height="100%"
                 defaultLanguage="sql"
@@ -518,7 +518,19 @@ export function SqlEditor({
                     preview: true,
                     showMethods: true,
                     showFunctions: true,
+                    showIcons: true,
+                    showStatusBar: true,
+                    showSnippets: true,
                   },
+                  quickSuggestions: {
+                    other: true,
+                    comments: true,
+                    strings: true,
+                  },
+                  suggestOnTriggerCharacters: true,
+                  acceptSuggestionOnCommitCharacter: true,
+                  acceptSuggestionOnEnter: "on",
+                  snippetSuggestions: "top",
                 }}
                 onMount={handleEditorDidMount}
               />
