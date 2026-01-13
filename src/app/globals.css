@@ -409,3 +409,21 @@
 .dark .dotted-grid {
   opacity: 0.2;
 }
+
+/* Monaco Editor Suggestions Widget - Ensure it appears above other elements */
+.monaco-editor .suggest-widget {
+  z-index: 10000 !important;
+}
+
+.monaco-editor .suggest-widget .monaco-list {
+  z-index: 10000 !important;
+}
+
+/* Ensure Monaco Editor container doesn't clip suggestions */
+.monaco-editor {
+  overflow: visible !important;
+}
+
+.monaco-editor .overflow-guard {
+  overflow: visible !important;
+}

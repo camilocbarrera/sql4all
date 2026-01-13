@@ -273,6 +273,9 @@ export function SqlEditor({
   const [showSignupPrompt, setShowSignupPrompt] = useState(false);
   const [isMac, setIsMac] = useState(false);
 
+  const onExecuteRef = useRef(onExecute);
+  const formatSQLRef = useRef<() => void>(() => {});
+
   useEffect(() => {
     setIsMac(navigator.platform.toUpperCase().includes("MAC"));
   }, []);
@@ -359,6 +362,19 @@ export function SqlEditor({
   ) => {
     editorRef.current = editor;
 
+    // Ctrl+Enter to execute
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+      onExecuteRef.current();
+    });
+
+    // Ctrl+Shift+F to format
+    editor.addCommand(
+      monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyF,
+      () => {
+        formatSQLRef.current();
+      }
+    );
+
     monaco.languages.registerCompletionItemProvider("sql", {
       provideCompletionItems: (model, position) => {
         const word = model.getWordUntilPosition(position);
@@ -437,22 +453,12 @@ export function SqlEditor({
   }, [value, onChange]);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Ctrl+Enter (Windows/Linux) or Cmd+Enter (Mac) to execute
-      if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && !e.shiftKey) {
-        e.preventDefault();
-        onExecute();
-      }
-      // Ctrl+Shift+F or Cmd+Shift+F to format
-      if (e.key === "f" && (e.ctrlKey || e.metaKey) && e.shiftKey) {
-        e.preventDefault();
-        formatSQL();
-      }
-    };
+    onExecuteRef.current = onExecute;
+  }, [onExecute]);
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onExecute, formatSQL]);
+  useEffect(() => {
+    formatSQLRef.current = formatSQL;
+  }, [formatSQL]);
 
   const showSavedState = isSaved || wasAlreadySolved;
 
@@ -486,7 +492,7 @@ export function SqlEditor({
         />
         <Card
           className={cn(
-            "relative overflow-hidden transition-colors duration-300",
+            "relative transition-colors duration-300",
             isValidated
               ? "border-emerald-500/30"
               : hasError
@@ -496,7 +502,7 @@ export function SqlEditor({
         >
           <CardContent className="p-0">
             {/* Responsive editor height: smaller on mobile, larger on desktop */}
-            <div className="h-[150px] sm:h-[200px] lg:h-[250px]">
+            <div className="h-[150px] sm:h-[200px] lg:h-[250px] overflow-visible">
               <Editor
                 height="100%"
                 defaultLanguage="sql"
@@ -518,7 +524,19 @@ export function SqlEditor({
                     preview: true,
                     showMethods: true,
                     showFunctions: true,
+                    showIcons: true,
+                    showStatusBar: true,
+                    showSnippets: true,
                   },
+                  quickSuggestions: {
+                    other: true,
+                    comments: true,
+                    strings: true,
+                  },
+                  suggestOnTriggerCharacters: true,
+                  acceptSuggestionOnCommitCharacter: true,
+                  acceptSuggestionOnEnter: "on",
+                  snippetSuggestions: "top",
                 }}
                 onMount={handleEditorDidMount}
               />
